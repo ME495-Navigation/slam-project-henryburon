@@ -34,6 +34,20 @@ def generate_launch_description():
                 choices=["purple", "red", "green", "blue", ""],
                 description="Determines color of the robot",
             ),
+            SetLaunchConfiguration(name="rviz_color",
+                               value=[FindPackageShare("nuturtle_description"),
+                                      TextSubstitution(text="/config/basic_"),
+                                      LaunchConfiguration("color"),
+                                      TextSubstitution(text=".rviz")]
+                               ),
+            SetLaunchConfiguration(name='frame_prefix',
+                               value=[LaunchConfiguration("color"),
+                                      TextSubstitution(text="/")]
+                               ),
+            SetLaunchConfiguration(name='fixed_frame',
+                               value=[LaunchConfiguration("color"),
+                                      TextSubstitution(text="/base_link")]
+                               ),
             Node(
                 package="robot_state_publisher",
                 executable="robot_state_publisher",
@@ -54,7 +68,7 @@ def generate_launch_description():
                                 LaunchConfiguration("color"),
                             ]
                         ),
-                        "frame_prefix": PythonExpression(["'", LaunchConfiguration("color"), "' + '/'"]),
+                        "frame_prefix": LaunchConfiguration("frame_prefix"),
                     }
                 ],
             ),
@@ -75,15 +89,9 @@ def generate_launch_description():
                 namespace=LaunchConfiguration("color"),
                 arguments=[
                     "-d",
-                    PathJoinSubstitution(
-                        [
-                            FindPackageShare("nuturtle_description"),
-                            PythonExpression(["'", "' + 'config/basic_' + '", LaunchConfiguration("color"), "' + '.rviz'"]),
-                        ]
-                    ),
+                    LaunchConfiguration("rviz_color"),
                     "-f",
-                    PythonExpression(["'", LaunchConfiguration("color"), "' + '/base_link'"]),
-
+                    LaunchConfiguration("fixed_frame"),
                 ],
                 condition=IfCondition(
                     PythonExpression(
