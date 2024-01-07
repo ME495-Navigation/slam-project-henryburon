@@ -1,7 +1,10 @@
 <?xml version="1.0" ?>
+
+<!-- Modified the package to nuturtle_description -->
+
 <robot name="turtlebot3_burger" xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:include filename="$(find nuturtle_description)/urdf/common_properties.xacro"/>
-  <xacro:include filename="$(find nuturtle_description)/urdf/turtlebot3_burger.gazebo.xacro"/>
+  <!-- <xacro:include filename="$(find nuturtle_description)/urdf/common_properties.xacro"/> -->
+  <!-- <xacro:include filename="$(find nuturtle_description)/urdf/turtlebot3_burger.gazebo.xacro"/> -->
 
   <link name="base_footprint"/>
 
