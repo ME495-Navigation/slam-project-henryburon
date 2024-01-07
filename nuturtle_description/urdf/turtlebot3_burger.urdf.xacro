@@ -21,6 +21,7 @@
   <xacro:property name="collision_radius"  value="${params['collision_radius']}" />
 
   <!-- Colors -->
+  <xacro:arg name="color" default="purple"/>
 
   <!-- Northwestern Purple -->
   <material name="purple">
@@ -39,7 +40,7 @@
     <color rgba="0 0 0.9 1.0"/>
   </material>
 
-  <xacro:arg name="color" default="purple"/>
+  
 
 
 

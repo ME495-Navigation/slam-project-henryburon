@@ -27,9 +27,16 @@ def generate_launch_description():
                 choices=["true", "false"],
                 description="Specify whether joint_state_publisher is used.",
             ),
+            DeclareLaunchArgument(
+                name="color",
+                default_value="purple",
+                choices=["purple", "red", "green", "blue", ""],
+                description="Determines color of the robot",
+            ),
             Node(
                 package="robot_state_publisher",
                 executable="robot_state_publisher",
+                # namespace=LaunchConfiguration("color"),
                 parameters=[
                     {
                         "robot_description": Command(
@@ -42,6 +49,8 @@ def generate_launch_description():
                                         "urdf/turtlebot3_burger.urdf.xacro",
                                     ]
                                 ),
+                                " color:=",
+                                LaunchConfiguration("color"),
                             ]
                         )
                     }
@@ -50,7 +59,6 @@ def generate_launch_description():
             Node(
                 package="joint_state_publisher",
                 executable="joint_state_publisher",
-                name="joint_state_publisher",
                 condition=IfCondition(
                     PythonExpression(
                         ["'", LaunchConfiguration("use_jsp"), "' == 'true'"]
@@ -60,7 +68,6 @@ def generate_launch_description():
             Node(
                 package="rviz2",
                 executable="rviz2",
-                name="rviz2",
                 arguments=[
                     "-d",
                     PathJoinSubstitution(
