@@ -5,6 +5,8 @@ from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration, EqualsSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch.conditions import IfCondition, LaunchConfigurationEquals
+import launch
+import launch_ros.actions
 
 
 def generate_launch_description():
@@ -45,18 +47,12 @@ def generate_launch_description():
             executable='joint_state_publisher',
             name='joint_state_publisher',
             condition=IfCondition(PythonExpression(["'", LaunchConfiguration('use_jsp'), "' == 'true'"]))),
-        # Node(
-        #     package='nuturtle_description',
-        #     executable='state_publisher',
-        #     name='state_publisher',
-        #     output='screen'),
         Node(
             package='rviz2',
             executable='rviz2',
             name='rviz2',
             arguments=['-d', rviz],
-            condition=IfCondition(PythonExpression(["'", LaunchConfiguration('use_rviz'), "' == 'true'"]))
-        )
+            condition=IfCondition(PythonExpression(["'", LaunchConfiguration('use_rviz'), "' == 'true'"])),
+            on_exit=launch.actions.Shutdown())
 
-        
     ])
