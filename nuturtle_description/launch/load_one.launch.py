@@ -22,14 +22,24 @@ def generate_launch_description():
         DeclareLaunchArgument(
             name='use_rviz',
             default_value='true',
-            choices = ['true', 'false'],
+            choices=['true', 'false'],
             description='Specify whether rviz is launched.'),
+        DeclareLaunchArgument(
+            name='use_jsp',
+            default_value='true',
+            choices=['true','false'],
+            description='Specify whether joint_state_publisher is used.'),
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             name='robot_state_publisher',
             parameters=[{'robot_description': robot_desc}],
             arguments=[urdf]),
+        Node(
+            package='joint_state_publisher',
+            executable='joint_state_publisher',
+            name='joint_state_publisher',
+            condition=IfCondition(PythonExpression(["'", LaunchConfiguration('use_jsp'), "' == 'true'"]))),
         # Node(
         #     package='nuturtle_description',
         #     executable='state_publisher',
