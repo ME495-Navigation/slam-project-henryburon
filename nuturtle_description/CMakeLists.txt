@@ -35,4 +35,8 @@ install(DIRECTORY config
     DESTINATION share/nuturtle_description/
 )
 
+install(DIRECTORY meshes
+    DESTINATION share/nuturtle_description/
+)
+
 ament_package()
