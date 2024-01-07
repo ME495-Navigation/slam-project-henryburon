@@ -13,9 +13,14 @@ def generate_launch_description():
     urdf = os.path.join(
         get_package_share_directory('nuturtle_description'),
         urdf_file_name)
+    
     with open(urdf, 'r') as infp:
         robot_desc = infp.read()
 
+    rviz_file_name = 'config/basic_purple.rviz'
+    rviz = os.path.join(
+        get_package_share_directory('nuturtle_description'),
+        rviz_file_name)
 
     return LaunchDescription([
 
@@ -49,6 +54,7 @@ def generate_launch_description():
             package='rviz2',
             executable='rviz2',
             name='rviz2',
+            arguments=['-d', rviz],
             condition=IfCondition(PythonExpression(["'", LaunchConfiguration('use_rviz'), "' == 'true'"]))
         )
 
