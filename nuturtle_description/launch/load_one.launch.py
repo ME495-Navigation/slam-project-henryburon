@@ -1,10 +1,11 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, SetLaunchConfiguration
 from launch.substitutions import (
     LaunchConfiguration,
     PythonExpression,
     Command,
     PathJoinSubstitution,
+    TextSubstitution,
 )
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare, ExecutableInPackage
@@ -36,7 +37,7 @@ def generate_launch_description():
             Node(
                 package="robot_state_publisher",
                 executable="robot_state_publisher",
-                # namespace=LaunchConfiguration("color"),
+                namespace=LaunchConfiguration("color"),
                 parameters=[
                     {
                         "robot_description": Command(
@@ -52,13 +53,15 @@ def generate_launch_description():
                                 " color:=",
                                 LaunchConfiguration("color"),
                             ]
-                        )
+                        ),
+                        "frame_prefix": PythonExpression(["'", LaunchConfiguration("color"), "' + '/'"]),
                     }
                 ],
             ),
             Node(
                 package="joint_state_publisher",
                 executable="joint_state_publisher",
+                namespace=LaunchConfiguration("color"),
                 condition=IfCondition(
                     PythonExpression(
                         ["'", LaunchConfiguration("use_jsp"), "' == 'true'"]
@@ -68,14 +71,19 @@ def generate_launch_description():
             Node(
                 package="rviz2",
                 executable="rviz2",
+                name="rviz2",
+                namespace=LaunchConfiguration("color"),
                 arguments=[
                     "-d",
                     PathJoinSubstitution(
                         [
                             FindPackageShare("nuturtle_description"),
-                            "config/basic_purple.rviz",
+                            PythonExpression(["'", "' + 'config/basic_' + '", LaunchConfiguration("color"), "' + '.rviz'"]),
                         ]
                     ),
+                    "-f",
+                    PythonExpression(["'", LaunchConfiguration("color"), "' + '/base_link'"]),
+
                 ],
                 condition=IfCondition(
                     PythonExpression(
