@@ -24,10 +24,10 @@
     <node pkg="rviz2" exec="rviz2"
         args="-d $(find-pkg-share nuturtle_description)/config/basic_all.rviz" />
 
-    <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_red" args="0.3 0 0 0 0 0 nusim/world red/base_footprint" />
-    <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_green" args="0 0.6 0 0 0 0 nusim/world green/base_footprint" />
-    <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_blue" args="-0.71 0 0 0 0 0 nusim/world blue/base_footprint" />
-    <node pkg="tf2_ros" exec="static_transform_publisher" name="nusim_purple" args="0 -0.9 0 0 0 0 nusim/world purple/base_footprint" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="world_red" args="--x 0.3 --y 0 --z 0 --roll 0 --pitch 0 --yaw 0 --frame-id nusim/world --child-frame-id red/base_footprint" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="world_green" args="--x 0 --y 0.6 --z 0 --roll 0 --pitch 0 --yaw 0 --frame-id nusim/world --child-frame-id green/base_footprint" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="world_blue" args="--x -0.71 --y 0 --z 0 --roll 0 --pitch 0 --yaw 0 --frame-id nusim/world --child-frame-id blue/base_footprint" />
+    <node pkg="tf2_ros" exec="static_transform_publisher" name="world_purple" args="--x 0 --y -0.9 --z 0 --roll 0 --pitch 0 --yaw 0 --frame-id nusim/world --child-frame-id purple/base_footprint" />
 
 </launch>
 
