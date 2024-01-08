@@ -34,14 +34,14 @@ def generate_launch_description():
                 choices=["purple", "red", "green", "blue", ""],
                 description="Determines color of the robot",
             ),
-            SetLaunchConfiguration(name="rviz_color",
+            SetLaunchConfiguration(name="rviz_color_file",
                                value=[FindPackageShare("nuturtle_description"),
                                       TextSubstitution(text="/config/basic_"),
                                       LaunchConfiguration("color"),
                                       TextSubstitution(text=".rviz")]
                                ),
             SetLaunchConfiguration(name='frame_prefix',
-                               value=[LaunchConfiguration("color"),
+                               value=[LaunchConfiguration("color"), # I am not sure the TF Prefix is working. I had to manually set it in the RViz files.
                                       TextSubstitution(text="/")]
                                ),
             SetLaunchConfiguration(name='fixed_frame',
@@ -89,7 +89,7 @@ def generate_launch_description():
                 namespace=LaunchConfiguration("color"),
                 arguments=[
                     "-d",
-                    LaunchConfiguration("rviz_color"),
+                    LaunchConfiguration("rviz_color_file"),
                     "-f",
                     LaunchConfiguration("fixed_frame"),
                 ],
