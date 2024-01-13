@@ -3,7 +3,7 @@
 /// \file
 /// \brief Two-dimensional geometric primitives.
 
-
+#include <cmath>
 #include <iosfwd> // contains forward definitions for iostream objects
 namespace turtlelib
 {

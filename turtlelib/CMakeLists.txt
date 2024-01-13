@@ -27,10 +27,10 @@ add_library(turtlelib src/geometry.cpp)
 # During build, the headers are read from the source code directory
 # When used from the installed location, headers are in the
 # system include/ directory
-target_include_directories(turtlelib
+target_include_directories(turtlelib 
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
-    $<INSTALL_INTERFACE:include/>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>)
 
 # specify additional compilation flags for the library
 # Public causes the flags to propagate to anything
@@ -52,7 +52,7 @@ target_compile_features(turtlelib PUBLIC cxx_std_17)
 # This will automatically add all required library files
 # that need to be linked
 # and paths to th locations of header files
-target_link_libraries(turtlelib)
+# target_link_libraries(turtlelib)
 
 # install the include files by copying the whole include directory
 install(DIRECTORY include/turtlelib DESTINATION include)
@@ -63,6 +63,19 @@ install(DIRECTORY include/turtlelib DESTINATION include)
 # to find this project. It must be installed separately.
 install(TARGETS turtlelib EXPORT turtlelib-targets)
 
+# The project_name-targets created by install(TARGETS) needs to be installed.
+# install(EXPORT ...) will generate a file called project_name-config.cmake
+# that contains the exported targets.
+# After installation this file will then be found when calling
+# find_package(project_name) from another cmake project
+# A user can then target_link_libraries(target project_name::library)
+# to use the libraries installed here
+install(EXPORT turtlelib-targets
+        FILE turtlelib-config.cmake
+        NAMESPACE turtlelib::
+        DESTINATION lib/cmake/${PROJECT_NAME})
+
+
 
 # Doxygen - CMake has the ability to generate doxygen documentation automatically during the build
 
@@ -70,7 +83,7 @@ find_package(Doxygen)
 
 # Building documentation should be optional.
 # To build documentation pass -DBUILD_DOCS=ON when generating the build system
-option(BUILD_DOCS "Build the documentation" OFF)
+option(BUILD_DOCS "Build the documentation" -DBUILD_DOCS=ON)
 
 # build just because Doxygen is missing
 if(${DOXYGEN_FOUND} AND ${BUILD_DOCS})
@@ -101,15 +114,3 @@ if(BUILD_TESTING)
     # register the test with CTest, telling it what executable to run
     add_test(NAME the_test_name COMMAND my_test_exe)
 endif()
-
-# The project_name-targets created by install(TARGETS) needs to be installed.
-# install(EXPORT ...) will generate a file called project_name-config.cmake
-# that contains the exported targets.
-# After installation this file will then be found when calling
-# find_package(project_name) from another cmake project
-# A user can then target_link_libraries(target project_name::library)
-# to use the libraries installed here
-install(EXPORT turtlelib-targets
-        FILE turtlelib-config.cmake
-        NAMESPACE turtlelib::
-        DESTINATION lib/cmake/${PROJECT_NAME})
