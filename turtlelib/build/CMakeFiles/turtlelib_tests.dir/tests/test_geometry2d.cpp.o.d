@@ -221,4 +221,7 @@ CMakeFiles/turtlelib_tests.dir/tests/test_geometry2d.cpp.o: \
  /usr/include/c++/11/tr1/riemann_zeta.tcc \
  /usr/local/include/catch2/matchers/catch_matchers_floating_point.hpp \
  /usr/local/include/catch2/matchers/catch_matchers.hpp \
- /usr/local/include/catch2/matchers/internal/catch_matchers_impl.hpp
+ /usr/local/include/catch2/matchers/internal/catch_matchers_impl.hpp \
+ /usr/include/c++/11/sstream /usr/include/c++/11/istream \
+ /usr/include/c++/11/bits/istream.tcc \
+ /usr/include/c++/11/bits/sstream.tcc

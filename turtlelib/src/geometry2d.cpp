@@ -1,5 +1,6 @@
 #include "turtlelib/geometry2d.hpp"
 #include <cmath>
+#include <iostream>
 
 namespace turtlelib {
 
@@ -12,7 +13,8 @@ namespace turtlelib {
 
 
     std::ostream & operator<<(std::ostream & os, const Point2D & p) {
-        return os;
+        // Outputs a 2-dimensional point as [xcomponent ycomponent]
+        return os << "[" << p.x << " " << p.y << "]";
     }
 
     std::istream & operator>>(std::istream & is, Point2D & p) {
