@@ -61,7 +61,7 @@ add_library(turtlelib::turtlelib STATIC IMPORTED)
 set_target_properties(turtlelib::turtlelib PROPERTIES
   INTERFACE_COMPILE_FEATURES "cxx_std_17"
   INTERFACE_COMPILE_OPTIONS "-Wall;-Wextra;-pedantic"
-  INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include"
+  INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include/"
 )
 
 # Load information for each installed configuration.

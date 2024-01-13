@@ -561,53 +561,53 @@ turtlelib_tests/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib_tests.dir/build.make CMakeFiles/turtlelib_tests.dir/build
 .PHONY : turtlelib_tests/fast
 
-src/geometry.o: src/geometry.cpp.o
-.PHONY : src/geometry.o
+src/geometry2d.o: src/geometry2d.cpp.o
+.PHONY : src/geometry2d.o
 
 # target to build an object file
-src/geometry.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib.dir/build.make CMakeFiles/turtlelib.dir/src/geometry.cpp.o
-.PHONY : src/geometry.cpp.o
+src/geometry2d.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib.dir/build.make CMakeFiles/turtlelib.dir/src/geometry2d.cpp.o
+.PHONY : src/geometry2d.cpp.o
 
-src/geometry.i: src/geometry.cpp.i
-.PHONY : src/geometry.i
+src/geometry2d.i: src/geometry2d.cpp.i
+.PHONY : src/geometry2d.i
 
 # target to preprocess a source file
-src/geometry.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib.dir/build.make CMakeFiles/turtlelib.dir/src/geometry.cpp.i
-.PHONY : src/geometry.cpp.i
+src/geometry2d.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib.dir/build.make CMakeFiles/turtlelib.dir/src/geometry2d.cpp.i
+.PHONY : src/geometry2d.cpp.i
 
-src/geometry.s: src/geometry.cpp.s
-.PHONY : src/geometry.s
+src/geometry2d.s: src/geometry2d.cpp.s
+.PHONY : src/geometry2d.s
 
 # target to generate assembly for a file
-src/geometry.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib.dir/build.make CMakeFiles/turtlelib.dir/src/geometry.cpp.s
-.PHONY : src/geometry.cpp.s
+src/geometry2d.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib.dir/build.make CMakeFiles/turtlelib.dir/src/geometry2d.cpp.s
+.PHONY : src/geometry2d.cpp.s
 
-tests/test_geometry2.o: tests/test_geometry2.cpp.o
-.PHONY : tests/test_geometry2.o
+tests/test_geometry2d.o: tests/test_geometry2d.cpp.o
+.PHONY : tests/test_geometry2d.o
 
 # target to build an object file
-tests/test_geometry2.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib_tests.dir/build.make CMakeFiles/turtlelib_tests.dir/tests/test_geometry2.cpp.o
-.PHONY : tests/test_geometry2.cpp.o
+tests/test_geometry2d.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib_tests.dir/build.make CMakeFiles/turtlelib_tests.dir/tests/test_geometry2d.cpp.o
+.PHONY : tests/test_geometry2d.cpp.o
 
-tests/test_geometry2.i: tests/test_geometry2.cpp.i
-.PHONY : tests/test_geometry2.i
+tests/test_geometry2d.i: tests/test_geometry2d.cpp.i
+.PHONY : tests/test_geometry2d.i
 
 # target to preprocess a source file
-tests/test_geometry2.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib_tests.dir/build.make CMakeFiles/turtlelib_tests.dir/tests/test_geometry2.cpp.i
-.PHONY : tests/test_geometry2.cpp.i
+tests/test_geometry2d.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib_tests.dir/build.make CMakeFiles/turtlelib_tests.dir/tests/test_geometry2d.cpp.i
+.PHONY : tests/test_geometry2d.cpp.i
 
-tests/test_geometry2.s: tests/test_geometry2.cpp.s
-.PHONY : tests/test_geometry2.s
+tests/test_geometry2d.s: tests/test_geometry2d.cpp.s
+.PHONY : tests/test_geometry2d.s
 
 # target to generate assembly for a file
-tests/test_geometry2.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib_tests.dir/build.make CMakeFiles/turtlelib_tests.dir/tests/test_geometry2.cpp.s
-.PHONY : tests/test_geometry2.cpp.s
+tests/test_geometry2d.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/turtlelib_tests.dir/build.make CMakeFiles/turtlelib_tests.dir/tests/test_geometry2d.cpp.s
+.PHONY : tests/test_geometry2d.cpp.s
 
 # Help Target
 help:
@@ -652,12 +652,12 @@ help:
 	@echo "... NightlyUpdate"
 	@echo "... turtlelib"
 	@echo "... turtlelib_tests"
-	@echo "... src/geometry.o"
-	@echo "... src/geometry.i"
-	@echo "... src/geometry.s"
-	@echo "... tests/test_geometry2.o"
-	@echo "... tests/test_geometry2.i"
-	@echo "... tests/test_geometry2.s"
+	@echo "... src/geometry2d.o"
+	@echo "... src/geometry2d.i"
+	@echo "... src/geometry2d.s"
+	@echo "... tests/test_geometry2d.o"
+	@echo "... tests/test_geometry2d.i"
+	@echo "... tests/test_geometry2d.s"
 .PHONY : help
 
 

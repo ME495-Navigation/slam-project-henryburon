@@ -1,6 +1,6 @@
 # Lines that begin with a # are comments
 # set the minimum required version of cmake, usually the first line
-cmake_minimum_required(VERSION 3.22) # 3.9?
+cmake_minimum_required(VERSION 3.22)
 
 # project_name sets the name of the project and causes cmake to
 # find the c and c++ compilers
@@ -13,13 +13,13 @@ project(turtlelib)
 # That is defined to reference the library
 # here: we find the eigen library as per the instruction
 # https://eigen.tuxfamily.org/dox/TopicCMakeGuide.html
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+# find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 # Create a library.  Can specify if it is shared or static but usually
 # you don't need or want to.
 # name is the name of the library without the extension or lib prefix
 # name creates a cmake "target"
-add_library(turtlelib src/geometry.cpp)
+add_library(turtlelib src/geometry2d.cpp)
 
 # Use target_include_directories so that #include"mylibrary/header.hpp" works
 # The use of the <BUILD_INTERFACE> and <INSTALL_INTERFACE> is because when
@@ -29,8 +29,8 @@ add_library(turtlelib src/geometry.cpp)
 # system include/ directory
 target_include_directories(turtlelib 
     PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>)
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/>
+    $<INSTALL_INTERFACE:include/>)
 
 # specify additional compilation flags for the library
 # Public causes the flags to propagate to anything
@@ -108,7 +108,7 @@ if(BUILD_TESTING)
     find_package(Catch2 3 REQUIRED)
 
     # A test is just an executable that is linked against the unit testing library
-    add_executable(turtlelib_tests tests/test_geometry2.cpp)
+    add_executable(turtlelib_tests tests/test_geometry2d.cpp)
     target_link_libraries(turtlelib_tests Catch2::Catch2WithMain turtlelib)
 
     # register the test with CTest, telling it what executable to run
