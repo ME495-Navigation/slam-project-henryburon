@@ -25,3 +25,24 @@ TEST_CASE( "Angles are normalized to (PI, PI]", "[normalize_angle]") {
         std::string expected_output = "[3.4 5.6]"; // Define the expected output string
         REQUIRE(output_stream.str() == expected_output);  // Check if the captured string matches the expected string
     }
+
+    TEST_CASE("Read vectors entered as [x y] or x y", "[Point2D]") {
+        turtlelib::Point2D p;
+        SECTION("Read vector in format [x y]") {
+            std::string input_string_1 = "[1.8 5.1]";
+            std::istringstream input_stream_1(input_string_1);
+
+            input_stream_1 >> p;
+            REQUIRE_THAT(p.x, Catch::Matchers::WithinAbs(1.8, 1e-5));
+            REQUIRE_THAT(p.y, Catch::Matchers::WithinAbs(5.1, 1e-5));
+    }
+        SECTION("Read vector in format x y") {
+            std::string input_string_2 = "1.6 9.3";
+            std::istringstream input_stream_2(input_string_2);
+
+            input_stream_2 >> p;  // Read into Point2D object
+
+            REQUIRE_THAT(p.x, Catch::Matchers::WithinAbs(1.6, 1e-5));
+            REQUIRE_THAT(p.y, Catch::Matchers::WithinAbs(9.3, 1e-5));
+    }
+}
