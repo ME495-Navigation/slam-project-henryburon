@@ -44,14 +44,15 @@ target_compile_features(turtlelib PUBLIC cxx_std_17)
 
 # Create an executable from the following source code files
 # The Name of the executable creates a cmake "target"
-add_executable(Name src/Name_main.cpp)
+
+# add_executable(turtlelib_tests tests/test_geometry2.cpp) // ADD EXECUTABLES LATER. Tests is holder
 
 # Use target_link_libraries to add dependencies to a "target"
 # (e.g., a library or executable)
 # This will automatically add all required library files
 # that need to be linked
 # and paths to th locations of header files
-target_link_libraries(Name Eigen3::Eigen turtlelib)
+target_link_libraries(turtlelib)
 
 # install the include files by copying the whole include directory
 install(DIRECTORY include/turtlelib DESTINATION include)
@@ -60,7 +61,7 @@ install(DIRECTORY include/turtlelib DESTINATION include)
 # Also create CMake Export called projet_name-targets
 # The CMake Export contains files that allow other CMake projects
 # to find this project. It must be installed separately.
-install(TARGETS Name turtlelib EXPORT turtlelib-targets)
+install(TARGETS turtlelib EXPORT turtlelib-targets)
 
 
 # Doxygen - CMake has the ability to generate doxygen documentation automatically during the build
@@ -94,8 +95,8 @@ if(BUILD_TESTING)
     find_package(Catch2 3 REQUIRED)
 
     # A test is just an executable that is linked against the unit testing library
-    add_executable(my_test_exe tests/mytest.cpp)
-    target_link_libraries(my_test_exe Catch2::Catch2WithMain AnyOtherLibrariesAsNeeded)
+    add_executable(turtlelib_tests tests/test_geometry2.cpp)
+    target_link_libraries(turtlelib_tests Catch2::Catch2WithMain turtlelib)
 
     # register the test with CTest, telling it what executable to run
     add_test(NAME the_test_name COMMAND my_test_exe)
