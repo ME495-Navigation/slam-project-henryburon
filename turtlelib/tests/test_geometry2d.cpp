@@ -59,3 +59,15 @@ TEST_CASE( "Angles are normalized to (PI, PI]", "[normalize_angle]") {
         REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(1.5, 1e-5));
 
     }
+
+    TEST_CASE("Adding a vector to a point yields a new point displaced by the vector", "[Point2D]") {
+        turtlelib::Point2D tail{3.4, 10.0};
+        turtlelib::Vector2D disp{2.0, 3.5};
+        turtlelib::Point2D result = tail + disp;
+
+        REQUIRE_THAT(result.x, Catch::Matchers::WithinAbs(5.4, 1e-5));
+        REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(13.5, 1e-5));
+    }
+
+
+
