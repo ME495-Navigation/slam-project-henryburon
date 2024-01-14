@@ -21,7 +21,9 @@ TEST_CASE( "Angles are normalized to (PI, PI]", "[normalize_angle]") {
     TEST_CASE("Outputs a 2D point as [x y]", "[Point2D]") {
         turtlelib::Point2D p{3.4, 5.6};  // Initialize Point2D with x = 3.4 and y = 5.6
         std::ostringstream output_stream;  // Create a stringstream to capture the output
+
         output_stream << p;  // Insert the Point2D object into the stringstream
+
         std::string expected_output = "[3.4 5.6]"; // Define the expected output string
         REQUIRE(output_stream.str() == expected_output);  // Check if the captured string matches the expected string
     }
@@ -45,4 +47,15 @@ TEST_CASE( "Angles are normalized to (PI, PI]", "[normalize_angle]") {
             REQUIRE_THAT(p.x, Catch::Matchers::WithinAbs(1.6, 1e-5));
             REQUIRE_THAT(p.y, Catch::Matchers::WithinAbs(9.3, 1e-5));
     }
-}
+    
+    }
+
+    TEST_CASE("Subtracting one point from another yields a vector", "[Vector2D]") {
+        turtlelib::Point2D head{3.1, 4.1};
+        turtlelib::Point2D tail{5.9, 2.6};
+        turtlelib::Vector2D result = head - tail;
+
+        REQUIRE_THAT(result.x, Catch::Matchers::WithinAbs(-2.8, 1e-5));
+        REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(1.5, 1e-5));
+
+    }

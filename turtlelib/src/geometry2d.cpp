@@ -11,10 +11,14 @@ namespace turtlelib {
         return normalizedAngle;
     }
 
+    // ########################################################################
+
     std::ostream & operator<<(std::ostream & os, const Point2D & p) {
         // Outputs a 2-dimensional point as [xcomponent ycomponent]
         return os << "[" << p.x << " " << p.y << "]";
     }
+
+    // ########################################################################
 
     std::istream & operator>>(std::istream & is, Point2D & p) {
         // Read vectors entered as [x y] or x y
@@ -41,17 +45,26 @@ namespace turtlelib {
         return is;
     }
 
+    // ########################################################################
+
     Vector2D operator-(const Point2D & head, const Point2D & tail) {
-        return Vector2D{};
+
+        return {head.x - tail.x, head.y - tail.y};
     }
+
+    // ########################################################################
 
     Point2D operator+(const Point2D & tail, const Vector2D & disp) {
         return Point2D{};
     }
 
+    // ########################################################################
+
     std::ostream & operator<<(std::ostream & os, const Vector2D & v) {
         return os;
     }
+
+    // ########################################################################
 
     std::istream & operator>>(std::istream & is, Vector2D & v) {
         return is;
