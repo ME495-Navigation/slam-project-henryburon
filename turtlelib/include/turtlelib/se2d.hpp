@@ -2,7 +2,7 @@
 #define TURTLELIB_SE2_INCLUDE_GUARD_HPP
 /// \file
 /// \brief Two-dimensional rigid body transformations.
-
+ 
 
 #include<iosfwd> // contains forward definitions for iostream objects
 
@@ -12,6 +12,7 @@ namespace turtlelib
 {
 
     /// \brief represent a 2-Dimensional twist
+
     struct Twist2D
     {
         /// \brief the angular velocity
@@ -24,16 +25,20 @@ namespace turtlelib
         double y = 0.0;
     };
 
+
     /// \brief print the Twist2D in the format [w x y]
     /// \param os [in/out] the ostream to write to
     /// \param tw the twist to output
     /// \returns the ostream os  with the twist data inserted
+
     std::ostream & operator<<(std::ostream & os, const Twist2D & tw);
+
 
     /// \brief read the Twist2D in the format [w x y] or as w x y
     /// \param is [in/out] the istream to read from
     /// \param tw [out] the twist read from the stream
     /// \returns the istream is with the twist characters removed
+
     std::istream & operator>>(std::istream & is, Twist2D & tw);
 
 

@@ -19,7 +19,7 @@ project(turtlelib)
 # you don't need or want to.
 # name is the name of the library without the extension or lib prefix
 # name creates a cmake "target"
-add_library(turtlelib src/geometry2d.cpp)
+add_library(turtlelib src/geometry2d.cpp src/se2d.cpp)
 
 # Use target_include_directories so that #include"mylibrary/header.hpp" works
 # The use of the <BUILD_INTERFACE> and <INSTALL_INTERFACE> is because when
@@ -108,9 +108,13 @@ if(BUILD_TESTING)
     find_package(Catch2 3 REQUIRED)
 
     # A test is just an executable that is linked against the unit testing library
-    add_executable(turtlelib_tests tests/test_geometry2d.cpp)
+    add_executable(turtlelib_tests tests/test_geometry2d.cpp tests/test_se2d.cpp)
     target_link_libraries(turtlelib_tests Catch2::Catch2WithMain turtlelib)
 
     # register the test with CTest, telling it what executable to run
-    add_test(NAME the_test_name COMMAND my_test_exe)
+    add_test(NAME the_turtlelib_tests COMMAND turtlelib_tests)
+
+
+
+
 endif()
