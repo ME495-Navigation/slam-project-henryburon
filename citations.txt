@@ -1,4 +1,4 @@
-[1] People I worked with:
+[1] People I worked with: Rahul
 [2] Used this for launching saved rviz config: https://github.com/ros2/rviz/issues/627
 [3] Used this for learning namespace syntax: https://www.hadabot.com/learn-ros2-intro-launch-files.html?step=add-namespace-to-launch-file
 [4] For normalize_angle function: https://stackoverflow.com/questions/2320986/easy-way-to-keeping-angles-between-179-and-180-degrees
