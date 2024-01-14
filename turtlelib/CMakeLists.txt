@@ -45,7 +45,7 @@ target_compile_features(turtlelib PUBLIC cxx_std_17)
 # Create an executable from the following source code files
 # The Name of the executable creates a cmake "target"
 
-# add_executable(turtlelib_tests tests/test_geometry2.cpp) // ADD EXECUTABLES LATER. Tests is holder
+# add_executable(turtlelib_tests tests/test_geometry2.cpp)
 
 # Use target_link_libraries to add dependencies to a "target"
 # (e.g., a library or executable)
@@ -83,7 +83,7 @@ find_package(Doxygen)
 
 # Building documentation should be optional.
 # To build documentation pass -DBUILD_DOCS=ON when generating the build system
-option(BUILD_DOCS "Build the documentation" -DBUILD_DOCS=ON)
+option(BUILD_DOCS "Build the documentation" ON)
 
 # build just because Doxygen is missing
 if(${DOXYGEN_FOUND} AND ${BUILD_DOCS})

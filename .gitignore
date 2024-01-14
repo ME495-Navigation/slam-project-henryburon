@@ -1,2 +1,3 @@
 *.vscode
 turtlelib/Catch2/
+build*
