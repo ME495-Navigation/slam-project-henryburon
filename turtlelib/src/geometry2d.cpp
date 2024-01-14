@@ -70,6 +70,27 @@ namespace turtlelib {
     // ########################################################################
 
     std::istream & operator>>(std::istream & is, Vector2D & v) {
+        // Read vectors entered as [x y] or x y
+        char ch;
+        // Extracts characters from stream
+        // This if-statement is designed to work with the multiple input types
+        // So, if successful extraction from the input stream...
+        if (is >> ch) {
+            // First, check if the character is a '[
+            if (ch == '[') {
+                // If the input starts with '[', read x and y values, then expect a closing ']'
+                is >> v.x >> v.y;
+                is >> ch; // Read the expected ']'
+                if (ch != ']') {
+                    // If the next character is not ']', set the stream to a fail state
+                    is.setstate(std::ios::failbit);
+                }
+            } else {
+                // If the input does not start with '[', put the character back, then read x and y
+                is.putback(ch);
+                is >> v.x >> v.y;
+            }
+        }
         return is;
     }
 

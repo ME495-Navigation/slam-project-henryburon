@@ -84,5 +84,27 @@ TEST_CASE( "Angles are normalized to (PI, PI]", "[normalize_angle]") {
         // to the integer, i.e. 3.0 --> 3, and this test fails.
     }
 
+    TEST_CASE("Read vectors entered as [x y] or x y", "[Vector2D]") {
+        turtlelib::Vector2D v;
+        SECTION("Read vector in format [x y]") {
+            std::string input_string_1 = "[2.8 1.1]";
+            std::istringstream input_stream_1(input_string_1);
+
+            input_stream_1 >> v;
+            REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(2.8, 1e-5));
+            REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(1.1, 1e-5));
+    }
+        SECTION("Read vector in format x y") {
+            std::string input_string_2 = "1.6 9.3";
+            std::istringstream input_stream_2(input_string_2);
+
+            input_stream_2 >> v;  // Read into Point2D object
+
+            REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(1.6, 1e-5));
+            REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(9.3, 1e-5));
+    }
+    
+    }
+
 
 
