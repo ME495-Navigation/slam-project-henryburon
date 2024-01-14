@@ -69,5 +69,20 @@ TEST_CASE( "Angles are normalized to (PI, PI]", "[normalize_angle]") {
         REQUIRE_THAT(result.y, Catch::Matchers::WithinAbs(13.5, 1e-5));
     }
 
+    TEST_CASE("Outputs a 2D vector in the form: [x y]", "[Vector2D]") {
+        turtlelib::Vector2D v{3.5, 4.1}; // Initialize vector with x = 3.0 and y = 4.0
+
+        std::ostringstream output_stream; // Create a stringstream to capture the output
+
+        output_stream << v; // Insert the Vector2D object into the output stringstream
+
+        std::string expected_output = "[3.5 4.1]"; // Define the expected output string
+
+        REQUIRE(output_stream.str() == expected_output);  // Check if the captured string matches the expected string
+
+        // This test is not perfect. When the decimal portion of v is "0", the output gets shortened
+        // to the integer, i.e. 3.0 --> 3, and this test fails.
+    }
+
 
 

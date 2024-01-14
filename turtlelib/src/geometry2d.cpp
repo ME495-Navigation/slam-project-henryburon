@@ -14,7 +14,7 @@ namespace turtlelib {
     // ########################################################################
 
     std::ostream & operator<<(std::ostream & os, const Point2D & p) {
-        // Outputs a 2-dimensional point as [xcomponent ycomponent]
+        // Outputs a 2-dimensional point as [x y]
         return os << "[" << p.x << " " << p.y << "]";
     }
 
@@ -62,7 +62,9 @@ namespace turtlelib {
     // ########################################################################
 
     std::ostream & operator<<(std::ostream & os, const Vector2D & v) {
-        return os;
+        // Outputs a 2-dimensional vector as [x y]
+        return os << "[" << v.x << " " << v.y << "]";
+        
     }
 
     // ########################################################################
