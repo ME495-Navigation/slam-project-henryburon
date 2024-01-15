@@ -31,4 +31,11 @@ namespace turtlelib {
 
     }
 
+    // Identity transform
+    Transform2D::Transform2D(): trans_{0.0, 0.0}, rot_(0.0) {}
+
+
+
+
+
 }
