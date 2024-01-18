@@ -60,7 +60,7 @@ TEST_CASE("Identity Transformation Test", "[Transform2D]") {
         REQUIRE_THAT(transformed_vector.y, Catch::Matchers::WithinAbs(4.1, 1e-5));
     }
 
-    //COME BACK TO. NEED TO DEFINE operator() with a double
+    //COME BACK TO. NEED TO DEFINE operator() with a double. or do it another way
     // SECTION("Testing rotation")
     // {
     //     double angle = 3.14;
@@ -74,7 +74,18 @@ TEST_CASE("Identity Transformation Test", "[Transform2D]") {
     //     REQUIRE_THAT(rotated_point.x, Catch::Matchers::WithinAbs(1.0, 1e-5));
     //     REQUIRE_THAT(rotated_point.y, Catch::Matchers::WithinAbs(2.0, 1e-5));
     // }
+    
+}
 
-    
-    
+TEST_CASE("Translation", "[Transform]")
+{
+    turtlelib::Vector2D vector{9.9, 8.8};
+    turtlelib::Transform2D test_transform(vector);
+
+    // Check that the translation was done correctly and rotation did not move
+    REQUIRE_THAT(test_transform.translation().x, Catch::Matchers::WithinAbs(9.9, 1e-5));
+    REQUIRE_THAT(test_transform.translation().y, Catch::Matchers::WithinAbs(8.8, 1e-5));
+    REQUIRE_THAT(test_transform.rotation(), Catch::Matchers::WithinAbs(0.0, 1e-5));
+
+
 }

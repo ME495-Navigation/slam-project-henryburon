@@ -34,10 +34,22 @@ namespace turtlelib {
     // Identity transform
     Transform2D::Transform2D(): transf{0.0, 0.0}, rot{0.0} {}
 
+    Transform2D::Transform2D(Vector2D trans): transf{trans.x, trans.y}, rot{0.0} {}
+
+    
+
     Vector2D Transform2D::operator()(Vector2D v) const{
         double new_x = std::cos(rot)*v.x - std::sin(rot)*v.y + transf.x;
         double new_y = std::sin(rot)*v.x + std::cos(rot)*v.y + transf.y;
         return {new_x, new_y};
+    }
+
+    Vector2D Transform2D::translation() const{
+        return {transf.x, transf.y};
+    }
+
+    double Transform2D::rotation() const{
+        return rot;
     }
 
 
