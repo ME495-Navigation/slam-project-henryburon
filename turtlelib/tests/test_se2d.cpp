@@ -80,12 +80,58 @@ TEST_CASE("Identity Transformation Test", "[Transform2D]") {
 TEST_CASE("Translation", "[Transform]")
 {
     turtlelib::Vector2D vector{9.9, 8.8};
-    turtlelib::Transform2D test_transform(vector);
+    turtlelib::Transform2D test_translation(vector);
 
-    // Check that the translation was done correctly and rotation did not move
-    REQUIRE_THAT(test_transform.translation().x, Catch::Matchers::WithinAbs(9.9, 1e-5));
-    REQUIRE_THAT(test_transform.translation().y, Catch::Matchers::WithinAbs(8.8, 1e-5));
-    REQUIRE_THAT(test_transform.rotation(), Catch::Matchers::WithinAbs(0.0, 1e-5));
+    // Check that the transform was a pure translation
+    REQUIRE_THAT(test_translation.translation().x, Catch::Matchers::WithinAbs(9.9, 1e-5));
+    REQUIRE_THAT(test_translation.translation().y, Catch::Matchers::WithinAbs(8.8, 1e-5));
+    REQUIRE_THAT(test_translation.rotation(), Catch::Matchers::WithinAbs(0.0, 1e-5));
 
 
 }
+
+TEST_CASE("Rotation", "[Transform]")
+{
+    double radians{3.14};
+    turtlelib::Transform2D test_rotation(radians);
+
+    // Check that the transform was a pure rotation
+    REQUIRE_THAT(test_rotation.translation().x, Catch::Matchers::WithinAbs(0.0, 1e-5));
+    REQUIRE_THAT(test_rotation.translation().y, Catch::Matchers::WithinAbs(0.0, 1e-5));
+    REQUIRE_THAT(test_rotation.rotation(), Catch::Matchers::WithinAbs(3.14, 1e-5));
+
+}
+
+TEST_CASE("Translation and rotation", "[Transform]")
+{
+    turtlelib::Vector2D vector{1.2, 3.4};
+    double radians{5.6};
+    turtlelib::Transform2D test_transform(vector, radians);
+
+    REQUIRE_THAT(test_transform.translation().x, Catch::Matchers::WithinAbs(1.2, 1e-5));
+    REQUIRE_THAT(test_transform.translation().y, Catch::Matchers::WithinAbs(3.4, 1e-5));
+    REQUIRE_THAT(test_transform.rotation(), Catch::Matchers::WithinAbs(5.6, 1e-5));
+
+}
+
+TEST_CASE("Applying a transformation (operator()) to a 2D vector", "[Transform]")
+{
+    // Define the original vector to be transformed
+    turtlelib::Vector2D original_vector{1.0, 0.0};
+
+    // Define the transformation
+    turtlelib::Transform2D transform_test(turtlelib::Vector2D{0.0, 1.0}, 1.57079632);
+
+    // Apply the transformation to the vector
+    turtlelib::Vector2D transformed_vector = transform_test(original_vector);
+
+    // Define the expected result vector
+    turtlelib::Vector2D expected_vector{0.0, 2.0};
+
+    REQUIRE_THAT(transformed_vector.x, Catch::Matchers::WithinAbs(expected_vector.x, 1e-3));
+    REQUIRE_THAT(transformed_vector.y, Catch::Matchers::WithinAbs(expected_vector.y, 1e-3));
+}
+
+
+// Next step is to make a test for the Point2D transformation. make it above the Vector2D one.
+// but before that, make make a harder test case (non-round numbers) for the above test case
