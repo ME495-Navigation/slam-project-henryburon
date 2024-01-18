@@ -114,19 +114,65 @@ TEST_CASE("Translation and rotation", "[Transform]")
 
 }
 
+TEST_CASE("Applying a transformation (operator()) to a 2D point.", "[Transform]")
+{
+    // Define the original point
+    turtlelib::Point2D original_point{2.0, 4.5};
+
+    // Define the transformation
+    turtlelib::Transform2D transform_test(turtlelib::Vector2D{1.0, -2.6}, -1.57079632);
+
+    // Apply the transformation
+    turtlelib::Point2D transformed_point = transform_test(original_point);
+
+    // Define the expected result point
+    turtlelib::Point2D expected_point{5.5, -4.6};
+
+    REQUIRE_THAT(transformed_point.x, Catch::Matchers::WithinAbs(expected_point.x, 1e-5));
+    REQUIRE_THAT(transformed_point.y, Catch::Matchers::WithinAbs(expected_point.y, 1e-5));
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 TEST_CASE("Applying a transformation (operator()) to a 2D vector", "[Transform]")
 {
     // Define the original vector to be transformed
-    turtlelib::Vector2D original_vector{1.0, 0.0};
+    turtlelib::Vector2D original_vector{1.0, 1.0};
 
     // Define the transformation
-    turtlelib::Transform2D transform_test(turtlelib::Vector2D{0.0, 1.0}, 1.57079632);
+    turtlelib::Transform2D transform_test(turtlelib::Vector2D{3.0, 4.0}, 1.57079632);
 
     // Apply the transformation to the vector
     turtlelib::Vector2D transformed_vector = transform_test(original_vector);
 
     // Define the expected result vector
-    turtlelib::Vector2D expected_vector{0.0, 2.0};
+    turtlelib::Vector2D expected_vector{2.0, 5.0};
 
     REQUIRE_THAT(transformed_vector.x, Catch::Matchers::WithinAbs(expected_vector.x, 1e-3));
     REQUIRE_THAT(transformed_vector.y, Catch::Matchers::WithinAbs(expected_vector.y, 1e-3));
