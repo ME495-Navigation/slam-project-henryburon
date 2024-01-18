@@ -1,5 +1,6 @@
- #include <catch2/catch_test_macros.hpp>
-#include "turtlelib/se2d.hpp"
+#include <catch2/catch_test_macros.hpp>
+#include"turtlelib/se2d.hpp"
+#include"turtlelib/geometry2d.hpp"
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <sstream>
 
@@ -48,4 +49,32 @@ TEST_CASE("Reads the Twist2D in the format [w x y] or w x y", "[Twist2D]")
     }
 }
 
-// Still need to write test for identity transform
+TEST_CASE("Identity Transformation Test", "[Transform2D]") {    
+    turtlelib::Transform2D identity;
+
+    SECTION("Testing transform")
+    {
+        turtlelib::Vector2D vec{3.5, 4.1};
+        turtlelib::Vector2D transformed_vector = identity(vec);
+        REQUIRE_THAT(transformed_vector.x, Catch::Matchers::WithinAbs(3.5, 1e-5));
+        REQUIRE_THAT(transformed_vector.y, Catch::Matchers::WithinAbs(4.1, 1e-5));
+    }
+
+    //COME BACK TO. NEED TO DEFINE operator() with a double
+    // SECTION("Testing rotation")
+    // {
+    //     double angle = 3.14;
+    //     turtlelib::Transform2D identity(angle);
+    //     turtlelib::Point2D point{1.0, 2.0};
+
+    //     turtlelib::Point2D rotated_point = identity(point);
+    //     // double expected_x = 1.0;
+    //     // double expected_y = 2.0;
+
+    //     REQUIRE_THAT(rotated_point.x, Catch::Matchers::WithinAbs(1.0, 1e-5));
+    //     REQUIRE_THAT(rotated_point.y, Catch::Matchers::WithinAbs(2.0, 1e-5));
+    // }
+
+    
+    
+}

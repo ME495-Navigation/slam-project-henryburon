@@ -46,11 +46,11 @@ namespace turtlelib
     class Transform2D
     {
     private:
-        /// \brief The 2D vector indicating magnitude of the translation
-        Vector2D trans_;
+        /// \brief transf indicates how much a point should be moved
+        Vector2D transf;
 
-        /// \brief The angle of rotation (radians)
-        double rot_;
+        /// \brief rot indicates how much a point should be rotated about the origin
+        double rot;
         
     public:
         /// \brief Create an identity transformation

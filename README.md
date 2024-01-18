@@ -3,4 +3,4 @@
 * Winter 2024
 # Package List
 This repository consists of several ROS packages
-- nuturtle_descriptions - Displays multiple turtlebot3 models in rviz
+- nuturtle_description - Displays multiple turtlebot3 models in rviz
