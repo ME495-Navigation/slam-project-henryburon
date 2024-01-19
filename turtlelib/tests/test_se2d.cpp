@@ -15,7 +15,7 @@ TEST_CASE("Prints the Twist2D in the format [w x y]", "[Twist2D]")
     REQUIRE(output.str() == "[0.5 4.4 3.2]");
 }
 
-TEST_CASE("Reads the Twist2D in the format [w x y] or w x y", "[Twist2D]")
+TEST_CASE("Reads the Twist2D in the format [w x y] or w x y", "[Twist2D]") // Henry, Buron
 {
     // Create a Twist2D object to store the parsed values
     turtlelib::Twist2D tw;
@@ -48,7 +48,7 @@ TEST_CASE("Reads the Twist2D in the format [w x y] or w x y", "[Twist2D]")
     }
 }
 
-TEST_CASE("Identity Transformation Test", "[Transform2D]")
+TEST_CASE("Identity Transformation Test", "[Transform2D]") // Henry, Buron
 {
     turtlelib::Transform2D identity;
 
@@ -62,7 +62,7 @@ TEST_CASE("Identity Transformation Test", "[Transform2D]")
 
 }
 
-TEST_CASE("Translation", "[Transform]")
+TEST_CASE("Translation", "[Transform]") // Henry, Buron
 {
     turtlelib::Vector2D vector{9.9, 8.8};
     turtlelib::Transform2D test_translation(vector);
@@ -73,7 +73,7 @@ TEST_CASE("Translation", "[Transform]")
     REQUIRE_THAT(test_translation.rotation(), Catch::Matchers::WithinAbs(0.0, 1e-5));
 }
 
-TEST_CASE("Rotation", "[Transform]")
+TEST_CASE("Rotation", "[Transform]") // Henry, Buron
 {
     double radians{3.14};
     turtlelib::Transform2D test_rotation(radians);
@@ -84,7 +84,7 @@ TEST_CASE("Rotation", "[Transform]")
     REQUIRE_THAT(test_rotation.rotation(), Catch::Matchers::WithinAbs(3.14, 1e-5));
 }
 
-TEST_CASE("Translation and rotation", "[Transform]")
+TEST_CASE("Translation and rotation", "[Transform]") // Henry, Buron
 {
     turtlelib::Vector2D vector{1.2, 3.4};
     double radians{5.6};
@@ -95,7 +95,7 @@ TEST_CASE("Translation and rotation", "[Transform]")
     REQUIRE_THAT(test_transform.rotation(), Catch::Matchers::WithinAbs(5.6, 1e-5));
 }
 
-TEST_CASE("Applying a transformation (operator()) to a 2D point.", "[Transform]")
+TEST_CASE("Applying a transformation (operator()) to a 2D point.", "[Transform]") // Henry, Buron
 {
     // Define the original point
     turtlelib::Point2D original_point{2.0, 4.5};
@@ -113,7 +113,7 @@ TEST_CASE("Applying a transformation (operator()) to a 2D point.", "[Transform]"
     REQUIRE_THAT(transformed_point.y, Catch::Matchers::WithinAbs(expected_point.y, 1e-5));
 }
 
-TEST_CASE("Applying a transformation (operator()) to a 2D vector", "[Transform]")
+TEST_CASE("Applying a transformation (operator()) to a 2D vector", "[Transform]") // Henry, Buron
 {
     // Define the original vector to be transformed
     turtlelib::Vector2D original_vector{1.0, 1.0};
@@ -131,7 +131,7 @@ TEST_CASE("Applying a transformation (operator()) to a 2D vector", "[Transform]"
     REQUIRE_THAT(transformed_vector.y, Catch::Matchers::WithinAbs(expected_vector.y, 1e-3));
 }
 
-TEST_CASE("Applying a transformation (operator()) to a 2D twist", "[Transform]")
+TEST_CASE("Applying a transformation (operator()) to a 2D twist", "[Transform]") // Henry, Buron
 {
     // Define the transform values from A to B
     turtlelib::Transform2D T_ab{turtlelib::Vector2D{1.2, 3.4}, 0.4};
@@ -150,7 +150,7 @@ TEST_CASE("Applying a transformation (operator()) to a 2D twist", "[Transform]")
     REQUIRE_THAT(T_a.y, Catch::Matchers::WithinAbs(T_a_expected.y, 1e-5));
 }
 
-TEST_CASE("Inverse transformation", "[Transform]")
+TEST_CASE("Inverse transformation", "[Transform]") // Henry, Buron
 {
     // Define a transform object. It does a transform.
     turtlelib::Transform2D original_transform{turtlelib::Vector2D{2.0, 9.0}, turtlelib::PI / 3};
@@ -166,7 +166,7 @@ TEST_CASE("Inverse transformation", "[Transform]")
     REQUIRE_THAT(inverse_transformation.translation().y, Catch::Matchers::WithinAbs(-2.767949, 1e-5));
 }
 
-TEST_CASE("operator *=", "[Transform]")
+TEST_CASE("operator *=", "[Transform]") // Henry, Buron
 {
     turtlelib::Vector2D tf_ab = {0.5, 2.5};
     double rot_ab = 2.0;
@@ -176,12 +176,12 @@ TEST_CASE("operator *=", "[Transform]")
     double rot_bc = turtlelib::PI / 2.0;
     turtlelib::Transform2D tf_bc = {T_bc, rot_bc};
 
+    REQUIRE_THAT((tf_ab3 *= tf_bc).rotation(), Catch::Matchers::WithinAbs(turtlelib::PI / 2.0 + 2.0, 1e-5));
     REQUIRE_THAT((tf_ab1 *= tf_bc).translation().x, Catch::Matchers::WithinAbs(-2.255744, 1e-5));
     REQUIRE_THAT((tf_ab2 *= tf_bc).translation().y, Catch::Matchers::WithinAbs(5.63781, 1e-5));
-    REQUIRE_THAT((tf_ab3 *= tf_bc).rotation(), Catch::Matchers::WithinAbs(turtlelib::PI / 2.0 + 2.0, 1e-5));
 }
 
-TEST_CASE("Human-readable transform", "[Transform]")
+TEST_CASE("Human-readable transform", "[Transform]") // Henry, Buron
 {
     // Ensure that stream insertion operator gives correct format...
 
@@ -201,7 +201,7 @@ TEST_CASE("Human-readable transform", "[Transform]")
     REQUIRE(sstream.str() == expected_string);
 }
 
-TEST_CASE("Read transformation with stream extraction operator >>", "[Transform]")
+TEST_CASE("Read transformation with stream extraction operator >>", "[Transform]") // Henry, Buron
 {
     turtlelib::Transform2D tf = turtlelib::Transform2D();
     std::stringstream sstream;
