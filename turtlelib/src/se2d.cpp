@@ -91,10 +91,9 @@ namespace turtlelib {
         // And update the rotation...
         rot += rhs.rot;
 
-        // Store the updated translation back in the object itself
+        // Store the updated translation back in the object itself (i.e. returns updated A)
         return *this;
     }
-
 
     Vector2D Transform2D::translation() const{
         return {transf.x, transf.y};
@@ -104,8 +103,40 @@ namespace turtlelib {
         return rot;
     }
 
+    std::ostream & operator<<(std::ostream & os, const Transform2D & tf){
+        // Prints a human readable version of the transform
+        return os << "deg: " << rad2deg(tf.rot) << " x: " << tf.transf.x << " y: " << tf.transf.y;
+    }
 
+    std::istream & operator>>(std::istream & is, Transform2D & tf){
+    // Read a transformation from stdin
+    std::string deg, x, y;
+    double rot = 0.0;
+    Vector2D tran{0.0, 0.0};
 
+    char c1 = is.peek();
 
+    if (c1 == 'd') {
+        is >> deg;         
+        is >> rot;
+        is >> x;         
+        is >> tran.x;
+        is >> y;        
+        is >> tran.y;
+    } else {
+        is >> rot >> tran.x >> tran.y;
+    }
+    is.ignore(100, '\n');
+    rot = deg2rad(rot);
+    tf = Transform2D{tran, rot};
+    return is;
+    }
+
+    Transform2D operator*(Transform2D lhs, const Transform2D & rhs){
+        lhs *= rhs;
+        return lhs;
+    }
+
+// Don't have a test case for final: operator*
 
 }

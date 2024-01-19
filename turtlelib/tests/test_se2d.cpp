@@ -202,6 +202,39 @@ TEST_CASE("operator *=", "[Transform]")
     REQUIRE_THAT((tf_ab3*=tf_bc).rotation(), Catch::Matchers::WithinAbs(turtlelib::PI/2.0 + 2.0, 1e-5));
 }
 
+TEST_CASE("Human-readable transform", "[Transform]")
+{
+    // Ensure that stream insertion operator gives correct format...
+
+    // Create string stream object
+    std::stringstream sstream;
+
+    // Build Transform2D object
+    turtlelib::Transform2D transform{turtlelib::Vector2D{4.0, 2.1}, turtlelib::PI/4};
+        
+    // Define expected string
+    std::string expected_string = "deg: 45 x: 4 y: 2.1";
+
+    // Put transform into string stream
+    sstream << transform;
+
+    // Check that the output matches the expected value
+    REQUIRE(sstream.str() == expected_string);
+}
+
+TEST_CASE("Read transformation with stream extraction operator >>", "[Transform]")
+{
+    turtlelib::Transform2D tf = turtlelib::Transform2D();
+    std::stringstream sstream;
+    sstream << "deg: 34 x: 1785 y: 0.01";
+    sstream >> tf;
+    REQUIRE_THAT(tf.rotation(), Catch::Matchers::WithinAbs(turtlelib::deg2rad(34), 1e-5));
+    REQUIRE_THAT(tf.translation().x, Catch::Matchers::WithinAbs(1785.0, 1e-5));
+    REQUIRE_THAT(tf.translation().y, Catch::Matchers::WithinAbs(0.01, 1e-5));
+}
+
+
+
 
 
 
