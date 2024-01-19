@@ -77,7 +77,23 @@ namespace turtlelib {
         return {Vector2D{x_inv, y_inv}, rot_inv};
     }
 
+    Transform2D & Transform2D::operator*=(const Transform2D & rhs){
+        // '*=' is used to combine two transformations together
+        // i.e. A *= B would mean do A then B, in sequence
+        // Calculate how much the translation parts of A change when you apply rotation 'rhs' to it
+        double x_A_moved = cos(rot) * rhs.transf.x - sin(rot) * rhs.transf.y;
+        double y_A_moved = sin(rot) * rhs.transf.x + cos(rot) * rhs.transf.y;
 
+        // Then update the translation to include those changes
+        transf.x += x_A_moved;
+        transf.y += y_A_moved;
+
+        // And update the rotation...
+        rot += rhs.rot;
+
+        // Store the updated translation back in the object itself
+        return *this;
+    }
 
 
     Vector2D Transform2D::translation() const{

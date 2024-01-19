@@ -187,7 +187,20 @@ TEST_CASE("Inverse transformation", "[Transform]")
     REQUIRE_THAT(inverse_transformation.translation().y, Catch::Matchers::WithinAbs(-2.767949, 1e-5));
 }
 
+TEST_CASE("operator *=", "[Transform]")
+{
+    turtlelib::Vector2D tf_ab = {0.5, 2.5};
+    double rot_ab = 2.0;
+    turtlelib::Transform2D tf_ab1 = {tf_ab, rot_ab}, tf_ab2 = tf_ab1, tf_ab3 = tf_ab1;
 
+    turtlelib::Vector2D T_bc = {4.0, 1.2};
+    double rot_bc = turtlelib::PI/2.0;
+    turtlelib::Transform2D tf_bc = {T_bc, rot_bc};
+
+    REQUIRE_THAT((tf_ab1*=tf_bc).translation().x, Catch::Matchers::WithinAbs(-2.255744, 1e-5));
+    REQUIRE_THAT((tf_ab2*=tf_bc).translation().y, Catch::Matchers::WithinAbs(5.63781, 1e-5));
+    REQUIRE_THAT((tf_ab3*=tf_bc).rotation(), Catch::Matchers::WithinAbs(turtlelib::PI/2.0 + 2.0, 1e-5));
+}
 
 
 
