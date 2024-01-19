@@ -59,6 +59,16 @@ namespace turtlelib {
         return {x_transf, y_transf};
     }
 
+    // Apply a transformation to a 2D twist (e.g. using the adjoint)
+    Twist2D Transform2D::operator()(Twist2D v) const{
+        double rot_transf = v.omega;
+        double x_transf = transf.y*v.omega + std::cos(rot)*v.x - std::sin(rot)*v.y;
+        double y_transf = -transf.x*v.omega + std::sin(rot)*v.x + std::cos(rot)*v.y;
+        return {rot_transf, x_transf, y_transf};
+
+
+    }
+
 
 
 

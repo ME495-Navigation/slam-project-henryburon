@@ -133,33 +133,6 @@ TEST_CASE("Applying a transformation (operator()) to a 2D point.", "[Transform]"
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 TEST_CASE("Applying a transformation (operator()) to a 2D vector", "[Transform]")
 {
     // Define the original vector to be transformed
@@ -177,6 +150,51 @@ TEST_CASE("Applying a transformation (operator()) to a 2D vector", "[Transform]"
     REQUIRE_THAT(transformed_vector.x, Catch::Matchers::WithinAbs(expected_vector.x, 1e-3));
     REQUIRE_THAT(transformed_vector.y, Catch::Matchers::WithinAbs(expected_vector.y, 1e-3));
 }
+
+TEST_CASE("Applying a transformation (operator()) to a 2D twist", "[Transform]")
+{
+    // Define the transform values from A to B
+    turtlelib::Transform2D T_ab{turtlelib::Vector2D{1.2,3.4}, 0.4};
+
+    // Define the Twist of frame B
+    turtlelib::Twist2D T_b{turtlelib::PI/3,5.6,7.8};
+
+    // Apply the transformation A --> B
+    turtlelib::Twist2D T_a = T_ab(T_b);
+
+    // Define the expected b frame
+    turtlelib::Twist2D T_a_expected{1.047197,5.68095,8.108381};
+
+    REQUIRE_THAT(T_a.omega, Catch::Matchers::WithinAbs(T_a_expected.omega, 1e-5));
+    REQUIRE_THAT(T_a.x, Catch::Matchers::WithinAbs(T_a_expected.x, 1e-5));
+    REQUIRE_THAT(T_a.y, Catch::Matchers::WithinAbs(T_a_expected.y, 1e-5));
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Next step is to make a test for the Point2D transformation. make it above the Vector2D one.
