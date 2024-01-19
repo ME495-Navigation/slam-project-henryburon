@@ -171,7 +171,21 @@ TEST_CASE("Applying a transformation (operator()) to a 2D twist", "[Transform]")
 
 }
 
+TEST_CASE("Inverse transformation", "[Transform]")
+{
+    // Define a transform object. It does a transform.
+    turtlelib::Transform2D original_transform{turtlelib::Vector2D{2.0,9.0}, turtlelib::PI/3};
 
+    // Apply the inverse transformation
+    turtlelib::Transform2D inverse_transformation = original_transform.inv();
+
+    // Define the expected transform
+    turtlelib::Transform2D expected_transform{turtlelib::Vector2D{-1.0, -7.0}, -turtlelib::PI/2};
+
+    REQUIRE_THAT(inverse_transformation.rotation(), Catch::Matchers::WithinAbs(-turtlelib::PI/3, 1e-5));
+    REQUIRE_THAT(inverse_transformation.translation().x, Catch::Matchers::WithinAbs(-8.794228, 1e-5));
+    REQUIRE_THAT(inverse_transformation.translation().y, Catch::Matchers::WithinAbs(-2.767949, 1e-5));
+}
 
 
 

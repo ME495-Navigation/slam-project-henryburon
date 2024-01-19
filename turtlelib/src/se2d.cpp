@@ -66,7 +66,15 @@ namespace turtlelib {
         double y_transf = -transf.x*v.omega + std::sin(rot)*v.x + std::cos(rot)*v.y;
         return {rot_transf, x_transf, y_transf};
 
+    }
 
+    // Invert the transformation
+    Transform2D Transform2D::inv() const{
+        // given Vector2D transf and double rot
+        double rot_inv = -rot;
+        double x_inv = -transf.x*std::cos(rot) - transf.y*std::sin(rot);
+        double y_inv = -transf.y*std::cos(rot) + transf.x*std::sin(rot);
+        return {Vector2D{x_inv, y_inv}, rot_inv};
     }
 
 
