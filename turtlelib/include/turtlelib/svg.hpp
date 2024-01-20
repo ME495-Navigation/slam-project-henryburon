@@ -18,8 +18,6 @@ namespace turtlelib
 
     public:
 
-    Svg();
-
     /// \brief Draw a point
     /// \param cx - x-coordinate
     /// \param cy - y-coordinate
@@ -33,7 +31,7 @@ namespace turtlelib
     /// \param x2 - the tail's x-coordiante
     /// \param y2 - the tail's y-coordinate
     /// \param vcolor - color of the stroke
-    void DrawVector(double x1, double y1, double x2, double y2, std::string vcolor);
+    void DrawVector(double x1, double y1, double x2, double y2, const std::string& vcolor, std::ofstream& outFile);
 
 
     };
