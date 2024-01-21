@@ -22,16 +22,18 @@ namespace turtlelib
                 << "\" r=\"3\" stroke=\"" << pcolor << "\" fill=\"" << pcolor << "\" stroke-width=\"1\" />\n";
     }
 
-    void Svg::DrawVector(double x1, double x2, double y1, double y2, const std::string &vcolor, std::ofstream &outFile)
+    
+
+    // Input is the already-transformed Vector
+    void Svg::DrawVector(Point2D origin, Vector2D vector, const std::string& vcolor, std::ofstream& outFile)
     {
         // Convert from inches to pixels
-        x1 = x1 * 96;
-        x2 = x2 * 96;
-        y1 = -y1 * 96;
-        y2 = -y2 * 96;
-        
+        double x2 = origin.x * 96;
+        double y2 = -origin.y * 96;
+        double x1 = x2 + vector.x * 96;
+        double y1 = y2 + -vector.y * 96;
+
         // Make a 2D translation object
-        // The -PI/2 rotation fixes the left-handedness of the viewBox's coordinate system
         turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408, 528});
 
         // Turn both head and tail into Vector2D objects
@@ -46,6 +48,8 @@ namespace turtlelib
                 << "\" y1=\"" << transformedHead.y << "\" y2=\"" << transformedTail.y << "\" stroke=\""
                 << vcolor << "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\" />\n";
     }
+
+
 
     void Svg::DrawCoordinateFrame(double tail_x, double tail_y, 
                              double head_xc_x, double head_yc_x, 

@@ -34,6 +34,8 @@ namespace turtlelib
     /// \param outFile - output svg file
     void DrawVector(double x1, double y1, double x2, double y2, const std::string& vcolor, std::ofstream& outFile);
 
+    void newDrawVector(Point2D origin, Vector2D vector, const std::string& vcolor, std::ofstream& outFile);
+
     /// \brief Draw a coordinate frame
     /// \param tail_x - the frame origin's x-coordinate
     /// \param tail_y - the frame origin's y-coordinate
@@ -44,6 +46,8 @@ namespace turtlelib
     /// \param text - text identifying the coordinate frame
     /// \param outFile - output svg file
     void DrawCoordinateFrame(double tail_x, double tail_y, double head_xc_x, double head_yc_x, double head_xc_y, double head_yc_y, const std::string& text, std::ofstream& outFile);
+
+
 
 
 
