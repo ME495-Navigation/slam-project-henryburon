@@ -25,16 +25,8 @@ namespace turtlelib
     /// \param outFile - output svg file
     void DrawPoint(double cx, double cy, const std::string& pcolor, std::ofstream& outFile);
 
-    /// \brief Draw a vector
-    /// \param x1 - the head's x-coordinate
-    /// \param y1 - the head's y-coordinate
-    /// \param x2 - the tail's x-coordiante
-    /// \param y2 - the tail's y-coordinate
-    /// \param vcolor - color of the stroke
-    /// \param outFile - output svg file
-    void DrawVector(double x1, double y1, double x2, double y2, const std::string& vcolor, std::ofstream& outFile);
 
-    void newDrawVector(Point2D origin, Vector2D vector, const std::string& vcolor, std::ofstream& outFile);
+    void DrawVector(Point2D origin, Vector2D vector, const std::string& vcolor, std::ofstream& outFile);
 
     /// \brief Draw a coordinate frame
     /// \param tail_x - the frame origin's x-coordinate

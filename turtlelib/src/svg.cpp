@@ -51,29 +51,34 @@ namespace turtlelib
 
 
 
-    void Svg::DrawCoordinateFrame(double tail_x, double tail_y, 
-                             double head_xc_x, double head_yc_x, 
-                             double head_xc_y, double head_yc_y, 
-                             const std::string &text, std::ofstream &outFile)
-    {
+    // void Svg::DrawCoordinateFrame(double tail_x, double tail_y, 
+    //                          double head_xc_x, double head_yc_x, 
+    //                          double head_xc_y, double head_yc_y, 
+    //                          const std::string &text, std::ofstream &outFile)
+    // {
 
-        outFile << "<g>\n";
+    //     outFile << "<g>\n";
 
-        // Turtlelib coordinates are obtained through DrawVector
-        Svg::DrawVector(head_xc_x, tail_x, head_yc_x, tail_y, "red", outFile);
-        Svg::DrawVector(head_xc_y, tail_x, head_yc_y, tail_y, "green", outFile);
+    //     // Turtlelib coordinates are obtained through DrawVector
+    //     Svg::DrawVector(head_xc_x, tail_x, head_yc_x, tail_y, "red", outFile);
+    //     Svg::DrawVector(head_xc_y, tail_x, head_yc_y, tail_y, "green", outFile);
 
-        // Convert from inches to pixels
-        tail_x = tail_x * 96;
-        tail_y = -tail_y * 96;
+    //     // Convert from inches to pixels
+    //     tail_x = tail_x * 96;
+    //     tail_y = -tail_y * 96;
 
-        // Convert tail coordinates turtlelib coordinates
-        turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408,528});
-        turtlelib::Vector2D originalTail{tail_x, tail_y};
-        turtlelib::Vector2D transformedTail = turtlelibCoordinates(originalTail);
+    //     // Convert tail coordinates turtlelib coordinates
+    //     turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408,528});
+    //     turtlelib::Vector2D originalTail{tail_x, tail_y};
+    //     turtlelib::Vector2D transformedTail = turtlelibCoordinates(originalTail);
         
-        outFile << "<text x=\"" << transformedTail.x << "\" y=\"" << transformedTail.y << "\">{" << text << "}</text>\n";
-        outFile << "</g>\n";
+    //     outFile << "<text x=\"" << transformedTail.x << "\" y=\"" << transformedTail.y << "\">{" << text << "}</text>\n";
+    //     outFile << "</g>\n";
 
-    }
+    // }
+
+    // void Svg::DrawCoordinateFrame(Point2D origin, Vector2D x_vector, const std::string &text, std::ofstream &outFile)
+    // {
+
+    // }
 }
