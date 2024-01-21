@@ -31,12 +31,22 @@ namespace turtlelib
     /// \param x2 - the tail's x-coordiante
     /// \param y2 - the tail's y-coordinate
     /// \param vcolor - color of the stroke
+    /// \param outFile - output svg file
     void DrawVector(double x1, double y1, double x2, double y2, const std::string& vcolor, std::ofstream& outFile);
 
+    /// \brief Draw a coordinate frame
+    /// \param tail_x - the frame origin's x-coordinate
+    /// \param tail_y - the frame origin's y-coordinate
+    /// \param head_xc_x - the x-coordinate of the "x" vector's head
+    /// \param head_yc_x - the y-coordinate of the "x" vector's head
+    /// \param head_xc_y - the x-coordinate of the "y" vector's head
+    /// \param head_yc_y - the y-coordinate of the "y" vector's head
+    /// \param text - text identifying the coordinate frame
+    /// \param outFile - output svg file
+    void DrawCoordinateFrame(double tail_x, double tail_y, double head_xc_x, double head_yc_x, double head_xc_y, double head_yc_y, const std::string& text, std::ofstream& outFile);
 
-    // void DrawCoordinateFrame(double x1_x, double x2_x, double y1_x, double y2_x, double x1_)
-    //     // they have the same tail
-    //     // frame a is at 0,0
+
+
     };
 
 
