@@ -25,8 +25,19 @@ namespace turtlelib
 
     void Svg::DrawVector(double x1, double x2, double y1, double y2, const std::string &vcolor, std::ofstream &outFile)
     {
-        outFile << "<line x1=\"" << x1 << "\" x2=\"" << x2
-                << "\" y1=\"" << y1 << "\" y2=\"" << y2 << "\" stroke=\""
+        // Make a 2D translation object
+        turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408,528});
+
+        // Turn both head and tail into Vector2D objects
+        turtlelib::Vector2D originalHead{x1, y1};
+        turtlelib::Vector2D originalTail{x2, y2};
+
+        // Apply the transformation to each
+        turtlelib::Vector2D transformedHead = turtlelibCoordinates(originalHead);
+        turtlelib::Vector2D transformedTail = turtlelibCoordinates(originalTail);
+
+        outFile << "<line x1=\"" << transformedHead.x << "\" x2=\"" << transformedTail.x
+                << "\" y1=\"" << transformedHead.y << "\" y2=\"" << transformedTail.y << "\" stroke=\""
                 << vcolor << "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\" />\n";
     }
 
