@@ -22,8 +22,6 @@ namespace turtlelib
                 << "\" r=\"3\" stroke=\"" << pcolor << "\" fill=\"" << pcolor << "\" stroke-width=\"1\" />\n";
     }
 
-    
-
     // Input is the already-transformed Vector
     void Svg::DrawVector(Point2D origin, Vector2D vector, const std::string& vcolor, std::ofstream& outFile)
     {
@@ -49,36 +47,31 @@ namespace turtlelib
                 << vcolor << "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\" />\n";
     }
 
+    void Svg::DrawCoordinateFrame(Point2D origin, Vector2D x_vector, const std::string &text, std::ofstream &outFile)
+    {
+        outFile << "<g>\n";
 
+        // Make a -pi/2 transform object
+        turtlelib::Transform2D yvectorCoordinates(turtlelib::PI/2);
 
-    // void Svg::DrawCoordinateFrame(double tail_x, double tail_y, 
-    //                          double head_xc_x, double head_yc_x, 
-    //                          double head_xc_y, double head_yc_y, 
-    //                          const std::string &text, std::ofstream &outFile)
-    // {
-
-    //     outFile << "<g>\n";
-
-    //     // Turtlelib coordinates are obtained through DrawVector
-    //     Svg::DrawVector(head_xc_x, tail_x, head_yc_x, tail_y, "red", outFile);
-    //     Svg::DrawVector(head_xc_y, tail_x, head_yc_y, tail_y, "green", outFile);
-
-    //     // Convert from inches to pixels
-    //     tail_x = tail_x * 96;
-    //     tail_y = -tail_y * 96;
-
-    //     // Convert tail coordinates turtlelib coordinates
-    //     turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408,528});
-    //     turtlelib::Vector2D originalTail{tail_x, tail_y};
-    //     turtlelib::Vector2D transformedTail = turtlelibCoordinates(originalTail);
+        // Get y-vector coordinates
+        turtlelib::Vector2D y_vector = yvectorCoordinates(x_vector);
         
-    //     outFile << "<text x=\"" << transformedTail.x << "\" y=\"" << transformedTail.y << "\">{" << text << "}</text>\n";
-    //     outFile << "</g>\n";
+        // Turtlelib coordinates are obtained through DrawVector
+        Svg::DrawVector(turtlelib::Point2D{origin.x, origin.y}, turtlelib::Vector2D{x_vector.x, x_vector.y}, "red", outFile);
+        Svg::DrawVector(turtlelib::Point2D{origin.x, origin.y}, turtlelib::Vector2D{y_vector.x, y_vector.y}, "green", outFile);
 
-    // }
+        // Convert tail coordinates to turtlelib coordinates for the text
+        turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408, 528});
+        origin.x = origin.x * 96;
+        origin.y = -origin.y * 96;
 
-    // void Svg::DrawCoordinateFrame(Point2D origin, Vector2D x_vector, const std::string &text, std::ofstream &outFile)
-    // {
+        turtlelib::Vector2D originalTail{origin.x, origin.y};
+        turtlelib::Vector2D transformedTail = turtlelibCoordinates(originalTail);
 
-    // }
+        outFile << "<text x=\"" << transformedTail.x << "\" y=\"" << transformedTail.y << "\">{" << text << "}</text>\n";
+        outFile << "</g>\n";
+
+    }
+
 }

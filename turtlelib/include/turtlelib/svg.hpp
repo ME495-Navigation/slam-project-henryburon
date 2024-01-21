@@ -25,21 +25,19 @@ namespace turtlelib
     /// \param outFile - output svg file
     void DrawPoint(double cx, double cy, const std::string& pcolor, std::ofstream& outFile);
 
-
+    /// \brief Draw a 2D vector
+    /// \param origin - vector's (0,0) relative to turtlelib coordinates
+    /// \param vector - vector's head relative to its origin
+    /// \param vcolor - color of vector
+    /// \param outFile - output svg file
     void DrawVector(Point2D origin, Vector2D vector, const std::string& vcolor, std::ofstream& outFile);
 
-    /// \brief Draw a coordinate frame
-    /// \param tail_x - the frame origin's x-coordinate
-    /// \param tail_y - the frame origin's y-coordinate
-    /// \param head_xc_x - the x-coordinate of the "x" vector's head
-    /// \param head_yc_x - the y-coordinate of the "x" vector's head
-    /// \param head_xc_y - the x-coordinate of the "y" vector's head
-    /// \param head_yc_y - the y-coordinate of the "y" vector's head
-    /// \param text - text identifying the coordinate frame
+    /// \brief Draw a 2D coordinate frame
+    /// \param origin - frame's (0,0) relative to turtlelib coordinates
+    /// \param x_vector - x-vector's head relative to the frame's (0,0), the origin
+    /// \param text - displayed frame identification text
     /// \param outFile - output svg file
-    void DrawCoordinateFrame(double tail_x, double tail_y, double head_xc_x, double head_yc_x, double head_xc_y, double head_yc_y, const std::string& text, std::ofstream& outFile);
-
-
+    void DrawCoordinateFrame(Point2D origin, Vector2D x_vector, const std::string &text, std::ofstream &outFile);
 
 
 
