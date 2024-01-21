@@ -34,6 +34,9 @@ namespace turtlelib
     void DrawVector(double x1, double y1, double x2, double y2, const std::string& vcolor, std::ofstream& outFile);
 
 
+    // void DrawCoordinateFrame(double x1_x, double x2_x, double y1_x, double y2_x, double x1_)
+    //     // they have the same tail
+    //     // frame a is at 0,0
     };
 
 

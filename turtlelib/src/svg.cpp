@@ -1,4 +1,5 @@
 #include "turtlelib/svg.hpp"
+#include "turtlelib/se2d.hpp"
 #include <cmath>
 #include <iostream>
 #include <sstream>
@@ -8,7 +9,17 @@ namespace turtlelib
 {
     void Svg::DrawPoint(double cx, double cy, const std::string &pcolor, std::ofstream &outFile)
     {
-        outFile << "<circle cx=\"" << cx << "\" cy=\"" << cy
+        // Make a 2D translation object
+        turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{408,528});
+
+        // Turn point into Vector2D object
+        turtlelib::Vector2D originalPoint{cx, cy};
+
+        // Apply the transformation
+        turtlelib::Vector2D transformedPoint = turtlelibCoordinates(originalPoint);
+
+
+        outFile << "<circle cx=\"" << transformedPoint.x << "\" cy=\"" << transformedPoint.y
                 << "\" r=\"3\" stroke=\"" << pcolor << "\" fill=\"" << pcolor << "\" stroke-width=\"1\" />\n";
     }
 
@@ -18,4 +29,5 @@ namespace turtlelib
                 << "\" y1=\"" << y1 << "\" y2=\"" << y2 << "\" stroke=\""
                 << vcolor << "\" stroke-width=\"5\" marker-start=\"url(#Arrow1Sstart)\" />\n";
     }
+
 }
