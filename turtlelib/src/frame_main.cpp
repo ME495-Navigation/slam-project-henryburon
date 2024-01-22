@@ -71,6 +71,26 @@ int main()
     turtlelib::Vector2D c_xvector = T_bc(b_xvector);
     mySvg.DrawCoordinateFrame(c_origin, c_xvector, "C", svg_file);
 
+    // Ask for point
+    turtlelib::Point2D p_a;
+    std::cout << "Enter point p_a:\n";
+    std::cin >> p_a;
+
+    // Calculate all the points
+    turtlelib::Point2D p_b = T_ba(p_a);
+    turtlelib::Point2D p_c = T_cb(p_b);
+
+    // Output the points to cli
+    std::cout << "p_a: " << p_a << std::endl;
+    std::cout << "p_b: " << p_b << std::endl;
+    std::cout << "p_c: " << p_c << std::endl;
+
+    // Draw the points
+    mySvg.DrawPoint(p_a.x, p_a.y, "purple", svg_file);
+    mySvg.DrawPoint(p_b.x, p_b.y, "brown", svg_file);
+    mySvg.DrawPoint(p_c.x, p_c.y, "orange", svg_file);
+
+
     svg_file << "</svg>\n";
     svg_file.close();
 }
