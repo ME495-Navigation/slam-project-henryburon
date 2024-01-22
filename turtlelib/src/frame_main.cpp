@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <iosfwd>
+#include <cmath>
 #include "turtlelib/svg.hpp"
 #include "turtlelib/se2d.hpp"
 #include "turtlelib/geometry2d.hpp"
@@ -34,12 +35,12 @@ int main()
 
     // Ask for T_ab
     turtlelib::Transform2D T_ab;
-    std::cout << "Enter transform T_{ab}:\n";
+    std::cout << "Enter transform T_{a,b}:\n";
     std::cin >> T_ab;
 
     // Ask for T_bc
     turtlelib::Transform2D T_bc;
-    std::cout << "Enter transform T_{bc}:\n";
+    std::cout << "Enter transform T_{b,c}:\n";
     std::cin >> T_bc;
 
     // Calculate other transformations
@@ -49,12 +50,12 @@ int main()
     turtlelib::Transform2D T_ca = T_ac.inv();
 
     // Output the transformations to cli
-    std::cout << "T_{ab}: " << T_ab << std::endl;
-    std::cout << "T_{ba}: " << T_ba << std::endl;
-    std::cout << "T_{bc}: " << T_bc << std::endl;
-    std::cout << "T_{cb}: " << T_cb << std::endl;
-    std::cout << "T_{ac}: " << T_ac << std::endl;
-    std::cout << "T_{ca}: " << T_ca << std::endl;
+    std::cout << "T_{a,b}: " << T_ab << std::endl;
+    std::cout << "T_{b,a}: " << T_ba << std::endl;
+    std::cout << "T_{b,c}: " << T_bc << std::endl;
+    std::cout << "T_{c,b}: " << T_cb << std::endl;
+    std::cout << "T_{a,c}: " << T_ac << std::endl;
+    std::cout << "T_{c,a}: " << T_ca << std::endl;
 
     // Frame A
     turtlelib::Point2D a_origin{0, 0};
@@ -90,6 +91,52 @@ int main()
     mySvg.DrawPoint(p_b.x, p_b.y, "brown", svg_file);
     mySvg.DrawPoint(p_c.x, p_c.y, "orange", svg_file);
 
+    // Ask for vector
+    turtlelib::Vector2D v_b;
+    std::cout << "Enter vector v_b:\n";
+    std::cin >> v_b;
+
+    // Calculate vectors (first, normalize v_b)
+    double magnitude = std::sqrt(v_b.x * v_b.x + v_b.y * v_b.y);
+    turtlelib::Vector2D v_bhat;
+    if (magnitude > 0)
+    {
+        v_bhat.x = v_b.x / magnitude;
+        v_bhat.y = v_b.y / magnitude;
+    }
+    else
+    {
+        v_bhat.x = 0;
+        v_bhat.y = 0;
+    }
+
+    turtlelib::Vector2D v_a = T_ab(v_b);
+    turtlelib::Vector2D v_c = T_cb(v_b);
+
+    // Output the vectors to cli
+    std::cout << "v_bhat: " << v_bhat << std::endl;
+    std::cout << "v_a: " << v_a << std::endl;
+    std::cout << "v_b: " << v_b << std::endl;
+    std::cout << "v_c: " << v_c << std::endl;
+
+    // Draw the vectors
+    mySvg.DrawVector(p_b, v_bhat, "brown", svg_file);
+    mySvg.DrawVector(p_a, v_a, "purple", svg_file);
+    mySvg.DrawVector(p_c, v_c, "orange", svg_file);
+
+    // Ask for twist
+    turtlelib::Twist2D V_b;
+    std::cout << "Enter twist V_b:\n";
+    std::cin >> V_b;
+
+    // Calculate twists
+    turtlelib::Twist2D V_a = T_ab(V_b);
+    turtlelib::Twist2D V_c = T_cb(V_b);
+
+    // Output the twists to cli
+    std::cout << "V_a: " << V_a << std::endl;
+    std::cout << "V_b: " << V_b << std::endl;
+    std::cout << "V_c: " << V_c << std::endl;
 
     svg_file << "</svg>\n";
     svg_file.close();

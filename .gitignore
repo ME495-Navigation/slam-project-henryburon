@@ -2,4 +2,3 @@
 turtlelib/Catch2/
 build/
 svg_lib_example.svg
-viz_test.cpp
