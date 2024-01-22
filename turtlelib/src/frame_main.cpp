@@ -1,9 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <iosfwd>
-#include"turtlelib/svg.hpp"
-#include"turtlelib/se2d.hpp"
-#include"turtlelib/geometry2d.hpp"
+#include "turtlelib/svg.hpp"
+#include "turtlelib/se2d.hpp"
+#include "turtlelib/geometry2d.hpp"
 
 int main()
 {
@@ -32,86 +32,44 @@ int main()
     svg_file << "</marker>\n";
     svg_file << "</defs>\n";
 
-    // Draw frame A at (0,0)
-    turtlelib::Point2D a_origin{0,0};
-    turtlelib::Vector2D a_xvector{1,0};
-    mySvg.DrawCoordinateFrame(a_origin, a_xvector, "a", svg_file);
-
-    // Give formatting info
-    std::cout << "Enter all transforms in the form: deg x y (ex. 90 0 1)\n";
-
     // Ask for T_ab
-    double T_ab_deg, T_ab_x, T_ab_y;
-    std::cout << "Enter transform T_ab: ";
-    std::cin >> T_ab_deg >> T_ab_x >> T_ab_y;
-
-    // Make transform object (rotation then translation)
-    turtlelib::Transform2D ab_trans(turtlelib::Vector2D{T_ab_x, T_ab_y});
-    turtlelib::Transform2D ab_rot(turtlelib::deg2rad(T_ab_deg)); // Does it need to be able to accept radians?
-
-    // Apply the transformation
-    turtlelib::Point2D ab_origin = ab_trans(a_origin);
-    turtlelib::Vector2D ab_xvector = ab_rot(a_xvector);
-
-    // Draw T_ab
-    mySvg.DrawCoordinateFrame(ab_origin, ab_xvector, "T_ab", svg_file);
+    turtlelib::Transform2D T_ab;
+    std::cout << "Enter transform T_{ab}:\n";
+    std::cin >> T_ab;
 
     // Ask for T_bc
-    double T_bc_deg, T_bc_x, T_bc_y;
-    std::cout << "Enter transform T_bc: ";
-    std::cin >> T_bc_deg >> T_bc_x >> T_bc_y;
+    turtlelib::Transform2D T_bc;
+    std::cout << "Enter transform T_{bc}:\n";
+    std::cin >> T_bc;
 
-    // Make transform object
-    turtlelib::Transform2D bc_trans(turtlelib::Vector2D{T_bc_x, T_bc_y});
-    turtlelib::Transform2D bc_rot(turtlelib::deg2rad(T_bc_deg));
+    // Calculate other transformations
+    turtlelib::Transform2D T_ba = T_ab.inv();
+    turtlelib::Transform2D T_cb = T_bc.inv();
+    turtlelib::Transform2D T_ac = T_ab * T_bc;
+    turtlelib::Transform2D T_ca = T_ac.inv();
 
-    // Apply the transformation
-    turtlelib::Point2D bc_origin = bc_trans(ab_origin);
-    turtlelib::Vector2D bc_xvector = bc_rot(ab_xvector);
+    // Output the transformations to cli
+    std::cout << "T_{ab}: " << T_ab << std::endl;
+    std::cout << "T_{ba}: " << T_ba << std::endl;
+    std::cout << "T_{bc}: " << T_bc << std::endl;
+    std::cout << "T_{cb}: " << T_cb << std::endl;
+    std::cout << "T_{ac}: " << T_ac << std::endl;
+    std::cout << "T_{ca}: " << T_ca << std::endl;
 
-    // Draw T_bc
-    mySvg.DrawCoordinateFrame(bc_origin, bc_xvector, "T_bc", svg_file);
+    // Frame A
+    turtlelib::Point2D a_origin{0, 0};
+    turtlelib::Vector2D a_xvector{1, 0};
+    mySvg.DrawCoordinateFrame(a_origin, a_xvector, "A", svg_file);
 
+    // Frame B
+    turtlelib::Point2D b_origin = T_ab(a_origin);
+    turtlelib::Vector2D b_xvector = T_ab(a_xvector);
+    mySvg.DrawCoordinateFrame(b_origin, b_xvector, "B", svg_file);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-    
-
-
-
+    // Frame C
+    turtlelib::Point2D c_origin = T_bc(b_origin);
+    turtlelib::Vector2D c_xvector = T_bc(b_xvector);
+    mySvg.DrawCoordinateFrame(c_origin, c_xvector, "C", svg_file);
 
     svg_file << "</svg>\n";
     svg_file.close();

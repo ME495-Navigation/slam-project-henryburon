@@ -29,7 +29,7 @@ namespace turtlelib
     /// \returns radians
     constexpr double deg2rad(double deg)
     {
-        return deg * (PI / 180.0); 
+        return (deg * PI) / 180.0; 
     }
 
     /// \brief convert radians to degrees
