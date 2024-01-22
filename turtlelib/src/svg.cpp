@@ -17,13 +17,13 @@ namespace turtlelib
         // Convert from inches to pixels
         double x = transformedPoint.x * 96;
         double y = transformedPoint.y * 96;
-        
+
         outFile << "<circle cx=\"" << x << "\" cy=\"" << y
                 << "\" r=\"3\" stroke=\"" << pcolor << "\" fill=\"" << pcolor << "\" stroke-width=\"1\" />\n";
     }
 
     // Input is the already-transformed Vector
-    void Svg::DrawVector(Point2D origin, Vector2D vector, const std::string& vcolor, std::ofstream& outFile)
+    void Svg::DrawVector(Point2D origin, Vector2D vector, const std::string &vcolor, std::ofstream &outFile)
     {
         // Convert from inches to pixels
         double x2 = origin.x * 96;
@@ -52,11 +52,11 @@ namespace turtlelib
         outFile << "<g>\n";
 
         // Make a -pi/2 transform object
-        turtlelib::Transform2D yvectorCoordinates(turtlelib::PI/2);
+        turtlelib::Transform2D yvectorCoordinates(turtlelib::PI / 2);
 
         // Get y-vector coordinates
         turtlelib::Vector2D y_vector = yvectorCoordinates(x_vector);
-        
+
         // Turtlelib coordinates are obtained through DrawVector
         Svg::DrawVector(turtlelib::Point2D{origin.x, origin.y}, turtlelib::Vector2D{x_vector.x, x_vector.y}, "red", outFile);
         Svg::DrawVector(turtlelib::Point2D{origin.x, origin.y}, turtlelib::Vector2D{y_vector.x, y_vector.y}, "green", outFile);
@@ -71,7 +71,6 @@ namespace turtlelib
 
         outFile << "<text x=\"" << transformedTail.x << "\" y=\"" << transformedTail.y << "\">{" << text << "}</text>\n";
         outFile << "</g>\n";
-
     }
 
 }

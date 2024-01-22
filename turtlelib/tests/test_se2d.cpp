@@ -59,7 +59,6 @@ TEST_CASE("Identity Transformation Test", "[Transform2D]") // Henry, Buron
         REQUIRE_THAT(transformed_vector.x, Catch::Matchers::WithinAbs(3.5, 1e-5));
         REQUIRE_THAT(transformed_vector.y, Catch::Matchers::WithinAbs(4.1, 1e-5));
     }
-
 }
 
 TEST_CASE("Translation", "[Transform]") // Henry, Buron
