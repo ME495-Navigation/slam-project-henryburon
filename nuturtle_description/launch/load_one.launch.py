@@ -41,7 +41,7 @@ def generate_launch_description():
                                       TextSubstitution(text=".rviz")]
                                ),
             SetLaunchConfiguration(name='frame_prefix',
-                               value=[LaunchConfiguration("color"), # I am not sure the TF Prefix is working. I had to manually set it in the RViz files.
+                               value=[LaunchConfiguration("color"), # Not working. Needs to be set manually ~line 105 in rviz config files.
                                       TextSubstitution(text="/")]
                                ),
             SetLaunchConfiguration(name='fixed_frame',

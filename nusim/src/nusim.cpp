@@ -48,8 +48,8 @@ private:
     timestep_publisher_->publish(message);
 
     // Also print the message to the command line
-    std::string message_str = std::to_string(message.data);
-    RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message_str.c_str());
+    // std::string message_str = std::to_string(message.data);
+    // RCLCPP_INFO(this->get_logger(), "Publishing: '%s'", message_str.c_str());
 
     geometry_msgs::msg::TransformStamped t;
 
