@@ -35,7 +35,7 @@ int main()
     // Draw frame A at (0,0)
     turtlelib::Point2D a_origin{0,0};
     turtlelib::Vector2D a_xvector{1,0};
-    mySvg.DrawCoordinateFrame(a_origin, a_xvector, "{a}", svg_file);
+    mySvg.DrawCoordinateFrame(a_origin, a_xvector, "a", svg_file);
 
     // Give formatting info
     std::cout << "Enter all transforms in the form: deg x y (ex. 90 0 1)\n";
@@ -47,55 +47,66 @@ int main()
 
     // Make transform object (rotation then translation)
     turtlelib::Transform2D ab_trans(turtlelib::Vector2D{T_ab_x, T_ab_y});
-
-    turtlelib::Transform2D ab_rot(turtlelib::deg2rad(T_ab_deg));
-    // turtlelib::Transform2D ab_rot(turtlelib::PI/2);
+    turtlelib::Transform2D ab_rot(turtlelib::deg2rad(T_ab_deg)); // Does it need to be able to accept radians?
 
     // Apply the transformation
     turtlelib::Point2D ab_origin = ab_trans(a_origin);
     turtlelib::Vector2D ab_xvector = ab_rot(a_xvector);
 
     // Draw T_ab
-    mySvg.DrawCoordinateFrame(ab_origin, ab_xvector, "T_{ab}", svg_file);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    mySvg.DrawCoordinateFrame(ab_origin, ab_xvector, "T_ab", svg_file);
 
     // Ask for T_bc
     double T_bc_deg, T_bc_x, T_bc_y;
-    std::cout << "Enter the transform T_bc: ";
+    std::cout << "Enter transform T_bc: ";
     std::cin >> T_bc_deg >> T_bc_x >> T_bc_y;
+
+    // Make transform object
+    turtlelib::Transform2D bc_trans(turtlelib::Vector2D{T_bc_x, T_bc_y});
+    turtlelib::Transform2D bc_rot(turtlelib::deg2rad(T_bc_deg));
+
+    // Apply the transformation
+    turtlelib::Point2D bc_origin = bc_trans(ab_origin);
+    turtlelib::Vector2D bc_xvector = bc_rot(ab_xvector);
+
+    // Draw T_bc
+    mySvg.DrawCoordinateFrame(bc_origin, bc_xvector, "T_bc", svg_file);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
     
 
