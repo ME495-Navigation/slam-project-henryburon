@@ -11,3 +11,7 @@ Task B.3
 Task B.4: Should probably go through and ensure I made all functions. Going to need to make all comments doxygen-style at some point.
 Task B.5
 Task B.6
+Still need to do B.7 README
+Task C.1 - does not yet pass colcon tests
+Task C.2
+Task C.3
