@@ -19,6 +19,10 @@ find_package(std_srvs REQUIRED)
 add_executable(nusim src/nusim.cpp)
 ament_target_dependencies(nusim rclcpp std_msgs std_srvs)
 
+INSTALL(DIRECTORY
+  launch
+  config
+  DESTINATION share/${PROJECT_NAME})
 
 
 target_include_directories(nusim PUBLIC
