@@ -1,5 +1,8 @@
 <launch>
-    <node pkg="rviz2" exec="rviz2" name="rviz2"/>
+
+    <arg name="rviz_file" default="$(find-pkg-share nusim)/config/nusim.rviz" />
+
+    <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(var rviz_file)"/>
 
 
     <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
