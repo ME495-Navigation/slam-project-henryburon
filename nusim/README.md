@@ -11,7 +11,9 @@ Provides a simulated environment for the robot in RViz.
 
 **Parameters** stored in `basic_world.yaml`
 
-* x0, y0, theta0: Initial pose of the robot
+* x0: Initial x-coordinate of robot
+* y0: Initial y-coordinate of robot
+* theta0: Initial orientation of robot
 * rate: frequency of main loop
 * walls/arena_x_length: length of the arena in the world *x* direction
 * walls/arena_y_length: length of the arena in the world *y* direction
