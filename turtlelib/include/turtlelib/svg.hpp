@@ -39,6 +39,7 @@ namespace turtlelib
         /// \param outFile - output svg file
         void DrawCoordinateFrame(Point2D origin, Vector2D x_vector, const std::string &text, std::ofstream &outFile);
 
+        /// \brief Gets the string
         std::string getSvgString() const;
     };
 

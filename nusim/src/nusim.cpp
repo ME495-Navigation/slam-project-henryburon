@@ -1,3 +1,31 @@
+// \file
+/// \brief Provides a simulated robot environment in RViz2.
+///        Displays walls, obstacles, and turtlebot.
+///
+///
+/// PARAMETERS:
+///     \param rate (int): Timer frequency (Hz)
+///     \param x0 (double): Initial x coordinate of the robot (m)
+///     \param y0 (double): Initial y coordinate of the robot (m)
+///     \param theta0 (double): Initial theta angle of the robot (radians)
+///     \param walls.arena_x_length (double): Length of arena in world x direction (m)
+///     \param walls.arena_y_length (double): Length of arena in world y direction (m)
+///     \param obstacles.x (std::vector<double>): List of the obstacles' x coordinates (m)
+///     \param obstacles.y (std::vector<double>): List of the obstacles' y coordinates (m)
+///     \param obstacles.r (double): Radius of cylindrical obstacles (m)
+
+/// PUBLISHES:
+///     \param ~/timestep (std_msgs::msg::UInt64): current timestep of the simulation
+///     \param ~/walls (visualization_msgs::msg::MarkerArray): MarkerArray of Walls in RViz2
+///     \param ~/obstacles (visualization_msgs::msg::MarkerArray): MarkerArray of cylindrical obstacles in RViz2
+/// SUBSCRIBES:
+///     None
+/// SERVERS:
+///      \param ~/reset (std_srvs::srv::Empty): Resets the simulation
+///      \param ~/teleport (nusim::srv::Teleport): Teleports robot to a desired pose
+/// CLIENTS:
+///     None
+
 #include <cstdio>
 #include <chrono>
 #include <functional>
@@ -15,6 +43,23 @@
 
 using namespace std::chrono_literals;
 
+/// \brief The Nusim class provides a simulated environment for the robot
+///        It publishes the current timestep of the simulation, along
+///        with an arena and cylindrical obstacles as markers in RViz2.
+///        It offers services like reset and teleport.
+///
+///  \param rate (int): Timer frequency (Hz)
+///  \param x0 (double): Initial x-coordinate of the robot (m)
+///  \param y0 (double): Initial y-coordinate of the robot (m)
+///  \param theta0 (double): Initial theta angle of the robot (radians)
+///  \param x (double): Current x-coordinate of the robot (m)
+///  \param y (double): Current y-coordinate of the robot (m)
+///  \param theta (double): Current theta angle of the robot (radians)
+///  \param walls.arena_x_length (double): Length of arena in world x direction (m)
+///  \param walls.arena_y_length (double): Length of arena in world y direction (m)
+///  \param obstacles.x (std::vector<double>): List of the obstacles' x-coordinates (m)
+///  \param obstacles.y (std::vector<double>): List of the obstacles' y-coordinates (m)
+///  \param obstacles.r (double): Radius of cylindrical obstacles (m)
 class Nusim : public rclcpp::Node
 {
 public:
@@ -76,6 +121,7 @@ public:
   }
 
 private:
+  /// \brief Main timer callback function
   void timer_callback()
   {
     auto message = std_msgs::msg::UInt64();
@@ -110,6 +156,7 @@ private:
     obstacles_publisher_->publish(obstacles_markers_array_);
   }
 
+  /// \brief Resets the simulation to initial configuration
   void reset_callback(
     const std::shared_ptr<std_srvs::srv::Empty::Request>,
     std::shared_ptr<std_srvs::srv::Empty::Response>)
@@ -120,6 +167,7 @@ private:
     theta_ = theta0_;
   }
 
+  /// \brief Moves the robot to a desired pose
   void teleport_callback(
     const std::shared_ptr<nusim::srv::Teleport::Request> request,
     std::shared_ptr<nusim::srv::Teleport::Response>)
@@ -129,6 +177,7 @@ private:
     theta_ = request->theta;
   }
 
+  /// \brief Creates four walls around the arena
   void create_walls_()
   {
     // The walls have a fixed height of 0.25m
@@ -214,6 +263,7 @@ private:
     wall_markers_array_.markers.push_back(wall_mark_4);
   }
 
+  /// \brief Creates static cylindrical obstacles in the simulation
   void create_obstacles()
   {
     if (obstacles_x_.size() != obstacles_y_.size()) {
@@ -260,7 +310,6 @@ private:
   visualization_msgs::msg::MarkerArray wall_markers_array_;
   visualization_msgs::msg::MarkerArray obstacles_markers_array_;
 
-  // size_t timestep_;
   int timestep_;
   int rate_;
   double x0_;
