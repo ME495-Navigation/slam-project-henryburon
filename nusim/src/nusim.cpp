@@ -18,7 +18,8 @@ using namespace std::chrono_literals;
 class Nusim : public rclcpp::Node
 {
 public:
-  Nusim() : Node("nusim"), timestep_(0)
+  Nusim()
+  : Node("nusim"), timestep_(0)
   {
     // Parameters
     declare_parameter("rate", 200);
@@ -44,19 +45,25 @@ public:
     // Publishers
     timestep_publisher_ = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
     walls_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
-    obstacles_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
+    obstacles_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
+      "~/obstacles", 10);
 
     // Services
     reset_service = this->create_service<std_srvs::srv::Empty>(
-        "~/reset", std::bind(&Nusim::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
+      "~/reset",
+      std::bind(&Nusim::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
 
     teleport_service = this->create_service<nusim::srv::Teleport>(
-        "~/teleport", std::bind(&Nusim::teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
+      "~/teleport",
+      std::bind(&Nusim::teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
 
     // Broadcasters
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(1000 / rate_), std::bind(&Nusim::timer_callback, this));
+    timer_ =
+      this->create_wall_timer(
+      std::chrono::milliseconds(1000 / rate_),
+      std::bind(&Nusim::timer_callback, this));
 
     x_ = x0_;
     y_ = y0_;
@@ -103,8 +110,9 @@ private:
     obstacles_publisher_->publish(obstacles_markers_array_);
   }
 
-  void reset_callback(const std::shared_ptr<std_srvs::srv::Empty::Request>,
-                      std::shared_ptr<std_srvs::srv::Empty::Response>)
+  void reset_callback(
+    const std::shared_ptr<std_srvs::srv::Empty::Request>,
+    std::shared_ptr<std_srvs::srv::Empty::Response>)
   {
     timestep_ = 0;
     x_ = x0_;
@@ -112,8 +120,9 @@ private:
     theta_ = theta0_;
   }
 
-  void teleport_callback(const std::shared_ptr<nusim::srv::Teleport::Request> request,
-                         std::shared_ptr<nusim::srv::Teleport::Response>)
+  void teleport_callback(
+    const std::shared_ptr<nusim::srv::Teleport::Request> request,
+    std::shared_ptr<nusim::srv::Teleport::Response>)
   {
     x_ = request->x;
     y_ = request->y;
@@ -207,15 +216,14 @@ private:
 
   void create_obstacles()
   {
-    if (obstacles_x_.size() != obstacles_y_.size())
-    {
-      RCLCPP_ERROR(this->get_logger(), "Error: obstacles/x and obstacles/y should be the same length.");
+    if (obstacles_x_.size() != obstacles_y_.size()) {
+      RCLCPP_ERROR(
+        this->get_logger(), "Error: obstacles/x and obstacles/y should be the same length.");
       rclcpp::shutdown();
     }
     const auto marker_array_size = obstacles_x_.size();
 
-    for (long unsigned int i = 0; i < marker_array_size; i++)
-    {
+    for (long unsigned int i = 0; i < marker_array_size; i++) {
       visualization_msgs::msg::Marker marker;
       marker.header.frame_id = "nusim/world";
       marker.header.stamp = get_clock()->now();
@@ -269,7 +277,7 @@ private:
   double obstacles_r_;
 };
 
-int main(int argc, char* argv[])
+int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<Nusim>());

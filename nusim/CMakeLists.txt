@@ -17,13 +17,13 @@ find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
 
-rosidl_generate_interfaces(${PROJECT_NAME}_srv 
-  "srv/Teleport.srv" 
+rosidl_generate_interfaces(${PROJECT_NAME}_srv
+  "srv/Teleport.srv"
   LIBRARY_NAME ${PROJECT_NAME})
 
 rosidl_get_typesupport_target(
-  cpp_typesupport_target 
-  ${PROJECT_NAME}_srv 
+  cpp_typesupport_target
+  ${PROJECT_NAME}_srv
   "rosidl_typesupport_cpp")
 
 add_executable(nusim src/nusim.cpp)

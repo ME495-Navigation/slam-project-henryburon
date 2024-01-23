@@ -34,20 +34,26 @@ def generate_launch_description():
                 choices=["purple", "red", "green", "blue", ""],
                 description="Determines color of the robot",
             ),
-            SetLaunchConfiguration(name="rviz_color_file",
-                               value=[FindPackageShare("nuturtle_description"),
-                                      TextSubstitution(text="/config/basic_"),
-                                      LaunchConfiguration("color"),
-                                      TextSubstitution(text=".rviz")]
-                               ),
-            SetLaunchConfiguration(name='frame_prefix',
-                               value=[LaunchConfiguration("color"), # Not working. Needs to be set manually ~line 105 in rviz config files.
-                                      TextSubstitution(text="/")]
-                               ),
-            SetLaunchConfiguration(name='fixed_frame',
-                               value=[LaunchConfiguration("color"),
-                                      TextSubstitution(text="/base_link")]
-                               ),
+            SetLaunchConfiguration(
+                name="rviz_color_file",
+                value=[
+                    FindPackageShare("nuturtle_description"),
+                    TextSubstitution(text="/config/basic_"),
+                    LaunchConfiguration("color"),
+                    TextSubstitution(text=".rviz"),
+                ],
+            ),
+            SetLaunchConfiguration(
+                name="frame_prefix",
+                value=[LaunchConfiguration("color"), TextSubstitution(text="/")],
+            ),
+            SetLaunchConfiguration(
+                name="fixed_frame",
+                value=[
+                    LaunchConfiguration("color"),
+                    TextSubstitution(text="/base_link"),
+                ],
+            ),
             Node(
                 package="robot_state_publisher",
                 executable="robot_state_publisher",

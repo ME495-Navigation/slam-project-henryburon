@@ -20,6 +20,15 @@ namespace turtlelib
 
         outFile << "<circle cx=\"" << x << "\" cy=\"" << y
                 << "\" r=\"3\" stroke=\"" << pcolor << "\" fill=\"" << pcolor << "\" stroke-width=\"1\" />\n";
+
+
+        std::stringstream ss;
+        ss << "<circle cx=\"" << x << "\" cy=\"" << y
+                << "\" r=\"3\" stroke=\"" << pcolor << "\" fill=\"" << pcolor << "\" stroke-width=\"1\"/>";
+        svg_Vec.push_back(ss.str());
+
+
+        
     }
 
     // Input is the already-transformed Vector
@@ -71,6 +80,16 @@ namespace turtlelib
 
         outFile << "<text x=\"" << transformedTail.x << "\" y=\"" << transformedTail.y << "\">{" << text << "}</text>\n";
         outFile << "</g>\n";
+    }
+
+    std::string Svg::getSvgString() const
+    {
+        std::stringstream ss;
+        for (const auto &element : svg_Vec)
+        {
+            ss << element << "\n";
+        }
+        return ss.str();
     }
 
 }

@@ -8,6 +8,7 @@
 #include <fstream>
 #include "turtlelib/geometry2d.hpp"
 #include "turtlelib/se2d.hpp"
+#include <vector>
 
 namespace turtlelib
 {
@@ -15,6 +16,7 @@ namespace turtlelib
     class Svg
     {
     private:
+        std::vector<std::string> svg_Vec;
     public:
         /// \brief Draw a point
         /// \param cx - x-coordinate
@@ -36,6 +38,8 @@ namespace turtlelib
         /// \param text - displayed frame identification text
         /// \param outFile - output svg file
         void DrawCoordinateFrame(Point2D origin, Vector2D x_vector, const std::string &text, std::ofstream &outFile);
+
+        std::string getSvgString() const;
     };
 
 }
