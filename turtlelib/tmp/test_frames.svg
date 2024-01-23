@@ -1,5 +1,1 @@
-<g>
-<line x1="408" x2="312" y1="240" y2="240" stroke="red" stroke-width="5" marker-start="url(#Arrow1Sstart)" />
-<line x1="312" x2="312" y1="144" y2="240" stroke="green" stroke-width="5" marker-start="url(#Arrow1Sstart)" />
-<text x="312" y="240">{T_ab}</text>
-</g>
+<circle cx="408" cy="528" r="3" stroke="red" fill="red" stroke-width="1" />

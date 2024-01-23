@@ -113,3 +113,12 @@ TEST_CASE("Read vectors entered as [x y] or x y", "[Vector2D]")
         REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(9.3, 1e-5));
     }
 }
+
+TEST_CASE("Vector2D normalization", "[Vector2D]")
+{
+    turtlelib::Vector2D v{3.0, 4.0};
+    turtlelib::Vector2D normalized = normalize_vector(v);
+
+    REQUIRE_THAT(normalized.x, Catch::Matchers::WithinAbs(0.6,1e-5));
+    REQUIRE_THAT(normalized.y, Catch::Matchers::WithinAbs(0.8,1e-5));
+}

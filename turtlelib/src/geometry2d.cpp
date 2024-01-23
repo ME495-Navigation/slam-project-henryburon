@@ -12,6 +12,17 @@ namespace turtlelib
         return normalizedAngle;
     }
 
+    Vector2D normalize_vector(Vector2D v)
+    {
+        const auto mag = sqrt(v.x * v.x + v.y * v.y);
+        if (mag != 0.0)
+        {
+            v.x /= mag;
+            v.y /= mag;
+        }
+        return v;
+    }
+
     std::ostream &operator<<(std::ostream &os, const Point2D &p)
     {
         // Outputs a 2-dimensional point as [x y]

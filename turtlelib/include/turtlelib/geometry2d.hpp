@@ -128,6 +128,11 @@ namespace turtlelib
     /// peek looks at the next unprocessed character in the buffer without removing it
     /// get removes the next unprocessed character from the buffer.
     std::istream &operator>>(std::istream &is, Vector2D &v);
+
+    /// \brief wraps a vector to (0, 1]
+    /// \param v a 2D vector
+    /// \return returns a normalized Vector2D
+    Vector2D normalize_vector(Vector2D v);
 }
 
 #endif
