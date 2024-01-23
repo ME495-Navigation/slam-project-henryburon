@@ -20,19 +20,16 @@ class Nusim : public rclcpp::Node
 public:
   Nusim() : Node("nusim"), timestep_(0)
   {
-    // Declare parameters. There may be another way to do this...
+    // Parameters
     declare_parameter("rate", 200);
-    declare_parameter("x0", 0.0);
-    declare_parameter("y0", 0.0);
-    declare_parameter("theta0", 0.0);
+    declare_parameter("x0", -0.5);
+    declare_parameter("y0", 0.7);
+    declare_parameter("theta0", 1.28);
     declare_parameter("walls.arena_x_length", 10.0);
     declare_parameter("walls.arena_y_length", 10.0);
     declare_parameter("obstacles.x", std::vector<double> {});
     declare_parameter("obstacles.y", std::vector<double> {});
     declare_parameter("obstacles.r", 0.038);
-
-    wall_thickness_ = 0.1;
-
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -44,41 +41,35 @@ public:
     obstacles_y_ = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
     obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<double>();
 
-
     // Publishers
     timestep_publisher_ = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
     walls_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/walls", 10);
     obstacles_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>("~/obstacles", 10);
 
-
-
-    // Create a timer that triggers the timer_callback function with a frequency of rate Hz
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(1000 / rate_), std::bind(&Nusim::timer_callback, this));
-
-    // Create reset service
+    // Services
     reset_service = this->create_service<std_srvs::srv::Empty>(
         "~/reset", std::bind(&Nusim::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
 
-    // Create teleport service
     teleport_service = this->create_service<nusim::srv::Teleport>(
       "~/teleport", std::bind(&Nusim::teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
 
-    // Initialize the the transform broadcaster
+    // Broadcasters
     tf_broadcaster_ =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(1000 / rate_), std::bind(&Nusim::timer_callback, this));
 
     x_ = x0_;
     y_ = y0_;
     theta_ = theta0_;
+
+    wall_thickness_ = 0.1;
 
     create_walls_();
     create_obstacles();
   }
 
 private:
-
-
-
 
   void timer_callback()
   {
@@ -235,9 +226,11 @@ private:
       marker.id = i;
       marker.type = visualization_msgs::msg::Marker::CYLINDER;
       marker.action = visualization_msgs::msg::Marker::ADD;
+
       marker.pose.position.x = obstacles_x_.at(i);
       marker.pose.position.y = obstacles_y_.at(i);
       marker.pose.position.z = 0.125;
+      
       marker.scale.x = 2.0 * obstacles_r_;
       marker.scale.y = 2.0 * obstacles_r_;
       marker.scale.z = 0.25;
