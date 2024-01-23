@@ -28,6 +28,8 @@ public:
     declare_parameter("walls.arena_x_length", 5.0);
     declare_parameter("walls.arena_y_length", 5.0);
 
+    wall_thickness_ = 0.1;
+
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -125,35 +127,87 @@ private:
 
   void create_walls_()
   {
-    visualization_msgs::msg::Marker wall_mark_;
-    wall_mark_.header.frame_id = "nusim/world";
-    wall_mark_.header.stamp = get_clock()->now();
-    wall_mark_.id = 0;
-    wall_mark_.type = visualization_msgs::msg::Marker::CUBE;
-    wall_mark_.action = visualization_msgs::msg::Marker::ADD;
+    // The walls have a fixed height of 0.25m
 
-    wall_mark_.pose.position.x = 3.0;
-    wall_mark_.pose.position.y = 0.0;
-    wall_mark_.pose.position.z = 0.0;
+    visualization_msgs::msg::Marker wall_mark_1;
+    wall_mark_1.header.frame_id = "nusim/world";
+    wall_mark_1.header.stamp = get_clock()->now();
+    wall_mark_1.id = 1;
+    wall_mark_1.type = visualization_msgs::msg::Marker::CUBE;
+    wall_mark_1.action = visualization_msgs::msg::Marker::ADD;
 
-    wall_mark_.pose.orientation.x = 0.0;
-    wall_mark_.pose.orientation.y = 0.0;
-    wall_mark_.pose.orientation.z = 0.0;
-    wall_mark_.pose.orientation.w = 0.0;
+    wall_mark_1.pose.position.x = 0.0;
+    wall_mark_1.pose.position.y = arena_y_length_/2 + wall_thickness_/2;
+    wall_mark_1.pose.position.z = 0.25/2;
 
-    wall_mark_.scale.x = 1.0;
-    wall_mark_.scale.y = 1.0;
-    wall_mark_.scale.z = 1.0;
+    wall_mark_1.scale.x = arena_x_length_ + 2*wall_thickness_;
+    wall_mark_1.scale.y = wall_thickness_;
+    wall_mark_1.scale.z = 0.25;
 
-    wall_mark_.color.r = 0.0f;
-    wall_mark_.color.g = 1.0f;
-    wall_mark_.color.b = 0.0f;
-    wall_mark_.color.a = 1.0f;
+    wall_mark_1.color.r = 1.0f;
+    wall_mark_1.color.a = 1.0f;
 
-    wall_markers_array_.markers.push_back(wall_mark_);
+    wall_markers_array_.markers.push_back(wall_mark_1);
 
+    visualization_msgs::msg::Marker wall_mark_2;
+    wall_mark_2.header.frame_id = "nusim/world";
+    wall_mark_2.header.stamp = get_clock()->now();
+    wall_mark_2.id = 2;
+    wall_mark_2.type = visualization_msgs::msg::Marker::CUBE;
+    wall_mark_2.action = visualization_msgs::msg::Marker::ADD;
 
+    wall_mark_2.pose.position.x = 0.0;
+    wall_mark_2.pose.position.y = -(arena_y_length_/2 + wall_thickness_/2);
+    wall_mark_2.pose.position.z = 0.25/2;
 
+    wall_mark_2.scale.x = arena_x_length_ + 2*wall_thickness_;
+    wall_mark_2.scale.y = wall_thickness_;
+    wall_mark_2.scale.z = 0.25;
+
+    wall_mark_2.color.r = 1.0f;
+    wall_mark_2.color.a = 1.0f;
+
+    wall_markers_array_.markers.push_back(wall_mark_2);
+
+    visualization_msgs::msg::Marker wall_mark_3;
+    wall_mark_3.header.frame_id = "nusim/world";
+    wall_mark_3.header.stamp = get_clock()->now();
+    wall_mark_3.id = 3;
+    wall_mark_3.type = visualization_msgs::msg::Marker::CUBE;
+    wall_mark_3.action = visualization_msgs::msg::Marker::ADD;
+
+    wall_mark_3.pose.position.x = arena_x_length_/2 + wall_thickness_/2;
+    wall_mark_3.pose.position.y = 0.0;
+    wall_mark_3.pose.position.z = 0.25/2;
+
+    wall_mark_3.scale.x = wall_thickness_;
+    wall_mark_3.scale.y = arena_y_length_ + 2*wall_thickness_;
+    wall_mark_3.scale.z = 0.25;
+
+    wall_mark_3.color.r = 1.0f;
+    wall_mark_3.color.a = 1.0f;
+
+    wall_markers_array_.markers.push_back(wall_mark_3);
+
+    visualization_msgs::msg::Marker wall_mark_4;
+    wall_mark_4.header.frame_id = "nusim/world";
+    wall_mark_4.header.stamp = get_clock()->now();
+    wall_mark_4.id = 4;
+    wall_mark_4.type = visualization_msgs::msg::Marker::CUBE;
+    wall_mark_4.action = visualization_msgs::msg::Marker::ADD;
+
+    wall_mark_4.pose.position.x = -(arena_x_length_/2 + wall_thickness_/2);
+    wall_mark_4.pose.position.y = 0.0;
+    wall_mark_4.pose.position.z = 0.25/2;
+
+    wall_mark_4.scale.x = wall_thickness_;
+    wall_mark_4.scale.y = arena_y_length_ + 2*wall_thickness_;
+    wall_mark_4.scale.z = 0.25;
+
+    wall_mark_4.color.r = 1.0f;
+    wall_mark_4.color.a = 1.0f;
+
+    wall_markers_array_.markers.push_back(wall_mark_4);
   }
 
 
@@ -180,6 +234,7 @@ private:
   double theta_;
   double arena_x_length_;
   double arena_y_length_;
+  double wall_thickness_;
 
 
 };
