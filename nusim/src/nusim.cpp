@@ -27,8 +27,8 @@ public:
     declare_parameter("theta0", 1.28);
     declare_parameter("walls.arena_x_length", 10.0);
     declare_parameter("walls.arena_y_length", 10.0);
-    declare_parameter("obstacles.x", std::vector<double> {});
-    declare_parameter("obstacles.y", std::vector<double> {});
+    declare_parameter("obstacles.x", std::vector<double>{});
+    declare_parameter("obstacles.y", std::vector<double>{});
     declare_parameter("obstacles.r", 0.038);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
@@ -51,11 +51,10 @@ public:
         "~/reset", std::bind(&Nusim::reset_callback, this, std::placeholders::_1, std::placeholders::_2));
 
     teleport_service = this->create_service<nusim::srv::Teleport>(
-      "~/teleport", std::bind(&Nusim::teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
+        "~/teleport", std::bind(&Nusim::teleport_callback, this, std::placeholders::_1, std::placeholders::_2));
 
     // Broadcasters
-    tf_broadcaster_ =
-      std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+    tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
     timer_ = this->create_wall_timer(std::chrono::milliseconds(1000 / rate_), std::bind(&Nusim::timer_callback, this));
 
@@ -70,7 +69,6 @@ public:
   }
 
 private:
-
   void timer_callback()
   {
     auto message = std_msgs::msg::UInt64();
@@ -92,7 +90,7 @@ private:
 
     // Likewise, turtle can only rotate around one axis -- z
     tf2::Quaternion q;
-    q.setRPY(0,0,theta_);
+    q.setRPY(0, 0, theta_);
     t.transform.rotation.x = q.x();
     t.transform.rotation.y = q.y();
     t.transform.rotation.z = q.z();
@@ -103,12 +101,10 @@ private:
 
     walls_publisher_->publish(wall_markers_array_);
     obstacles_publisher_->publish(obstacles_markers_array_);
-
   }
 
-  void reset_callback(
-    const std::shared_ptr<std_srvs::srv::Empty::Request>,
-    std::shared_ptr<std_srvs::srv::Empty::Response>)
+  void reset_callback(const std::shared_ptr<std_srvs::srv::Empty::Request>,
+                      std::shared_ptr<std_srvs::srv::Empty::Response>)
   {
     timestep_ = 0;
     x_ = x0_;
@@ -116,14 +112,13 @@ private:
     theta_ = theta0_;
   }
 
-  void teleport_callback(
-    const std::shared_ptr<nusim::srv::Teleport::Request> request,
-    std::shared_ptr<nusim::srv::Teleport::Response>)
-    {
-      x_ = request->x;
-      y_ = request->y;
-      theta_ = request->theta;
-    }
+  void teleport_callback(const std::shared_ptr<nusim::srv::Teleport::Request> request,
+                         std::shared_ptr<nusim::srv::Teleport::Response>)
+  {
+    x_ = request->x;
+    y_ = request->y;
+    theta_ = request->theta;
+  }
 
   void create_walls_()
   {
@@ -137,10 +132,10 @@ private:
     wall_mark_1.action = visualization_msgs::msg::Marker::ADD;
 
     wall_mark_1.pose.position.x = 0.0;
-    wall_mark_1.pose.position.y = arena_y_length_/2 + wall_thickness_/2;
-    wall_mark_1.pose.position.z = 0.25/2;
+    wall_mark_1.pose.position.y = arena_y_length_ / 2 + wall_thickness_ / 2;
+    wall_mark_1.pose.position.z = 0.25 / 2;
 
-    wall_mark_1.scale.x = arena_x_length_ + 2*wall_thickness_;
+    wall_mark_1.scale.x = arena_x_length_ + 2 * wall_thickness_;
     wall_mark_1.scale.y = wall_thickness_;
     wall_mark_1.scale.z = 0.25;
 
@@ -157,10 +152,10 @@ private:
     wall_mark_2.action = visualization_msgs::msg::Marker::ADD;
 
     wall_mark_2.pose.position.x = 0.0;
-    wall_mark_2.pose.position.y = -(arena_y_length_/2 + wall_thickness_/2);
-    wall_mark_2.pose.position.z = 0.25/2;
+    wall_mark_2.pose.position.y = -(arena_y_length_ / 2 + wall_thickness_ / 2);
+    wall_mark_2.pose.position.z = 0.25 / 2;
 
-    wall_mark_2.scale.x = arena_x_length_ + 2*wall_thickness_;
+    wall_mark_2.scale.x = arena_x_length_ + 2 * wall_thickness_;
     wall_mark_2.scale.y = wall_thickness_;
     wall_mark_2.scale.z = 0.25;
 
@@ -176,12 +171,12 @@ private:
     wall_mark_3.type = visualization_msgs::msg::Marker::CUBE;
     wall_mark_3.action = visualization_msgs::msg::Marker::ADD;
 
-    wall_mark_3.pose.position.x = arena_x_length_/2 + wall_thickness_/2;
+    wall_mark_3.pose.position.x = arena_x_length_ / 2 + wall_thickness_ / 2;
     wall_mark_3.pose.position.y = 0.0;
-    wall_mark_3.pose.position.z = 0.25/2;
+    wall_mark_3.pose.position.z = 0.25 / 2;
 
     wall_mark_3.scale.x = wall_thickness_;
-    wall_mark_3.scale.y = arena_y_length_ + 2*wall_thickness_;
+    wall_mark_3.scale.y = arena_y_length_ + 2 * wall_thickness_;
     wall_mark_3.scale.z = 0.25;
 
     wall_mark_3.color.r = 1.0f;
@@ -196,12 +191,12 @@ private:
     wall_mark_4.type = visualization_msgs::msg::Marker::CUBE;
     wall_mark_4.action = visualization_msgs::msg::Marker::ADD;
 
-    wall_mark_4.pose.position.x = -(arena_x_length_/2 + wall_thickness_/2);
+    wall_mark_4.pose.position.x = -(arena_x_length_ / 2 + wall_thickness_ / 2);
     wall_mark_4.pose.position.y = 0.0;
-    wall_mark_4.pose.position.z = 0.25/2;
+    wall_mark_4.pose.position.z = 0.25 / 2;
 
     wall_mark_4.scale.x = wall_thickness_;
-    wall_mark_4.scale.y = arena_y_length_ + 2*wall_thickness_;
+    wall_mark_4.scale.y = arena_y_length_ + 2 * wall_thickness_;
     wall_mark_4.scale.z = 0.25;
 
     wall_mark_4.color.r = 1.0f;
@@ -219,7 +214,8 @@ private:
     }
     const auto marker_array_size = obstacles_x_.size();
 
-    for (long unsigned int i = 0; i < marker_array_size; i++) {
+    for (long unsigned int i = 0; i < marker_array_size; i++)
+    {
       visualization_msgs::msg::Marker marker;
       marker.header.frame_id = "nusim/world";
       marker.header.stamp = get_clock()->now();
@@ -230,7 +226,7 @@ private:
       marker.pose.position.x = obstacles_x_.at(i);
       marker.pose.position.y = obstacles_y_.at(i);
       marker.pose.position.z = 0.125;
-      
+
       marker.scale.x = 2.0 * obstacles_r_;
       marker.scale.y = 2.0 * obstacles_r_;
       marker.scale.z = 0.25;
@@ -239,10 +235,8 @@ private:
       marker.color.b = 0.0;
       marker.color.a = 1.0;
       obstacles_markers_array_.markers.push_back(marker);
+    }
   }
-  }
-
-
 
   // Declare member variables
   rclcpp::TimerBase::SharedPtr timer_;
@@ -273,8 +267,6 @@ private:
   std::vector<double> obstacles_x_;
   std::vector<double> obstacles_y_;
   double obstacles_r_;
-
-
 };
 
 int main(int argc, char* argv[])
