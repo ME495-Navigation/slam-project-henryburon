@@ -271,28 +271,27 @@ private:
         this->get_logger(), "Error: obstacles/x and obstacles/y should be the same length.");
       rclcpp::shutdown();
     }
-    const auto marker_array_size = obstacles_x_.size();
+    const auto num_markers = obstacles_x_.size();
 
-    for (long unsigned int i = 0; i < marker_array_size; i++) {
-      visualization_msgs::msg::Marker marker;
-      marker.header.frame_id = "nusim/world";
-      marker.header.stamp = get_clock()->now();
-      marker.id = i;
-      marker.type = visualization_msgs::msg::Marker::CYLINDER;
-      marker.action = visualization_msgs::msg::Marker::ADD;
+    for (long unsigned int i = 0; i < num_markers; i++) {
+      visualization_msgs::msg::Marker obs;
+      obs.header.frame_id = "nusim/world";
+      obs.header.stamp = get_clock()->now();
+      obs.id = i;
+      obs.type = visualization_msgs::msg::Marker::CYLINDER;
+      obs.action = visualization_msgs::msg::Marker::ADD;
 
-      marker.pose.position.x = obstacles_x_.at(i);
-      marker.pose.position.y = obstacles_y_.at(i);
-      marker.pose.position.z = 0.125;
+      obs.pose.position.x = obstacles_x_.at(i);
+      obs.pose.position.y = obstacles_y_.at(i);
+      obs.pose.position.z = 0.125;
 
-      marker.scale.x = 2.0 * obstacles_r_;
-      marker.scale.y = 2.0 * obstacles_r_;
-      marker.scale.z = 0.25;
-      marker.color.r = 1.0;
-      marker.color.g = 0.0;
-      marker.color.b = 0.0;
-      marker.color.a = 1.0;
-      obstacles_markers_array_.markers.push_back(marker);
+      obs.scale.x = 2.0 * obstacles_r_;
+      obs.scale.y = 2.0 * obstacles_r_;
+      obs.scale.z = 0.25;
+
+      obs.color.r = 1.0;
+      obs.color.a = 1.0;
+      obstacles_markers_array_.markers.push_back(obs);
     }
   }
 
