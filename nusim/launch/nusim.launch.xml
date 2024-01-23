@@ -7,11 +7,13 @@
     </include>
 
     <!-- RViz -->
-    <arg name="rviz_file" default="$(find-pkg-share nusim)/config/nusim.rviz" />
+    <arg name="rviz_file" default="$(find-pkg-share nusim)/config/nusim.rviz"/>
     <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(var rviz_file)"/>
 
-    
-
-    <node pkg="nusim" exec="nusim" name="nusim"/>
+    <!-- Nusim node -->
+    <arg name="config_file" default="basic_world.yaml"/>
+    <node pkg="nusim" exec="nusim" name="nusim">
+        <param from="$(find-pkg-share nusim)/config/$(var config_file)"/>
+    </node>
 
 </launch>

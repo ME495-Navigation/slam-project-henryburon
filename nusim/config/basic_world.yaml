@@ -1,0 +1,9 @@
+/**:
+  ros__parameters:
+    x0: 0.0
+    y0: 0.0
+    theta0: 0.0
+    rate: 200
+    walls:
+      arena_x_length: 5.0
+      arena_y_length: 5.0
