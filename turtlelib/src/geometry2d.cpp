@@ -109,4 +109,51 @@ namespace turtlelib
         return is;
     }
 
+    Vector2D & Vector2D::operator+=(const Vector2D & rhs)
+    {
+        x += rhs.x;
+        y += rhs.y;
+        return *this;
+    }
+
+    Vector2D & Vector2D::operator-=(const Vector2D & rhs)
+    {
+        x -= rhs.x;
+        y -= rhs.y;
+        return *this;
+    }
+
+    Vector2D & Vector2D::operator*=(const double & scalar)
+    {
+        x *= scalar;
+        y *= scalar;
+        return *this;
+    }
+
+    Vector2D operator+(const Vector2D &lhs, const Vector2D &rhs)
+    {
+        Vector2D result;
+        result.x = lhs.x + rhs.x;
+        result.y = lhs.y + rhs.y;
+        return result;
+    }
+
+    Vector2D operator-(const Vector2D &lhs, const Vector2D &rhs)
+    {
+        Vector2D result;
+        result.x = lhs.x - rhs.x;
+        result.y = lhs.y - rhs.y;
+        return result;
+    }
+
+    Vector2D operator*(const Vector2D &lhs, const double & scalar)
+    {
+        Vector2D result;
+        result.x = lhs.x * scalar;
+        result.y = lhs.y * scalar;
+        return result;
+    }
+
 }
+
+

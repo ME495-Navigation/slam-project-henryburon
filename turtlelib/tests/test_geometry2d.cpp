@@ -122,3 +122,73 @@ TEST_CASE("Vector2D normalization", "[Vector2D]")
     REQUIRE_THAT(normalized.x, Catch::Matchers::WithinAbs(0.6,1e-5));
     REQUIRE_THAT(normalized.y, Catch::Matchers::WithinAbs(0.8,1e-5));
 }
+
+TEST_CASE("Vector 2D += operator overload", "[Vector2D]")
+{
+    turtlelib::Vector2D v{3.0, 4.0};
+    turtlelib::Vector2D rhs{2.1, 6.8};
+
+    v += rhs;
+    
+    REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(5.1, 1e-5));
+    REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(10.8, 1e-5));
+}
+
+TEST_CASE("Vector 2D -= operator overload", "[Vector2D]")
+{
+    turtlelib::Vector2D v{2.1, 4.0};
+    turtlelib::Vector2D rhs{3.0, 6.8};
+
+    v -= rhs;
+    
+    REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(-0.9, 1e-5));
+    REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(-2.8, 1e-5));
+}
+
+TEST_CASE("Multiplication by a scalar", "[Vector2D]")
+{
+    turtlelib::Vector2D v{4.0, 9.0};
+    double scalar = 5.0;
+
+    v *= scalar;
+
+    REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(20.0, 1e-5));
+    REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(45.0, 1e-5));
+}
+
+
+TEST_CASE("Vector 2D + operator overload", "[Vector2D]")
+{
+    turtlelib::Vector2D lhs{3.0, 4.0};
+    turtlelib::Vector2D rhs{5.1, 1.8};
+    turtlelib::Vector2D v;
+
+    v = lhs + rhs;
+    
+    REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(8.1, 1e-5));
+    REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(5.8, 1e-5));
+}
+
+TEST_CASE("Vector 2D - operator overload", "[Vector2D]")
+{
+    turtlelib::Vector2D lhs{2.0, 1.0};
+    turtlelib::Vector2D rhs{5.1, 1.8};
+    turtlelib::Vector2D v;
+
+    v = lhs - rhs;
+    
+    REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(-3.1, 1e-5));
+    REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(-0.8, 1e-5));
+}
+
+TEST_CASE("Vector 2D * operator overload", "[Vector2D]")
+{
+    turtlelib::Vector2D lhs{2.0, 1.0};
+    double scalar = 3.0;
+    turtlelib::Vector2D v;
+
+    v = lhs * scalar;
+    
+    REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(6.0, 1e-5));
+    REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(3.0, 1e-5));
+}

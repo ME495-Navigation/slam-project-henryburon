@@ -88,7 +88,29 @@ namespace turtlelib
 
         /// \brief the y coordinate
         double y = 0.0;
+
+        /// \brief  - vector addition
+        /// \param rhs - the vector to add
+        /// \return - a reference to the modified vector
+        Vector2D & operator+=(const Vector2D & rhs);
+
+        /// \brief - vector subtraction
+        /// \param rhs - the vector to subtract
+        /// \return - a reference to the modified vector
+        Vector2D & operator-=(const Vector2D & rhs);
+        
+        /// \brief - multiplication by a scalar
+        /// \param scalar - the scalary to multiply by
+        /// \return - a reference to the modified vector
+        Vector2D & operator*=(const double & scalar);
+
     };
+
+    Vector2D operator+(const Vector2D &lhs, const Vector2D &rhs);
+
+    Vector2D operator-(const Vector2D &lhs, const Vector2D &rhs);
+
+    Vector2D operator*(const Vector2D &v, const double &scalar);
 
     /// \brief Subtracting one point from another yields a vector
     /// \param head point corresponding to the head of the vector
