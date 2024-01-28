@@ -106,10 +106,36 @@ namespace turtlelib
 
     };
 
+    /// \brief - dot product of two vectors
+    /// \param v1 - Vector2D object 1
+    /// \param v2 - Vector2D object 2
+    /// \return - double corresponding to the dot product
+    double dot(Vector2D v1, Vector2D v2);
+
+    /// \brief - magnitude of a vector
+    /// \param v - the vector
+    /// \return - double corresponding to the magnitude
+    double magnitude(Vector2D v);
+
+    
+    double angle(Vector2D v1, Vector2D v2);
+
+    /// \brief  - vector addition
+    /// \param lhs - the left vector to add
+    /// \param rhs - the right vector to add
+    /// \return - a new vector
     Vector2D operator+(const Vector2D &lhs, const Vector2D &rhs);
 
+    /// \brief  - vector subtraction
+    /// \param lhs - the left vector to subtract
+    /// \param rhs - the right vector to subtract
+    /// \return - a new vector
     Vector2D operator-(const Vector2D &lhs, const Vector2D &rhs);
 
+    /// \brief  - vector multiplication by scalar
+    /// \param v - the vector
+    /// \param scalar - the scalar to multiply by
+    /// \return - the new scaled vector
     Vector2D operator*(const Vector2D &v, const double &scalar);
 
     /// \brief Subtracting one point from another yields a vector

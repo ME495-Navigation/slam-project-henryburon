@@ -192,3 +192,32 @@ TEST_CASE("Vector 2D * operator overload", "[Vector2D]")
     REQUIRE_THAT(v.x, Catch::Matchers::WithinAbs(6.0, 1e-5));
     REQUIRE_THAT(v.y, Catch::Matchers::WithinAbs(3.0, 1e-5));
 }
+
+TEST_CASE("Vector 2D dot product", "[Vector2D]")
+{
+    turtlelib::Vector2D v1{2.0, 5.0};
+    turtlelib::Vector2D v2{4.0, 3.0};
+
+    double result = turtlelib::dot(v1, v2);
+
+    REQUIRE_THAT(result, Catch::Matchers::WithinAbs(23.0, 1e-5));
+}
+
+TEST_CASE("Vector 2D magnitude", "[Vector2D]")
+{
+    turtlelib::Vector2D v{3.0, 4.0};
+
+    double result = turtlelib::magnitude(v);
+
+    REQUIRE_THAT(result, Catch::Matchers::WithinAbs(5.0, 1e-5));
+}
+
+TEST_CASE("Angle between two vectors", "[Vector2D]")
+{
+    turtlelib::Vector2D v1{2.3, 4.4};
+    turtlelib::Vector2D v2{7.7, 3.1};
+
+    double result = turtlelib::angle(v1, v2);
+
+    REQUIRE_THAT(result, Catch::Matchers::WithinAbs(0.7063891, 1e-5));
+}

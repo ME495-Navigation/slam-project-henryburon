@@ -154,6 +154,26 @@ namespace turtlelib
         return result;
     }
 
+    double dot(Vector2D v1, Vector2D v2)
+    {
+        double result = v1.x * v2.x + v1.y * v2.y;
+        return result;
+    }
+
+    double magnitude(Vector2D v)
+    {
+        double result = std::sqrt(v.x * v.x + v.y * v.y);
+        return result;
+    }
+
+    double angle(Vector2D v1, Vector2D v2)
+    {
+        double dot12 = dot(v1, v2);
+        double mag12 = magnitude(v1) * magnitude(v2);
+        double result = acos(dot12/mag12);
+        return result;
+    }
+
 }
 
 
