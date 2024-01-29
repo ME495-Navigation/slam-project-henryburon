@@ -117,7 +117,10 @@ namespace turtlelib
     /// \return - double corresponding to the magnitude
     double magnitude(Vector2D v);
 
-    
+    /// \brief - angle between two vectors
+    /// \param v1 - Vector2D object 1
+    /// \param v2 - Vector2D object 2
+    /// \returns - double value corresponding to angle (radians)
     double angle(Vector2D v1, Vector2D v2);
 
     /// \brief  - vector addition

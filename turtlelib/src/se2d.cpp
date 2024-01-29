@@ -150,4 +150,30 @@ namespace turtlelib
 
     // Don't have a test case for final: operator*
 
+    Transform2D integrate_twist(Twist2D twist)
+    {
+        if (twist.omega == 0)
+        {
+            Transform2D T_bb_prime(Vector2D{twist.x, twist.y});
+            return T_bb_prime;
+        }
+        else
+        {
+            // Find the center of rotation
+            double x_s = (twist.y / twist.omega);
+            double y_s = -(twist.x / twist.omega);
+
+            Transform2D T_sb(Vector2D{x_s, y_s}); // s in the b frame (body to rotation)
+
+            Transform2D T_ss_prime(twist.omega); // pure rotation in the new frame
+
+            Transform2D T_bs = T_sb.inv();
+
+            Transform2D T_bb_prime = T_bs * T_ss_prime * T_sb; // T_sb = T_s_prime_b_prime
+
+            return T_bb_prime;
+
+        }
+    }
+
 }

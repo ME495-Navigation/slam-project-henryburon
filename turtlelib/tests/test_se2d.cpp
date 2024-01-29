@@ -212,3 +212,33 @@ TEST_CASE("Read transformation with stream extraction operator >>", "[Transform]
 }
 
 // Don't have a test case for final: operator*
+
+TEST_CASE("Integrate a twist", "[Transform2D]")
+{
+    SECTION("Pure translation")
+    {
+        turtlelib::Twist2D twist{0.0, 3.0, 4.0};
+        turtlelib::Transform2D translated = turtlelib::integrate_twist(twist);
+
+        REQUIRE_THAT(translated.translation().x, Catch::Matchers::WithinAbs(3.0, 1e-5));
+        REQUIRE_THAT(translated.translation().y, Catch::Matchers::WithinAbs(4.0, 1e-5));
+    }
+
+    SECTION("Pure rotation", "[Transform2D]")
+    {
+        turtlelib::Twist2D twist{turtlelib::PI, 0.0, 0.0};
+        turtlelib::Transform2D rotated = turtlelib::integrate_twist(twist);
+
+        REQUIRE_THAT(rotated.rotation(), Catch::Matchers::WithinAbs(3.141592, 1e-5));
+    }
+
+    SECTION("Translation and Rotation", "[Transform2D]")
+    {
+        turtlelib::Twist2D twist{turtlelib::PI/3, 6.66, -1.134427};
+        turtlelib::Transform2D transformed = turtlelib::integrate_twist(twist);
+
+        REQUIRE_THAT(transformed.rotation(), Catch::Matchers::WithinAbs(1.0471975512, 1e-5));
+        REQUIRE_THAT(transformed.translation().x, Catch::Matchers::WithinAbs(6.0494246591, 1e-5));
+        REQUIRE_THAT(transformed.translation().y, Catch::Matchers::WithinAbs(2.2417521857, 1e-5));
+    }
+}

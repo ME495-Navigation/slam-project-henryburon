@@ -42,6 +42,7 @@ namespace turtlelib
     std::istream & operator>>(std::istream & is, Twist2D & tw);
 
 
+
     /// \brief a rigid body transformation in 2 dimensions
     class Transform2D
     {
@@ -53,6 +54,7 @@ namespace turtlelib
         double rot;
         
     public:
+
         /// \brief Create an identity transformation
         Transform2D();
 
@@ -107,6 +109,7 @@ namespace turtlelib
         /// for a description
         friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
 
+
     };
 
 
@@ -128,6 +131,8 @@ namespace turtlelib
     /// \return the composition of the two transforms
     /// HINT: This function should be implemented in terms of *=
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
+
+    Transform2D integrate_twist(Twist2D twist);
 
 
 }
