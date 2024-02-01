@@ -97,7 +97,7 @@ TEST_CASE("Inverse Kinematics", "[DiffDrive]")
         // wheel_track, wheel_radius, wheels, q
         turtlelib::DiffDrive robot(2.0, 1.0, {0.0, 0.0}, {0.0, 0.0, 0.0});
 
-        // Initialize a desired twist
+        // Initialize a desired twist (theta, x, y)
         turtlelib::Twist2D twist{0.0, 3.4, 0.0};
 
         // Do twist
@@ -108,6 +108,60 @@ TEST_CASE("Inverse Kinematics", "[DiffDrive]")
         REQUIRE_THAT(required_wheels.phi_l, Catch::Matchers::WithinAbs(required_wheels.phi_r, 1e-5));
         REQUIRE_THAT(required_wheels.phi_l, Catch::Matchers::WithinAbs(expected_wheels.phi_l, 1e-5));
         REQUIRE_THAT(required_wheels.phi_r, Catch::Matchers::WithinAbs(expected_wheels.phi_r, 1e-5));
+
+    }
+
+    SECTION("Robot pure rotation")
+    {
+        // Initialize the DiffDrive robot
+        // wheel_track, wheel_radius, wheels, q
+        turtlelib::DiffDrive robot(2.0, 1.0, {0.0, 0.0}, {0.0, 0.0, 0.0});
+
+        // Initialize a desired twist (theta, x, y)
+        turtlelib::Twist2D twist{turtlelib::PI/3, 0.0, 0.0};
+
+        // Compute IK
+        turtlelib::Wheels required_wheels = robot.inverse_kinematics(twist);
+
+        turtlelib::Wheels expected_wheels{-1.0471975512, 1.0471975512};
+
+        REQUIRE_THAT(required_wheels.phi_l, Catch::Matchers::WithinAbs(-required_wheels.phi_r, 1e-5));
+        REQUIRE_THAT(required_wheels.phi_l, Catch::Matchers::WithinAbs(expected_wheels.phi_l, 1e-5));
+        REQUIRE_THAT(required_wheels.phi_r, Catch::Matchers::WithinAbs(expected_wheels.phi_r, 1e-5));
+
+    }
+
+    SECTION("Robot follows arc")
+    {
+        // Initialize the DiffDrive robot
+        // wheel_track, wheel_radius, wheels, q
+        turtlelib::DiffDrive robot(2.0, 1.0, {0.0, 0.0}, {0.0, 0.0, 0.0});
+
+        // Initialize a desired twist (theta, x, y)
+        turtlelib::Twist2D twist{turtlelib::PI/3, 16.93, 0.0};
+
+        // Compute IK
+        turtlelib::Wheels required_wheels = robot.inverse_kinematics(twist);
+
+        // Expected change in position in radians
+        turtlelib::Wheels expected_wheels{15.8828024488, 17.9771975512};
+
+        REQUIRE_THAT(required_wheels.phi_l, Catch::Matchers::WithinAbs(expected_wheels.phi_l, 1e-5));
+        REQUIRE_THAT(required_wheels.phi_r, Catch::Matchers::WithinAbs(expected_wheels.phi_r, 1e-5));
+
+    }
+
+    SECTION("Impossible-to-follow twist")
+    {
+        // Initialize the DiffDrive robot
+        // wheel_track, wheel_radius, wheels, q
+        turtlelib::DiffDrive robot(2.0, 1.0, {0.0, 0.0}, {0.0, 0.0, 0.0});
+
+        // Initialize a desired twist (theta, x, y)
+        turtlelib::Twist2D twist{0.0, 3.4, 0.1};
+
+        REQUIRE_THROWS_AS(robot.inverse_kinematics(twist), std::logic_error);
+
 
     }
 }
