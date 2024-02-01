@@ -4,3 +4,4 @@
 [4] For normalize_angle function: https://stackoverflow.com/questions/2320986/easy-way-to-keeping-angles-between-179-and-180-degrees
 [5] Used Srikanth's "invalid service" discussion post for setting up the CMakeLists.txt in nusim.
 [6] Used for angle function in geometry2d.cpp: https://www.cuemath.com/geometry/angle-between-vectors/
+[7] Modern Robotics ch. 13.4 for forward kinematics

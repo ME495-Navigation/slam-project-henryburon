@@ -132,6 +132,9 @@ namespace turtlelib
     /// HINT: This function should be implemented in terms of *=
     Transform2D operator*(Transform2D lhs, const Transform2D & rhs);
 
+    /// @brief integrate twist of rigid body
+    /// @param twist - twist to be integrated
+    /// @return integrated twist
     Transform2D integrate_twist(Twist2D twist);
 
 
