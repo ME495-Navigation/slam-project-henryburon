@@ -21,7 +21,7 @@ TEST_CASE("Get wheels", "[DiffDrive]")
 
 TEST_CASE("Forward Kinematics", "[DiffDrive]")
 {
-    SECTION("Robot drive forward")
+    SECTION("Robot drives forward")
     {
         // Initialize the DiffDrive robot
         // wheel_track, wheel_radius, wheels, q
@@ -31,7 +31,7 @@ TEST_CASE("Forward Kinematics", "[DiffDrive]")
         turtlelib::Wheels delta_wheels{turtlelib::PI/2, turtlelib::PI/2};
 
         // Update the robot config accordingly
-        robot.do_forward_kinematics(delta_wheels);
+        robot.forward_kinematic_update(delta_wheels);
 
         turtlelib::RobotConfig robot_config = robot.get_robot_config();
         // theta, x, y
@@ -53,7 +53,7 @@ TEST_CASE("Forward Kinematics", "[DiffDrive]")
         turtlelib::Wheels delta_wheels{-turtlelib::PI, turtlelib::PI};
 
         // Update the robot config accordingly
-        robot.do_forward_kinematics(delta_wheels);
+        robot.forward_kinematic_update(delta_wheels);
 
         turtlelib::RobotConfig robot_config = robot.get_robot_config();
         // theta, x, y
@@ -75,7 +75,7 @@ TEST_CASE("Forward Kinematics", "[DiffDrive]")
         turtlelib::Wheels delta_wheels{1.5*turtlelib::PI, turtlelib::PI};
 
         // Update the robot config accordingly
-        robot.do_forward_kinematics(delta_wheels);
+        robot.forward_kinematic_update(delta_wheels);
 
         turtlelib::RobotConfig robot_config = robot.get_robot_config();
         // theta, x, y
@@ -86,6 +86,30 @@ TEST_CASE("Forward Kinematics", "[DiffDrive]")
         REQUIRE_THAT(robot_config.y, Catch::Matchers::WithinAbs(expected_config.y, 1e-5));
 
     }
-
     
 }
+
+TEST_CASE("Inverse Kinematics", "[DiffDrive]")
+{
+    SECTION("Robot drives forward")
+    {
+        // Initialize the DiffDrive robot
+        // wheel_track, wheel_radius, wheels, q
+        turtlelib::DiffDrive robot(2.0, 1.0, {0.0, 0.0}, {0.0, 0.0, 0.0});
+
+        // Initialize a desired twist
+        turtlelib::Twist2D twist{0.0, 3.4, 0.0};
+
+        // Do twist
+        turtlelib::Wheels required_wheels = robot.inverse_kinematics(twist);
+
+        turtlelib::Wheels expected_wheels{3.4, 3.4};
+
+        REQUIRE_THAT(required_wheels.phi_l, Catch::Matchers::WithinAbs(required_wheels.phi_r, 1e-5));
+        REQUIRE_THAT(required_wheels.phi_l, Catch::Matchers::WithinAbs(expected_wheels.phi_l, 1e-5));
+        REQUIRE_THAT(required_wheels.phi_r, Catch::Matchers::WithinAbs(expected_wheels.phi_r, 1e-5));
+
+    }
+}
+
+

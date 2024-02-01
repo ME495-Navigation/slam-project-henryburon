@@ -1,6 +1,7 @@
 #include "turtlelib/diff_drive.hpp"
 #include <cmath>
 #include <iostream>
+#include <stdexcept>
 
 
 namespace turtlelib
@@ -38,7 +39,7 @@ namespace turtlelib
         q.y = q_new.y;
     }
 
-    void DiffDrive::do_forward_kinematics(Wheels delta_wheels)
+    void DiffDrive::forward_kinematic_update(Wheels delta_wheels)
     {
 
         // Get the body twist Vb
@@ -78,13 +79,21 @@ namespace turtlelib
         // Update wheel positions as well?
         wheels.phi_l += delta_wheels.phi_l;
         wheels.phi_r += delta_wheels.phi_r;
-     
+    }
 
+    Wheels DiffDrive::inverse_kinematics(Twist2D twist)
+    {
 
+        if (twist.y != 0.0)
+        {
+            throw std::logic_error("Twist cannot be accomplished without the wheels slipping.");
+        }
+        
+        Wheels required_wheels;
+        required_wheels.phi_r = (((wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
+        required_wheels.phi_l = ((-(wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
 
-
-
-
+        return required_wheels;
     }
 
 }

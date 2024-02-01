@@ -49,6 +49,10 @@ namespace turtlelib
         DiffDrive();
 
         /// \brief create a DiffDrive object
+        /// \param wheel_track - full distance between wheels
+        /// \param wheel_radius - radius of wheels
+        /// \param wheels - Wheels object
+        /// \param q - RobotConfig object
         DiffDrive(double wheel_track, double wheel_radius, Wheels wheels, RobotConfig q);
 
         /// \brief get wheel position
@@ -67,13 +71,15 @@ namespace turtlelib
         /// \param new_q - new robot configuration
         void set_robot_config(RobotConfig q_new);
 
+        /// \brief Given new relative wheel positions, update the robot configuration
+        /// \param delta_wheels change in wheel position
+        /// \return updates the robot's configuration
+        void forward_kinematic_update(Wheels delta_wheels);
 
-        /// @brief Given new relative wheel positions, update the robot configuration
-        /// @param delta_wheels change in wheel position
-        /// @return updates the robot's configuration
-        void do_forward_kinematics(Wheels delta_wheels);
-
-
+        /// \brief Compute wheel velocities to move at given twist
+        /// \param twist - Twist2D object
+        /// \returns Wheels object
+        Wheels inverse_kinematics(Twist2D twist);
 
 
 
