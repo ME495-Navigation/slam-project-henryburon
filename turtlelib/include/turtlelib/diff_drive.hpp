@@ -3,13 +3,12 @@
 /// \file
 /// \brief Models the kinematics of a differential drive robot
 
-
 #include "turtlelib/geometry2d.hpp"
 #include "turtlelib/se2d.hpp"
 
 namespace turtlelib
 {
-    /// \brief represent a diff drive robot's wheels
+    /// \brief represent the position of a diff drive robot's wheels
     struct Wheels
     {
         /// \brief the left wheel's position (rad)
@@ -19,66 +18,73 @@ namespace turtlelib
         double phi_r = 0.0;
     };
 
-    /// \brief represent a robot's configuration
+    /// \brief Structure to represent the configuration of a robot in 2D space
     struct RobotConfig
     {
-        /// \brief the robot's theta position (rad)
+        /// \brief Robot's orientation in radians, relative to the x-axis
         double theta = 0.0;
         
-        /// \brief the robot's x-coordinate
+        /// \brief the robot's x-coordinate in the world frame
         double x = 0.0;
 
-        /// \brief the robot's y-coordinate
+        /// \brief the robot's y-coordinate in the world frame
         double y = 0.0;
 
     };
     
-    
+    /// @brief  \brief Models a differential drive robot
     class DiffDrive
     {
         private:
 
+        /// \brief Distace between the centers of the wheels
         double wheel_track;
+
+        /// \brief Radius of each wheel
         double wheel_radius;
+
+        /// \brief Current position of the wheels
         Wheels wheels;
+
+        /// \brief Current configuration of the robot
         RobotConfig q;
 
         public:
 
-        /// \brief Initialize DiffDrive constructor
+        /// \brief Default constructor. Initializes a DiffDrive object with default parameters
         DiffDrive();
 
-        /// \brief create a DiffDrive object
-        /// \param wheel_track - full distance between wheels
-        /// \param wheel_radius - radius of wheels
-        /// \param wheels - Wheels object
-        /// \param q - RobotConfig object
+        /// \brief create a DiffDrive object with specific attributes
+        /// \param wheel_track - Distance between the centers of the wheels
+        /// \param wheel_radius - Radius of the wheels
+        /// \param wheels - Initial position of the robot's wheels
+        /// \param q - Initial configuration of the robot in the world frame
         DiffDrive(double wheel_track, double wheel_radius, Wheels wheels, RobotConfig q);
 
-        /// \brief get wheel position
-        /// \return Wheels object 
+        /// \brief Retrieves the current wheel positions
+        /// \return A Wheels struct containing the current positions of the wheels
         Wheels get_wheels() const;
 
-        /// \brief get robot configuration
-        /// \brief RobotConfig object
+        /// \brief Retrieves the current robot configuration
+        /// \brief A RobotConfig object representing the robot's current position and orientation
         RobotConfig get_robot_config() const;
 
-        /// \brief set new wheels position
+        /// \brief Sets new positions for the robot's wheels
         /// \param new_wheels - new wheels position
         void set_wheels(Wheels new_wheels);
 
-        /// \brief set new robot configuration
-        /// \param new_q - new robot configuration
+        /// \brief Sets a new configuration for the robot
+        /// \param q_new - A RobotConfig struct representing the new position and orientation of the robot
         void set_robot_config(RobotConfig q_new);
 
-        /// \brief Given new relative wheel positions, update the robot configuration
-        /// \param delta_wheels change in wheel position
-        /// \return updates the robot's configuration
+        /// \brief Updates the robot's configuration based on a change in wheel position
+        /// \param delta_wheels A Wheels struct representing the change in position of the left and right wheel
         void forward_kinematic_update(Wheels delta_wheels);
 
-        /// \brief Compute wheel velocities to move at given twist
-        /// \param twist - Twist2D object
-        /// \returns Wheels object
+        /// \brief Calculates the required wheel movement to achieve a specified twist
+        /// \param twist - A Twist2D struct representing the desired twist of the robot
+        /// \returns A Wheels struct containing the wheel movements required to achieve the specified twist
+        /// \throws std::logic_error If the desired twist cannot be achieved without wheel slippage
         Wheels inverse_kinematics(Twist2D twist);
 
 
