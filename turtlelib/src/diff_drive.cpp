@@ -42,14 +42,14 @@ namespace turtlelib
     void DiffDrive::forward_kinematic_update(Wheels delta_wheels)
     {
 
-        // Get the body twist Vb
+        // [1] Get the body twist Vb
 
         Twist2D Vb;
         Vb.omega = ((wheel_radius / (2 * (wheel_track/2))) * (delta_wheels.phi_r - delta_wheels.phi_l));
         Vb.x = (wheel_radius / 2) * (delta_wheels.phi_l + delta_wheels.phi_r);
         Vb.y = 0.0;
 
-        // Find the body transformation from the twist
+        // [2] Find the body transformation from the twist
         // This expresses the new chassis frame, b_p, 
         // relative to the initial frame, b.
 
@@ -63,13 +63,13 @@ namespace turtlelib
         double d_qb_y = T_bb_p.translation().y;
         
 
-        // Transform dqb in {b} to dq in {s}
+        // [3] Transform dqb in {b} to dq in {s}
 
         double dqtheta = d_qb_p_theta;
         double dqx = std::cos(q.theta) * d_qb_x - std::sin(q.theta) * d_qb_y;
         double dqy = std::sin(q.theta) * d_qb_x + std::cos(q.theta) * d_qb_y;
 
-        // Update robot config
+        // [4] Update robot config
 
         q.theta += dqtheta;
         q.theta = normalize_angle(q.theta);
@@ -90,8 +90,12 @@ namespace turtlelib
         }
         
         Wheels required_wheels;
-        required_wheels.phi_r = (((wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
+        
+        // [5]
         required_wheels.phi_l = ((-(wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
+
+        // [6]
+        required_wheels.phi_r = (((wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
 
         return required_wheels;
     }
