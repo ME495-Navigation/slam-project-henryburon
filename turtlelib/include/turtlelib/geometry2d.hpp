@@ -129,7 +129,7 @@ namespace turtlelib
     /// get removes the next unprocessed character from the buffer.
     std::istream &operator>>(std::istream &is, Vector2D &v);
 
-    /// \brief wraps a vector to (0, 1]
+    /// \brief wraps a vector to (0, 1]. This not a correct specification. it returns a unit vector in the same direction as the initial vector
     /// \param v a 2D vector
     /// \return returns a normalized Vector2D
     Vector2D normalize_vector(Vector2D v);

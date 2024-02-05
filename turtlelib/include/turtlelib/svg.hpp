@@ -13,6 +13,9 @@
 namespace turtlelib
 {
 
+    // this class design could be greatly improved.
+    // it seems to only aid the user in outputting svg primitives, but it does not encapsulate or abstract writing out the svg header.
+    // this puts a burden on your user to know details they should not need to know about svgs
     class Svg
     {
     private:

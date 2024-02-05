@@ -1,0 +1,4 @@
+Doxygen warning when compiling
+colcon test failures: failed flake8
+The points in B6_frames.svg are not in the correct place. A point is a single geometric entity
+and it appears in the same location regardless of the coordinate system it is expressed in

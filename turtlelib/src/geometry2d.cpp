@@ -8,14 +8,14 @@ namespace turtlelib
     double normalize_angle(double rad)
     {
         // Normalize the angle to be within the range (-PI, PI]
-        double normalizedAngle = rad - (ceil((rad + PI) / (2 * PI)) - 1) * 2 * PI;
+        double normalizedAngle = rad - (ceil((rad + PI) / (2 * PI)) - 1) * 2 * PI; // 2.0, 1.0, just return this no need for a temporary. I have not verified this formula so make sure it is tested. I think it's okay but fmod might help.
         return normalizedAngle;
     }
 
     Vector2D normalize_vector(Vector2D v)
     {
         const auto mag = sqrt(v.x * v.x + v.y * v.y);
-        if (mag != 0.0)
+        if (mag != 0.0) // Is it correct that a normalized 0 vector is the 0 vector?
         {
             v.x /= mag;
             v.y /= mag;
@@ -32,7 +32,7 @@ namespace turtlelib
     std::istream &operator>>(std::istream &is, Point2D &p)
     {
         // Read vectors entered as [x y] or x y
-        char ch;
+        char ch; // unitialized
         // Extracts characters from stream
         // This if-statement is designed to work with the multiple input types
         // So, if successful extraction from the input stream...
@@ -81,7 +81,7 @@ namespace turtlelib
     std::istream &operator>>(std::istream &is, Vector2D &v)
     {
         // Read vectors entered as [x y] or x y
-        char ch;
+        char ch; // unitialized
         // Extracts characters from stream
         // This if-statement is designed to work with the multiple input types
         // So, if successful extraction from the input stream...

@@ -23,12 +23,13 @@ A library for handling transformations in SE(2) and other turtlebot-related math
          * Con: May accidentally create extra/unnecessary objects (and thereby impact computational performance).
       3.
          * Pro: Efficient, avoids object copies. Relatively less verbose.
-         * Con: Modifies original object, which could be a problem if other parts of code rely on it.
+         * Con: Modifies original object, which could be a problem if other parts of code rely on it. 
+            - This is a big problem
 
 
    - Which of the methods would you implement and why?
 
-   * I would implement (c), where the Vector2D object is modified to represent the unit vector. It is efficient, as it avoids creating a new object for the normalized vector. The code is also relatively simple, concise, and easy to understand. The most important factor for me was simplicity, as I am not worried about performance gains, and this implementation allowed me to be sure of the function's performance.
+   * I would implement (c), where the Vector2D object is modified to represent the unit vector. It is efficient, as it avoids creating a new object for the normalized vector. The code is also relatively simple, concise, and easy to understand. The most important factor for me was simplicity, as I am not worried about performance gains, and this implementation allowed me to be sure of the function's performance. You actually did not implement this.
 
 2. What is the difference between a class and a struct in C++?
 

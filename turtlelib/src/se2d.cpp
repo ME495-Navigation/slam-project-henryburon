@@ -47,7 +47,7 @@ namespace turtlelib
     // Apply a transformation to a 2D point
     Point2D Transform2D::operator()(Point2D p) const
     {
-        double x_transf = std::cos(rot) * p.x - std::sin(rot) * p.y + transf.x;
+        double x_transf = std::cos(rot) * p.x - std::sin(rot) * p.y + transf.x; // no need for these temporaries, but const auto =
         double y_transf = std::sin(rot) * p.x + std::cos(rot) * p.y + transf.y;
         return {x_transf, y_transf};
     }
@@ -55,7 +55,7 @@ namespace turtlelib
     // Apply a transformation to a 2D vector
     Vector2D Transform2D::operator()(Vector2D v) const
     {
-        double x_transf = std::cos(rot) * v.x - std::sin(rot) * v.y + transf.x;
+        double x_transf = std::cos(rot) * v.x - std::sin(rot) * v.y + transf.x; // no need for these temporaries, but const auto
         double y_transf = std::sin(rot) * v.x + std::cos(rot) * v.y + transf.y;
         return {x_transf, y_transf};
     }
@@ -64,7 +64,7 @@ namespace turtlelib
     Twist2D Transform2D::operator()(Twist2D v) const
     {
         double rot_transf = v.omega;
-        double x_transf = transf.y * v.omega + std::cos(rot) * v.x - std::sin(rot) * v.y;
+        double x_transf = transf.y * v.omega + std::cos(rot) * v.x - std::sin(rot) * v.y; // no need for these temporaries but const auto
         double y_transf = -transf.x * v.omega + std::sin(rot) * v.x + std::cos(rot) * v.y;
         return {rot_transf, x_transf, y_transf};
     }
@@ -74,9 +74,9 @@ namespace turtlelib
     {
         // given Vector2D transf and double rot
         double rot_inv = -rot;
-        double x_inv = -transf.x * std::cos(rot) - transf.y * std::sin(rot);
+        double x_inv = -transf.x * std::cos(rot) - transf.y * std::sin(rot); // no need for these temporaries, but const auto
         double y_inv = -transf.y * std::cos(rot) + transf.x * std::sin(rot);
-        return {Vector2D{x_inv, y_inv}, rot_inv};
+        return {Vector2D{x_inv, y_inv}, rot_inv}; // no need for Vector2D, but arguably it makes it more clear what you are doing here
     }
 
     Transform2D &Transform2D::operator*=(const Transform2D &rhs)
@@ -84,8 +84,8 @@ namespace turtlelib
         // '*=' is used to combine two transformations together
         // i.e. A *= B would mean do A then B, in sequence
         // Calculate how much the translation parts of A change when you apply rotation 'rhs' to it
-        double x_A_moved = cos(rot) * rhs.transf.x - sin(rot) * rhs.transf.y;
-        double y_A_moved = sin(rot) * rhs.transf.x + cos(rot) * rhs.transf.y;
+        double x_A_moved = cos(rot) * rhs.transf.x - sin(rot) * rhs.transf.y; // const auto
+        double y_A_moved = sin(rot) * rhs.transf.x + cos(rot) * rhs.transf.y; // cons tauto
 
         // Then update the translation to include those changes
         transf.x += x_A_moved;
@@ -117,7 +117,7 @@ namespace turtlelib
     std::istream &operator>>(std::istream &is, Transform2D &tf)
     {
         // Read a transformation from stdin
-        std::string deg, x, y;
+        std::string deg, x, y; // use temporaries closer to where they are used
         double rot = 0.0;
         Vector2D tran{0.0, 0.0};
 

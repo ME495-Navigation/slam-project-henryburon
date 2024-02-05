@@ -104,7 +104,7 @@ public:
 
     // Broadcasters
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
-
+    //unnecessary this->
     timer_ =
       this->create_wall_timer(
       std::chrono::milliseconds(1000 / rate_),
@@ -193,7 +193,7 @@ private:
     wall_mark_1.pose.position.y = arena_y_length_ / 2 + wall_thickness_ / 2;
     wall_mark_1.pose.position.z = 0.25 / 2;
 
-    wall_mark_1.scale.x = arena_x_length_ + 2 * wall_thickness_;
+    wall_mark_1.scale.x = arena_x_length_ + 2 * wall_thickness_; // 2.0
     wall_mark_1.scale.y = wall_thickness_;
     wall_mark_1.scale.z = 0.25;
 
@@ -210,8 +210,8 @@ private:
     wall_mark_2.action = visualization_msgs::msg::Marker::ADD;
 
     wall_mark_2.pose.position.x = 0.0;
-    wall_mark_2.pose.position.y = -(arena_y_length_ / 2 + wall_thickness_ / 2);
-    wall_mark_2.pose.position.z = 0.25 / 2;
+    wall_mark_2.pose.position.y = -(arena_y_length_ / 2 + wall_thickness_ / 2); // 2.0
+    wall_mark_2.pose.position.z = 0.25 / 2; // 2.0
 
     wall_mark_2.scale.x = arena_x_length_ + 2 * wall_thickness_;
     wall_mark_2.scale.y = wall_thickness_;
@@ -249,9 +249,9 @@ private:
     wall_mark_4.type = visualization_msgs::msg::Marker::CUBE;
     wall_mark_4.action = visualization_msgs::msg::Marker::ADD;
 
-    wall_mark_4.pose.position.x = -(arena_x_length_ / 2 + wall_thickness_ / 2);
+    wall_mark_4.pose.position.x = -(arena_x_length_ / 2 + wall_thickness_ / 2); // 2.0
     wall_mark_4.pose.position.y = 0.0;
-    wall_mark_4.pose.position.z = 0.25 / 2;
+    wall_mark_4.pose.position.z = 0.25 / 2; // 2.0
 
     wall_mark_4.scale.x = wall_thickness_;
     wall_mark_4.scale.y = arena_y_length_ + 2 * wall_thickness_;
@@ -267,13 +267,13 @@ private:
   void create_obstacles()
   {
     if (obstacles_x_.size() != obstacles_y_.size()) {
-      RCLCPP_ERROR(
+        RCLCPP_ERROR( // unnecessary this
         this->get_logger(), "Error: obstacles/x and obstacles/y should be the same length.");
-      rclcpp::shutdown();
+      rclcpp::shutdown(); // throw exception
     }
     const auto num_markers = obstacles_x_.size();
 
-    for (long unsigned int i = 0; i < num_markers; i++) {
+    for (long unsigned int i = 0; i < num_markers; i++) { //size_t i
       visualization_msgs::msg::Marker obs;
       obs.header.frame_id = "nusim/world";
       obs.header.stamp = get_clock()->now();

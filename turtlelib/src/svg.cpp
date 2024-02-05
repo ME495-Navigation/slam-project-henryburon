@@ -10,12 +10,12 @@ namespace turtlelib
     void Svg::DrawPoint(double cx, double cy, const std::string &pcolor, std::ofstream &outFile)
     {
         // Offset the point
-        turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{4.25, 5.5});
+        turtlelib::Transform2D turtlelibCoordinates(turtlelib::Vector2D{4.25, 5.5}); // magic numbers should be constexpr static
         turtlelib::Vector2D originalPoint{cx, -cy};
         turtlelib::Vector2D transformedPoint = turtlelibCoordinates(originalPoint);
 
         // Convert from inches to pixels
-        double x = transformedPoint.x * 96;
+        double x = transformedPoint.x * 96; // const auto 96.0. 96.0 is a magic number that should be static constexpr 
         double y = transformedPoint.y * 96;
 
         outFile << "<circle cx=\"" << x << "\" cy=\"" << y
@@ -35,7 +35,7 @@ namespace turtlelib
     void Svg::DrawVector(Point2D origin, Vector2D vector, const std::string &vcolor, std::ofstream &outFile)
     {
         // Convert from inches to pixels
-        double x2 = origin.x * 96;
+        double x2 = origin.x * 96; // const auto 96.0
         double y2 = -origin.y * 96;
         double x1 = x2 + vector.x * 96;
         double y1 = y2 + -vector.y * 96;
