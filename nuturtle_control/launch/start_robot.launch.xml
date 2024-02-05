@@ -1,0 +1,35 @@
+<launch>
+
+    <!-- Arguments -->
+    <arg name="cmd_src" default="none">
+        <choice value="circle" />
+        <choice value="teleop" />
+        <choice value="none" />
+    </arg>
+
+    <arg name="robot" default="nusim">
+        <choice value="nusim" />
+        <choice value="localhost" />
+        <choice value="none" />
+    </arg>
+
+    <arg name="use_rviz" default="true">
+        <choice value="true" />
+        <choice value="false" />
+    </arg>
+
+    <!-- Supposed to run turtlebot3_teleop teleop_twist_keyboard? -->
+    <group if="$(eval '\'$(var cmd_src)\' == \'teleop\'')">
+        <node pkg="teleop_twist_keyboard" exec="teleop_twist_keyboard"/>
+    </group>
+
+    <group if="$(eval '\'$(var robot)\' == \'nusim\'')">
+        <include file="$(find-pkg-share nusim)/launch/nusim.launch.xml"/>
+        <node pkg="nuturtle_control" exec="turtle_control"/>
+    </group>
+
+    <group if="$(eval '\'$(var robot)\' == \'localhost\'')"/>
+    <group if="$(eval '\'$(var robot)\' == \'none\'')"/>
+
+
+</launch>
