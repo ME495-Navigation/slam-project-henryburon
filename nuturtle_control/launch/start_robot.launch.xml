@@ -39,7 +39,11 @@
 
         <node pkg="nusim" exec="nusim" name="nusim">
             <param from="$(find-pkg-share nusim)/config/$(var basic_world_config_file)"/>
-        </node> 
+        </node>
+
+        <node pkg="nuturtle_control" exec="odometry">
+            <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+        </node>
 
         <node pkg="nuturtle_control" exec="turtle_control">
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>

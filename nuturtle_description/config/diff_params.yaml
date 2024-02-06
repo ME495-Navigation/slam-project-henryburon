@@ -6,3 +6,7 @@
     motor_cmd_per_rad_sec: 0.024
     encoder_ticks_per_rad: 651.8986469
     collision_radius: 0.11
+    body_id: "base_footprint"
+    odom_id: "odom"
+    wheel_left: "left_wheel_joint"
+    wheel_right: "right_wheel_joint"

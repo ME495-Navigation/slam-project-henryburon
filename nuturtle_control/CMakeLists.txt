@@ -17,10 +17,13 @@ find_package(turtlelib REQUIRED)
 
 
 
-add_executable(turtle_control src/turtle_control.cpp)
+add_executable(turtle_control 
+              src/turtle_control.cpp)
 
-ament_target_dependencies(
-  turtle_control
+add_executable(odometry 
+               src/odometry.cpp)
+
+ament_target_dependencies(turtle_control
   rclcpp
   geometry_msgs
   nuturtlebot_msgs
@@ -28,12 +31,17 @@ ament_target_dependencies(
   turtlelib
   )
 
+ament_target_dependencies(odometry
+  rclcpp)
+
 
 target_include_directories(turtle_control PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(turtle_control turtlelib::turtlelib)
+target_link_libraries(odometry turtlelib::turtlelib)
+
 
 
 # target_compile_features(turtle_control PUBLIC c_std_99 cxx_std_17)
@@ -45,6 +53,7 @@ install(DIRECTORY
 
 install(TARGETS 
   turtle_control
+  odometry
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
