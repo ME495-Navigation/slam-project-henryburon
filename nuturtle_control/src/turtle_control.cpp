@@ -123,8 +123,8 @@ private:
 
       if (elapsed_time > 0.0)
       {
-        js.velocity = {js.position[0] / elapsed_time,
-                       js.position[1] / elapsed_time};
+        js.velocity = {js.position.at(0) / elapsed_time,
+                       js.position.at(1) / elapsed_time};
       }
 
       // Handle division by zero scenario

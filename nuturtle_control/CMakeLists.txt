@@ -14,6 +14,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(nuturtlebot_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(turtlelib REQUIRED)
+find_package(nav_msgs REQUIRED)
 
 
 
@@ -32,7 +33,10 @@ ament_target_dependencies(turtle_control
   )
 
 ament_target_dependencies(odometry
-  rclcpp)
+  rclcpp
+  sensor_msgs
+  nav_msgs
+  turtlelib)
 
 
 target_include_directories(turtle_control PUBLIC
