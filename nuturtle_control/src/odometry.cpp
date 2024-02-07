@@ -7,9 +7,11 @@
 #include "turtlelib/diff_drive.hpp"
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
+#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nuturtle_control/srv/initial_pose.hpp"
 
 
-using namespace std::chrono_literals;
+// using namespace std::chrono_literals;
 
 class Odometry : public rclcpp::Node
 {
@@ -43,6 +45,15 @@ public:
     odom_body_broadcaster = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+    // Services
+    initial_pose_init = create_service<nuturtle_control::srv::InitialPose>(
+        "/initial_pose",
+        std::bind(
+            &Odometry::initial_pose_callback,
+            this,
+            std::placeholders::_1,
+            std::placeholders::_2));
+
     // Initialize variables
     old_radian_.position = {0.0, 0.0};
 
@@ -71,6 +82,17 @@ private:
         t.transform.rotation.w = q.w();
 
         odom_body_broadcaster->sendTransform(t);
+    }
+
+    void initial_pose_callback(
+        std::shared_ptr<nuturtle_control::srv::InitialPose::Request> request,
+        std::shared_ptr<nuturtle_control::srv::InitialPose::Response>)
+    {
+        // Set configuration to that which is specified in request
+        dd_robot_ = turtlelib::DiffDrive{track_width_, 
+                                        wheel_radius_, 
+                                        {0.0, 0.0}, 
+                                        {request->theta, request->x, request->y}};
     }
 
     void joint_states_callback(const sensor_msgs::msg::JointState & msg)
@@ -141,6 +163,9 @@ rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub;
 // Broadcasters
 std::unique_ptr<tf2_ros::TransformBroadcaster> odom_body_broadcaster;
 
+// Services
+rclcpp::Service<nuturtle_control::srv::InitialPose>::SharedPtr initial_pose_init;
+
 // Variables
 std::string body_id_;
 std::string odom_id_;
@@ -153,7 +178,6 @@ nav_msgs::msg::Odometry odom_msg_;
 tf2::Quaternion quat_;
 double wheel_radius_;
 double track_width_;
-
 
 };
 

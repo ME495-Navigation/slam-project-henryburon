@@ -17,6 +17,7 @@ find_package(turtlelib REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
 
 
 add_executable(turtle_control 
@@ -39,19 +40,22 @@ ament_target_dependencies(odometry
   nav_msgs
   turtlelib
   tf2
-  tf2_ros)
+  tf2_ros
+  )
 
+rosidl_generate_interfaces(${PROJECT_NAME}_srv
+  "srv/InitialPose.srv"
+  )
 
 target_include_directories(turtle_control PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}_srv "rosidl_typesupport_cpp")
+
+
 target_link_libraries(turtle_control turtlelib::turtlelib)
-target_link_libraries(odometry turtlelib::turtlelib)
-
-
-
-# target_compile_features(turtle_control PUBLIC c_std_99 cxx_std_17)
+target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 
 install(DIRECTORY
   launch
