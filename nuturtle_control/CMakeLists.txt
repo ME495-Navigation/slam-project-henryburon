@@ -15,7 +15,8 @@ find_package(nuturtlebot_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(turtlelib REQUIRED)
 find_package(nav_msgs REQUIRED)
-
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 
 add_executable(turtle_control 
@@ -36,7 +37,9 @@ ament_target_dependencies(odometry
   rclcpp
   sensor_msgs
   nav_msgs
-  turtlelib)
+  turtlelib
+  tf2
+  tf2_ros)
 
 
 target_include_directories(turtle_control PUBLIC

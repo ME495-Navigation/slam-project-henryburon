@@ -6,4 +6,5 @@
 [6] Used for angle function in geometry2d.cpp: https://www.cuemath.com/geometry/angle-between-vectors/
 [7] Modern Robotics ch. 13.4 for forward kinematics
 [8] Used for writing REQUIRE_THROWS_AS test case (impossible-to-follow twist): https://stackoverflow.com/questions/35757334/catch-unit-testing-framework-require-throws-as
-
+[9] For launching the extra terminal with teleop_twist_keyboard: https://robotics.stackexchange.com/questions/100193/launching-teleop-twist-keyboard-from-launch-file-along-with-other-nodes-messes-u
+[10] Learning about/to use setRPY in odometry.cpp: https://gist.github.com/alifahrri/84d283f69598e2d89c7ed850ef4b76d7
