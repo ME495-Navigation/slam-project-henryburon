@@ -73,14 +73,14 @@ namespace turtlelib
 
         // [4] Update robot config
 
-        q.theta += dqtheta;
+        q.theta = dqtheta;
         q.theta = normalize_angle(q.theta);
-        q.x += dqx;
-        q.y += dqy;
+        q.x = dqx;
+        q.y = dqy;
 
         // Update wheel positions as well?
-        // wheels.phi_l += delta_wheels.phi_l;
-        // wheels.phi_r += delta_wheels.phi_r;
+        wheels.phi_l += delta_wheels.phi_l;
+        wheels.phi_r += delta_wheels.phi_r;
     }
 
 // ########## End_Citation [7] ##########
