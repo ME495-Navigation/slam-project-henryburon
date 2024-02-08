@@ -81,7 +81,7 @@ private:
     wheel_cmd_.right_velocity = required_wheels.phi_r;
 
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_temp;
-    wheel_cmd_temp.left_velocity = static_cast<int>(wheel_cmd_.left_velocity / motor_cmd_per_rad_sec_);
+    wheel_cmd_temp.left_velocity = static_cast<int>(wheel_cmd_.left_velocity / motor_cmd_per_rad_sec_); // and multiply by rate?
     wheel_cmd_temp.right_velocity = static_cast<int>(wheel_cmd_.right_velocity / motor_cmd_per_rad_sec_);
 
     // RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %d    Right vel: %d", wheel_cmd_temp.left_velocity, wheel_cmd_temp.right_velocity);
