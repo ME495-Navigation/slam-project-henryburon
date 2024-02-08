@@ -12,10 +12,11 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(turtlelib REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
-
 find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(nuturtlebot_msgs REQUIRED)
+find_package(turtlelib REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}_srv
   "srv/Teleport.srv"
@@ -27,6 +28,7 @@ rosidl_get_typesupport_target(
   "rosidl_typesupport_cpp")
 
 add_executable(nusim src/nusim.cpp)
+
 ament_target_dependencies(nusim
   rclcpp
   std_msgs
@@ -34,7 +36,9 @@ ament_target_dependencies(nusim
   tf2
   tf2_ros
   std_srvs
-  visualization_msgs)
+  visualization_msgs
+  nuturtlebot_msgs
+  turtlelib)
 
 install(TARGETS
   nusim

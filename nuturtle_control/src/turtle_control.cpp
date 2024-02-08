@@ -53,7 +53,7 @@ private:
   void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
   {
     
-    RCLCPP_INFO(this->get_logger(), "cmd_vel_callback started with linear.x: %f and angular.z: %f", msg.linear.x, msg.angular.z);
+    // RCLCPP_INFO(this->get_logger(), "cmd_vel_callback started with linear.x: %f and angular.z: %f", msg.linear.x, msg.angular.z);
 
     // Make an instance of the DiffDrive class
     turtlelib::DiffDrive robot(track_width_, wheel_radius_, {0.0, 0.0}, {0.0, 0.0, 0.0});
@@ -67,6 +67,8 @@ private:
     // Perform inverse kinematics to get the wheel commands
     turtlelib::Wheels required_wheels = robot.inverse_kinematics(twist);
 
+
+
     // Create a WheelCommands message
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
 
@@ -74,26 +76,32 @@ private:
     wheel_cmd_.left_velocity = required_wheels.phi_l;
     wheel_cmd_.right_velocity = required_wheels.phi_r;
 
+    nuturtlebot_msgs::msg::WheelCommands wheel_cmd_temp;
+    wheel_cmd_temp.left_velocity = static_cast<int>(wheel_cmd_.left_velocity / motor_cmd_per_rad_sec_);
+    wheel_cmd_temp.right_velocity = static_cast<int>(wheel_cmd_.right_velocity / motor_cmd_per_rad_sec_);
+
+
     // Ensure motor (wheel) commands are within specified interval
-    if (wheel_cmd_.left_velocity > motor_cmd_max_)
+    if (wheel_cmd_temp.left_velocity > motor_cmd_max_)
     {
-      wheel_cmd_.left_velocity = motor_cmd_max_;
+      wheel_cmd_temp.left_velocity = motor_cmd_max_;
     }
-    else if (wheel_cmd_.left_velocity < -motor_cmd_max_)
+    else if (wheel_cmd_temp.left_velocity < -motor_cmd_max_)
     {
-      wheel_cmd_.left_velocity = -motor_cmd_max_;
+      wheel_cmd_temp.left_velocity = -motor_cmd_max_;
     }
-    if (wheel_cmd_.right_velocity > motor_cmd_max_)
+    if (wheel_cmd_temp.right_velocity > motor_cmd_max_)
     {
-      wheel_cmd_.right_velocity = motor_cmd_max_;
+      wheel_cmd_temp.right_velocity = motor_cmd_max_;
     }
-    else if (wheel_cmd_.right_velocity < -motor_cmd_max_)
+    else if (wheel_cmd_temp.right_velocity < -motor_cmd_max_)
     {
-      wheel_cmd_.right_velocity = -motor_cmd_max_;
+      wheel_cmd_temp.right_velocity = -motor_cmd_max_;
     }
 
+
     // Publish the wheel_cmd message
-    wheel_cmd_pub->publish(wheel_cmd_);
+    wheel_cmd_pub->publish(wheel_cmd_temp);
 
   }
 

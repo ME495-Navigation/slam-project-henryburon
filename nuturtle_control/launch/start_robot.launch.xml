@@ -72,6 +72,8 @@
         <!-- nusim node -->
         <node pkg="nusim" exec="nusim" name="nusim">
             <param from="$(find-pkg-share nusim)/config/$(var basic_world_config_file)"/>
+            <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+            <remap from="/joint_states" to="blue/joint_states"/>
         </node>
         
         <!-- load/publish the red robot -->
@@ -93,6 +95,10 @@
         <!-- turtle_control node -->
         <node pkg="nuturtle_control" exec="turtle_control">
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+            <remap from="/joint_states" to="red/joint_states"/>
+            <remap from="/wheel_cmd" to="red/wheel_cmd"/>
+            <remap from="/sensor_data" to="blue/sensor_data"/>
+
         </node>
 
     </group>
