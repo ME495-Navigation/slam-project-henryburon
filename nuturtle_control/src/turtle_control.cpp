@@ -89,22 +89,22 @@ private:
 
 
     // Ensure motor (wheel) commands are within specified interval
-    // if (wheel_cmd_temp.left_velocity > motor_cmd_max_)
-    // {
-    //   wheel_cmd_temp.left_velocity = motor_cmd_max_;
-    // }
-    // else if (wheel_cmd_temp.left_velocity < -motor_cmd_max_)
-    // {
-    //   wheel_cmd_temp.left_velocity = -motor_cmd_max_;
-    // }
-    // if (wheel_cmd_temp.right_velocity > motor_cmd_max_)
-    // {
-    //   wheel_cmd_temp.right_velocity = motor_cmd_max_;
-    // }
-    // else if (wheel_cmd_temp.right_velocity < -motor_cmd_max_)
-    // {
-    //   wheel_cmd_temp.right_velocity = -motor_cmd_max_;
-    // }
+    if (wheel_cmd_temp.left_velocity > motor_cmd_max_)
+    {
+      wheel_cmd_temp.left_velocity = motor_cmd_max_;
+    }
+    else if (wheel_cmd_temp.left_velocity < -motor_cmd_max_)
+    {
+      wheel_cmd_temp.left_velocity = -motor_cmd_max_;
+    }
+    if (wheel_cmd_temp.right_velocity > motor_cmd_max_)
+    {
+      wheel_cmd_temp.right_velocity = motor_cmd_max_;
+    }
+    else if (wheel_cmd_temp.right_velocity < -motor_cmd_max_)
+    {
+      wheel_cmd_temp.right_velocity = -motor_cmd_max_;
+    }
 
 
     // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_temp.left_velocity, wheel_cmd_temp.right_velocity);
