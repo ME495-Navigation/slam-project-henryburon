@@ -17,6 +17,7 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(catch_ros2 REQUIRED)
 
 
 add_executable(turtle_control 
@@ -27,6 +28,9 @@ add_executable(odometry
 
 add_executable(circle
                src/circle.cpp)
+
+add_executable(turtle_control_test
+               src/turtle_control_test.cpp)
 
 ament_target_dependencies(turtle_control
   rclcpp
@@ -52,6 +56,15 @@ ament_target_dependencies(circle
   turtlelib
   )
 
+ament_target_dependencies(turtle_control_test
+  rclcpp
+  geometry_msgs
+  nuturtlebot_msgs
+  sensor_msgs
+  turtlelib
+  catch_ros2
+  )
+
 
 ########## Begin_Citation [10] ##########
 
@@ -71,12 +84,14 @@ rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}_srv "rosidl
 target_link_libraries(turtle_control turtlelib::turtlelib)
 target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
 target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
+target_link_libraries(turtle_control_test turtlelib::turtlelib)
 
 
 install(DIRECTORY
   launch
   srv
   config
+  test
   DESTINATION share/nuturtle_control/
 )
 
@@ -84,6 +99,7 @@ install(TARGETS
   turtle_control
   odometry
   circle
+  turtle_control_test
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
