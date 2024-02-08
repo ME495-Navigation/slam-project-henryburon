@@ -19,11 +19,11 @@ public:
   : Node("turtle_control")
   {
     // Parameters
-    declare_parameter("wheel_radius", -5.0);
-    declare_parameter("track_width", -5.0);
-    declare_parameter("motor_cmd_max", -5.0);
-    declare_parameter("motor_cmd_per_rad_sec", -5.0);
-    declare_parameter("encoder_ticks_per_rad", -5.0);
+    declare_parameter("wheel_radius", -1.0);
+    declare_parameter("track_width", -1.0);
+    declare_parameter("motor_cmd_max", -1.0);
+    declare_parameter("motor_cmd_per_rad_sec", -1.0);
+    declare_parameter("encoder_ticks_per_rad", -1.0);
   
     wheel_radius_ = get_parameter("wheel_radius").get_parameter_value().get<double>();
     track_width_ = get_parameter("track_width").get_parameter_value().get<double>();
@@ -64,8 +64,12 @@ private:
     twist.x = msg.linear.x;
     twist.y = 0.0; // Could set this to 0.0
 
+    // RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", twist.omega, twist.x);
+
     // Perform inverse kinematics to get the wheel commands
     turtlelib::Wheels required_wheels = robot.inverse_kinematics(twist);
+
+    // RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", required_wheels.phi_l, required_wheels.phi_r);
 
 
 
@@ -79,6 +83,8 @@ private:
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_temp;
     wheel_cmd_temp.left_velocity = static_cast<int>(wheel_cmd_.left_velocity / motor_cmd_per_rad_sec_);
     wheel_cmd_temp.right_velocity = static_cast<int>(wheel_cmd_.right_velocity / motor_cmd_per_rad_sec_);
+
+    // RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %d    Right vel: %d", wheel_cmd_temp.left_velocity, wheel_cmd_temp.right_velocity);
 
 
     // Ensure motor (wheel) commands are within specified interval
@@ -99,6 +105,8 @@ private:
       wheel_cmd_temp.right_velocity = -motor_cmd_max_;
     }
 
+
+    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_temp.left_velocity, wheel_cmd_temp.right_velocity);
 
     // Publish the wheel_cmd message
     wheel_cmd_pub->publish(wheel_cmd_temp);
@@ -154,11 +162,11 @@ private:
 
   void check_params()
   {
-    if (wheel_radius_ < 0 
-        || track_width_ < 0
-        || motor_cmd_max_ < 0
-        || motor_cmd_per_rad_sec_ < 0
-        || encoder_ticks_per_rad_ < 0)
+    if (wheel_radius_ < 0.0 
+        || track_width_ < 0.0
+        || motor_cmd_max_ < 0.0
+        || motor_cmd_per_rad_sec_ < 0.0
+        || encoder_ticks_per_rad_ < 0.0)
     {
       RCLCPP_ERROR_STREAM(this->get_logger(), "Not all required parameters are defined in diff_params.yaml.");
       rclcpp::shutdown();

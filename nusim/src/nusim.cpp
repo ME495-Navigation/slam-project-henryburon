@@ -160,7 +160,7 @@ private:
 
     // Likewise, turtle can only rotate around one axis -- z
     tf2::Quaternion q;
-    q.setRPY(0, 0, theta_);
+    q.setRPY(0.0, 0.0, theta_);
     t.transform.rotation.x = q.x();
     t.transform.rotation.y = q.y();
     t.transform.rotation.z = q.z();
@@ -191,7 +191,7 @@ private:
     theta_ = robot_.get_robot_config().theta;
 
 
-    RCLCPP_ERROR(this->get_logger(),"x = %f", x_);
+    // RCLCPP_ERROR(this->get_logger(),"x = %f", x_);
     // printf("Updated robot position: x = %f, y = %f, theta = %f\n", x_, y_, theta_);
 
 
