@@ -45,6 +45,9 @@ public:
     // Setup Functions
     check_params();
 
+    robot = turtlelib::DiffDrive(track_width_, wheel_radius_, {0.0, 0.0}, {0.0, 0.0, 0.0});
+
+
   }
 
 
@@ -56,7 +59,7 @@ private:
     // RCLCPP_INFO(this->get_logger(), "cmd_vel_callback started with linear.x: %f and angular.z: %f", msg.linear.x, msg.angular.z);
 
     // Make an instance of the DiffDrive class
-    turtlelib::DiffDrive robot(track_width_, wheel_radius_, {0.0, 0.0}, {0.0, 0.0, 0.0});
+    
 
     // Construct a Twist2D using received cmd_vel message
     turtlelib::Twist2D twist;
@@ -70,8 +73,6 @@ private:
     turtlelib::Wheels required_wheels = robot.inverse_kinematics(twist);
 
     // RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", required_wheels.phi_l, required_wheels.phi_r);
-
-
 
     // Create a WheelCommands message
     nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
@@ -88,22 +89,22 @@ private:
 
 
     // Ensure motor (wheel) commands are within specified interval
-    if (wheel_cmd_temp.left_velocity > motor_cmd_max_)
-    {
-      wheel_cmd_temp.left_velocity = motor_cmd_max_;
-    }
-    else if (wheel_cmd_temp.left_velocity < -motor_cmd_max_)
-    {
-      wheel_cmd_temp.left_velocity = -motor_cmd_max_;
-    }
-    if (wheel_cmd_temp.right_velocity > motor_cmd_max_)
-    {
-      wheel_cmd_temp.right_velocity = motor_cmd_max_;
-    }
-    else if (wheel_cmd_temp.right_velocity < -motor_cmd_max_)
-    {
-      wheel_cmd_temp.right_velocity = -motor_cmd_max_;
-    }
+    // if (wheel_cmd_temp.left_velocity > motor_cmd_max_)
+    // {
+    //   wheel_cmd_temp.left_velocity = motor_cmd_max_;
+    // }
+    // else if (wheel_cmd_temp.left_velocity < -motor_cmd_max_)
+    // {
+    //   wheel_cmd_temp.left_velocity = -motor_cmd_max_;
+    // }
+    // if (wheel_cmd_temp.right_velocity > motor_cmd_max_)
+    // {
+    //   wheel_cmd_temp.right_velocity = motor_cmd_max_;
+    // }
+    // else if (wheel_cmd_temp.right_velocity < -motor_cmd_max_)
+    // {
+    //   wheel_cmd_temp.right_velocity = -motor_cmd_max_;
+    // }
 
 
     // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_temp.left_velocity, wheel_cmd_temp.right_velocity);
@@ -195,6 +196,8 @@ double motor_cmd_max_;
 double motor_cmd_per_rad_sec_;
 double encoder_ticks_per_rad_;
 double flag_stamp = -1.0;
+turtlelib::DiffDrive robot;
+
 
 };
 

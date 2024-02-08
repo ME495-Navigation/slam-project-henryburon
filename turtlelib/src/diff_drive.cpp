@@ -49,7 +49,11 @@ namespace turtlelib
         Twist2D Vb;
         Vb.omega = ((wheel_radius / (2.0 * (wheel_track/2.0))) * (delta_wheels.phi_r - delta_wheels.phi_l));
         Vb.x = (wheel_radius / 2.0) * (delta_wheels.phi_l + delta_wheels.phi_r);
-        Vb.y = 0.0;
+        // Vb.y = 0.0;
+
+        // Vb.omega = ((-delta_wheels.phi_l + delta_wheels.phi_r) / wheel_track) * wheel_radius;
+        // Vb.x = ((delta_wheels.phi_l + delta_wheels.phi_r) / 2.0) * wheel_radius;
+
 
         // [2] Find the body transformation from the twist
         // This expresses the new chassis frame, b_p, 

@@ -131,6 +131,7 @@ private:
         Vb.y = 0.0;
 
         odom_msg_.twist.twist.linear.x = Vb.x;
+        odom_msg_.twist.twist.linear.y = Vb.y;
         odom_msg_.twist.twist.angular.z = Vb.omega;
 
         odom_pub->publish(odom_msg_);
