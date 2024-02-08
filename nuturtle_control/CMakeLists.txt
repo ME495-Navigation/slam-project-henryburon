@@ -5,8 +5,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
-
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -18,6 +16,7 @@ find_package(nav_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(std_srvs REQUIRED)
 
 
 add_executable(turtle_control 
@@ -25,6 +24,9 @@ add_executable(turtle_control
 
 add_executable(odometry 
                src/odometry.cpp)
+
+add_executable(circle
+               src/circle.cpp)
 
 ament_target_dependencies(turtle_control
   rclcpp
@@ -43,9 +45,17 @@ ament_target_dependencies(odometry
   tf2_ros
   )
 
+ament_target_dependencies(circle
+  rclcpp
+  geometry_msgs
+  std_srvs
+  turtlelib
+  )
+
 rosidl_generate_interfaces(${PROJECT_NAME}_srv
   "srv/InitialPose.srv"
-  )
+  "srv/Control.srv"
+  LIBRARY_NAME ${PROJECT_NAME})
 
 target_include_directories(turtle_control PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -56,15 +66,19 @@ rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}_srv "rosidl
 
 target_link_libraries(turtle_control turtlelib::turtlelib)
 target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
+target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
+
 
 install(DIRECTORY
   launch
+  srv
   DESTINATION share/nuturtle_control/
 )
 
 install(TARGETS 
   turtle_control
   odometry
+  circle
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
