@@ -45,8 +45,8 @@ namespace turtlelib
         // [1] Get the body twist Vb
 
         Twist2D Vb;
-        Vb.omega = ((wheel_radius / (2 * (wheel_track/2))) * (delta_wheels.phi_r - delta_wheels.phi_l));
-        Vb.x = (wheel_radius / 2) * (delta_wheels.phi_l + delta_wheels.phi_r);
+        Vb.omega = ((wheel_radius / (2.0 * (wheel_track/2.0))) * (delta_wheels.phi_r - delta_wheels.phi_l));
+        Vb.x = (wheel_radius / 2.0) * (delta_wheels.phi_l + delta_wheels.phi_r);
         Vb.y = 0.0;
 
         // [2] Find the body transformation from the twist

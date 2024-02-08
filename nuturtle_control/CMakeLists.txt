@@ -72,6 +72,7 @@ target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
 install(DIRECTORY
   launch
   srv
+  config
   DESTINATION share/nuturtle_control/
 )
 

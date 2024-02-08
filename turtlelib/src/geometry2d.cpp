@@ -8,7 +8,7 @@ namespace turtlelib
     double normalize_angle(double rad)
     {
         // Normalize the angle to be within the range (-PI, PI]
-        double normalizedAngle = rad - (ceil((rad + PI) / (2 * PI)) - 1) * 2 * PI;
+        double normalizedAngle = rad - (ceil((rad + PI) / (2.0 * PI)) - 1.0) * 2.0 * PI;
         return normalizedAngle;
     }
 

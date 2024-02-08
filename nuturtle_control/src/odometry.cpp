@@ -43,6 +43,7 @@ public:
     // Broadcasters
     odom_body_broadcaster = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+    
 
     // Services
     initial_pose_init = create_service<nuturtle_control::srv::InitialPose>(
@@ -66,8 +67,8 @@ private:
         geometry_msgs::msg::TransformStamped t;
 
         t.header.stamp = this->get_clock()->now();
-        t.header.frame_id = "odom_id";
-        t.child_frame_id = "body_id";
+        t.header.frame_id = odom_id_;
+        t.child_frame_id = body_id_;
 
         t.transform.translation.x = dd_robot_.get_robot_config().x;
         t.transform.translation.y = dd_robot_.get_robot_config().y;

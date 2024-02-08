@@ -19,9 +19,20 @@
     </arg>
 
     <arg name="config_file" default="diff_params.yaml"/>
+
     <arg name="basic_world_config_file" default="basic_world.yaml"/>
 
     <arg name="rviz_file" default="$(find-pkg-share nusim)/config/nusim.rviz"/>
+    <arg name="load_two_rviz" default="$(find-pkg-share nuturtle_control)/config/load_two.rviz"/>
+
+    <arg name="odom_id" default="odom"/>
+    <arg name="body_id" default="blue/base_footprint"/>
+    <arg name="wheel_left" default="wheel_left"/>
+    <arg name="wheel_right" default="wheel_right"/>
+
+
+    <!-- Publish static transform -->
+    <node pkg="tf2_ros" exec="static_transform_publisher" args="0 0 0 0 0 0 nusim/world odom"/>
 
 
     <!-- cmd_src -->
@@ -33,37 +44,68 @@
         <node pkg="nuturtle_control" exec="circle"/>
     </group>
 
+    <group if="$(eval '\'$(var cmd_src)\' == \'none\'')">
+    </group>
+
+
+    <!-- rviz -->
+    <group if="$(eval '\'$(var use_rviz)\' == \'true\'')">
+
+            <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(var load_two_rviz)"/>
+
+            <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+                <arg name="color" value="blue"/>
+                <arg name="use_rviz" value="false"/>
+            </include>
+
+    </group>
+
 
     <!-- robot -->
     <group if="$(eval '\'$(var robot)\' == \'nusim\'')">
 
+        <!-- nusim node -->
+        <node pkg="nusim" exec="nusim" name="nusim">
+            <param from="$(find-pkg-share nusim)/config/$(var basic_world_config_file)"/>
+        </node>
+        
+        <!-- load/publish the red robot -->
         <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
             <arg name="color" value="red"/>
             <arg name="use_rviz" value="false"/>
         </include>
 
-        <node pkg="nusim" exec="nusim" name="nusim">
-            <param from="$(find-pkg-share nusim)/config/$(var basic_world_config_file)"/>
-        </node>
-
+        <!-- odometry node -->
         <node pkg="nuturtle_control" exec="odometry">
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+            <param name="body_id" value="$(var body_id)"/>
+            <param name="odom_id" value="$(var odom_id)"/>
+            <param name="wheel_left" value="$(var wheel_left)"/>
+            <param name="wheel_right" value="$(var wheel_right)"/>
+            <remap from="/joint_states" to="blue/joint_states"/>
         </node>
 
+        <!-- turtle_control node -->
         <node pkg="nuturtle_control" exec="turtle_control">
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
         </node>
 
-        <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(var rviz_file)"/>
-
     </group>
+
 
     <!-- localhost -->
     <group if="$(eval '\'$(var robot)\' == \'localhost\'')"/>
 
 
     <!-- none. Might need to do something with && != none (i.e. and not none) -->
-    <group if="$(eval '\'$(var robot)\' == \'none\'')"/>
+    <!-- may also need to give this group additional abilities -->
+    <!-- either fix the frame prefix issue, or will have to modify whichever rviz file goes with this -->
+    <group if="$(eval '\'$(var robot)\' == \'none\'')">
+        <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
+                <arg name="color" value="blue"/>
+                <arg name="use_rviz" value="false"/>
+            </include>
+    </group>
 
 
 </launch>

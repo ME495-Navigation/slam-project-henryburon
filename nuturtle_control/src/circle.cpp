@@ -91,6 +91,7 @@ private:
          arc_.angular.z = 0.0;
          cmd_vel_pub->publish(arc_);
 
+         // Stop publishing to cmd_vel
          do_arc_ = false;
       }
    
