@@ -52,6 +52,9 @@ ament_target_dependencies(circle
   turtlelib
   )
 
+
+########## Begin_Citation [10] ##########
+
 rosidl_generate_interfaces(${PROJECT_NAME}_srv
   "srv/InitialPose.srv"
   "srv/Control.srv"
@@ -63,6 +66,7 @@ target_include_directories(turtle_control PUBLIC
 
 rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}_srv "rosidl_typesupport_cpp")
 
+########## End_Citation [10] ##########
 
 target_link_libraries(turtle_control turtlelib::turtlelib)
 target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")

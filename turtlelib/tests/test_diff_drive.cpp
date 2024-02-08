@@ -160,9 +160,11 @@ TEST_CASE("Inverse Kinematics", "[DiffDrive]")
         // Initialize a desired twist (theta, x, y)
         turtlelib::Twist2D twist{0.0, 3.4, 0.1};
 
+        // ########## Begin_Citation [8] ##########
+
         REQUIRE_THROWS_AS(robot.inverse_kinematics(twist), std::logic_error);
 
-
+        // ########## End_Citation [8] ##########
     }
 }
 

@@ -39,6 +39,8 @@ namespace turtlelib
         q.y = q_new.y;
     }
 
+// ########## Begin_Citation [7] ##########
+
     void DiffDrive::forward_kinematic_update(Wheels delta_wheels)
     {
 
@@ -80,6 +82,8 @@ namespace turtlelib
         wheels.phi_l += delta_wheels.phi_l;
         wheels.phi_r += delta_wheels.phi_r;
     }
+
+// ########## End_Citation [7] ##########
 
     Wheels DiffDrive::inverse_kinematics(Twist2D twist)
     {

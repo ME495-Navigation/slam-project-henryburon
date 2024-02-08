@@ -1,10 +1,22 @@
+~HW1~
+
 [1] People I worked with: Rahul, Shail (I asked questions)
 [2] Used this for launching saved rviz config: https://github.com/ros2/rviz/issues/627
 [3] Used this for learning namespace syntax: https://www.hadabot.com/learn-ros2-intro-launch-files.html?step=add-namespace-to-launch-file
 [4] For normalize_angle function: https://stackoverflow.com/questions/2320986/easy-way-to-keeping-angles-between-179-and-180-degrees
 [5] Used Srikanth's "invalid service" discussion post for setting up the CMakeLists.txt in nusim.
 [6] Used for angle function in geometry2d.cpp: https://www.cuemath.com/geometry/angle-between-vectors/
-[7] Modern Robotics ch. 13.4 for forward kinematics
-[8] Used for writing REQUIRE_THROWS_AS test case (impossible-to-follow twist): https://stackoverflow.com/questions/35757334/catch-unit-testing-framework-require-throws-as
-[9] For launching the extra terminal with teleop_twist_keyboard: https://robotics.stackexchange.com/questions/100193/launching-teleop-twist-keyboard-from-launch-file-along-with-other-nodes-messes-u
-[10] For creating the type support targets for the custom srvs in nuturtle_control cmake: https://robotics.stackexchange.com/questions/23171/creating-a-custom-msg-in-ros2
+
+~HW2~
+
+[7] Desc: Modern Robotics, Kevin Lynch, Ch 13.5 pg. 549-550 for forward kinematics function in diff_drive.cpp
+    Link: https://hades.mech.northwestern.edu/images/2/25/MR-v2.pdf
+
+[8] Desc: Used for writing REQUIRE_THROWS_AS test case (impossible-to-follow twist) in test_diff_drive.cpp
+    Link: https://stackoverflow.com/questions/35757334/catch-unit-testing-framework-require-throws-as
+
+[9] Desc: Used for launching the extra terminal with teleop_twist_keyboard in start_robot.launch.xml
+    Link: https://robotics.stackexchange.com/questions/100193/launching-teleop-twist-keyboard-from-launch-file-along-with-other-nodes-messes-u
+
+[10] Desc: Used for creating rosidl type support targets for the custom services in nuturtle_control's CMakeLists.txt
+     Link: https://robotics.stackexchange.com/questions/23171/creating-a-custom-msg-in-ros2
