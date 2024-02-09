@@ -76,7 +76,7 @@ private:
     wheels.phi_l = static_cast<int>(wheels.phi_l / motor_cmd_per_rad_sec_); // and multiply by rate?
     wheels.phi_r = static_cast<int>(wheels.phi_r / motor_cmd_per_rad_sec_);
 
-    wheel_cmd_.left_velocity = wheels.phi_l / 2.0;
+    wheel_cmd_.left_velocity = wheels.phi_l / 2.0; // These necessary 2s are magic numbers. Might have to do with track length??
     wheel_cmd_.right_velocity = wheels.phi_r / 2.0;
 
     // wheel_cmd_.left_velocity = 53.0; // and multiply by rate?
