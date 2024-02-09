@@ -140,7 +140,8 @@
     <group if="$(eval '\'$(var robot)\' == \'none\'')">
         <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
                 <arg name="color" value="blue"/>
-                <arg name="use_rviz" value="true"/>
+                <!-- might have to make use_rviz true for it to show  -->
+                <arg name="use_rviz" value="false"/> 
             </include>
     </group>
 
