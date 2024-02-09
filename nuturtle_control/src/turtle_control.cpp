@@ -31,7 +31,6 @@ public:
     motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
     encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
 
-
     // Publishers
     wheel_cmd_pub = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
     joint_states_pub = create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
@@ -47,7 +46,6 @@ public:
 
     robot = turtlelib::DiffDrive(track_width_, wheel_radius_, {0.0, 0.0}, {0.0, 0.0, 0.0});
   }
-
 
 private:
 
@@ -70,17 +68,11 @@ private:
 
     // Load the wheel_cmd message
 
-    // wheel_cmd_.left_velocity = static_cast<int>(wheels.phi_l / motor_cmd_per_rad_sec_); // and multiply by rate?
-    // wheel_cmd_.right_velocity = static_cast<int>(wheels.phi_r / motor_cmd_per_rad_sec_);
-
     wheels.phi_l = static_cast<int>(wheels.phi_l / motor_cmd_per_rad_sec_); // and multiply by rate?
     wheels.phi_r = static_cast<int>(wheels.phi_r / motor_cmd_per_rad_sec_);
 
     wheel_cmd_.left_velocity = wheels.phi_l / 2.0; // These necessary 2s are magic numbers. Might have to do with track length??
     wheel_cmd_.right_velocity = wheels.phi_r / 2.0;
-
-    // wheel_cmd_.left_velocity = 53.0; // and multiply by rate?
-    // wheel_cmd_.right_velocity = 73.0;
 
     RCLCPP_ERROR(this->get_logger(),"[4] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
@@ -105,6 +97,7 @@ private:
 
     // RCLCPP_ERROR(this->get_logger(),"[5] Clipped to: Left vel: %d   Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
     RCLCPP_ERROR(this->get_logger(),"[5555] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+
     // Publish the wheel_cmd message
     wheel_cmd_pub->publish(wheel_cmd_);
 
@@ -154,11 +147,7 @@ private:
     flag_stamp = msg.stamp.sec + msg.stamp.nanosec * 1e-9; // Can also use: get_clock()->now()
     joint_states_pub->publish(js);
 
-
-    
   }
-
-
 
   void check_params()
   {
@@ -172,10 +161,6 @@ private:
       rclcpp::shutdown();
     }
   }
-
-
-
-
 
 /// Declare member variables ///
 
@@ -200,17 +185,7 @@ turtlelib::Twist2D twist;
 turtlelib::Wheels wheels;
 nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
 
-
 };
-
-
-
-
-
-
-
-
-
 
 int main(int argc, char * argv[])
 {

@@ -186,13 +186,8 @@ private:
     RCLCPP_ERROR(this->get_logger(),"[7] Receiving sub as: wheel msg left = %d wheel msg right = %d", msg.left_velocity, msg.right_velocity);
     // RCLCPP_ERROR(this->get_logger(),"wheel msg right = %d", msg.right_velocity);
 
-    // what val is being received
-
     wheel_vel_.phi_l = static_cast<double>(msg.left_velocity * motor_cmd_per_rad_sec_);
     wheel_vel_.phi_r = static_cast<double>(msg.right_velocity * motor_cmd_per_rad_sec_);
-
-    // wheel_vel_.phi_l = 1.27;
-    // wheel_vel_.phi_r = 1.75;
 
     // RCLCPP_ERROR(this->get_logger(),"[8] Extract, multiply, cast: wheel vel left = %f wheel vel right = %f", wheel_vel_.phi_l, wheel_vel_.phi_r);
 
@@ -209,12 +204,7 @@ private:
     updated_wheel_pos_.phi_l = prev_wheel_pos_.phi_l + (wheel_vel_.phi_l * unit_per_run);
     updated_wheel_pos_.phi_r = prev_wheel_pos_.phi_r + (wheel_vel_.phi_r * unit_per_run);
 
-
-    
-
     // RCLCPP_ERROR(this->get_logger(),"[9] Updated wheel: Left = %f Right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
-
-
 
     // RCLCPP_ERROR(this->get_logger(),"upd left = %f", updated_wheel_pos_.phi_l);
     // RCLCPP_ERROR(this->get_logger(),"upd right = %f", updated_wheel_pos_.phi_r);
@@ -237,16 +227,11 @@ private:
     delta_wheels.phi_l = updated_wheel_pos_.phi_l - prev_wheel_pos_.phi_l;
     delta_wheels.phi_r = updated_wheel_pos_.phi_r - prev_wheel_pos_.phi_r;
 
-    
-
-
     // RCLCPP_ERROR(this->get_logger(),"updated left = %f, updated right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
     // RCLCPP_ERROR(this->get_logger(),"change left = %f, change right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
     // RCLCPP_ERROR(this->get_logger(),"x1 = %f", x_);
     // RCLCPP_ERROR(this->get_logger(),"y1 = %f", y_);
     // RCLCPP_ERROR(this->get_logger(),"theta1 = %f", theta_);
-
-
 
     robot_.forward_kinematic_update(delta_wheels);
 
@@ -264,12 +249,7 @@ private:
     prev_wheel_pos_.phi_l = updated_wheel_pos_.phi_l;
     prev_wheel_pos_.phi_r = updated_wheel_pos_.phi_r;
 
-
-    
-
-
   }
-
 
   /// \brief Resets the simulation to initial configuration
   void reset_callback(

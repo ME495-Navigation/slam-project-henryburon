@@ -9,9 +9,6 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nuturtle_control/srv/initial_pose.hpp"
 
-
-// using namespace std::chrono_literals;
-
 class Odometry : public rclcpp::Node
 {
 public:
@@ -80,8 +77,6 @@ private:
         t.transform.rotation.y = q.y();
         t.transform.rotation.z = q.z();
         t.transform.rotation.w = q.w();
-
-
 
         odom_body_broadcaster->sendTransform(t);
     }
@@ -193,10 +188,3 @@ int main(int argc, char * argv[])
     rclcpp::shutdown();
     return 0;
 }
-
-
-// switch to the .empty() for finding the parameters
-// const auto
-// type cast
-// always initialize variables
-// never do using namespace in header file
