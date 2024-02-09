@@ -183,19 +183,21 @@ private:
     // For the turtlebot, each motor can be command with an integer velocity of between
     // -265 mcu and 265 mcu, and 1 mcu = 0.024 rad/sec
 
-    // THETA LOST BEFORE HERE
-
-    // RCLCPP_ERROR(this->get_logger(),"wheel msg left = %d", msg.left_velocity);
+    RCLCPP_ERROR(this->get_logger(),"[7] Receiving sub as: wheel msg left = %d wheel msg right = %d", msg.left_velocity, msg.right_velocity);
     // RCLCPP_ERROR(this->get_logger(),"wheel msg right = %d", msg.right_velocity);
 
-    wheel_vel_.phi_l = static_cast<int>(msg.left_velocity * motor_cmd_per_rad_sec_);
-    wheel_vel_.phi_r = static_cast<int>(msg.right_velocity * motor_cmd_per_rad_sec_);
+    // what val is being received
+
+    wheel_vel_.phi_l = static_cast<double>(msg.left_velocity * motor_cmd_per_rad_sec_);
+    wheel_vel_.phi_r = static_cast<double>(msg.right_velocity * motor_cmd_per_rad_sec_);
+
+    // wheel_vel_.phi_l = 1.27;
+    // wheel_vel_.phi_r = 1.75;
+
+    // RCLCPP_ERROR(this->get_logger(),"[8] Extract, multiply, cast: wheel vel left = %f wheel vel right = %f", wheel_vel_.phi_l, wheel_vel_.phi_r);
 
     // RCLCPP_ERROR(this->get_logger(),"wheel vel left = %f", wheel_vel_.phi_l);
     // RCLCPP_ERROR(this->get_logger(),"wheel vel right = %f", wheel_vel_.phi_r);
-
-    // THETA LOST BEFORE HERE
-
 
   }
 
@@ -206,6 +208,12 @@ private:
     // Find the updated wheel position
     updated_wheel_pos_.phi_l = prev_wheel_pos_.phi_l + (wheel_vel_.phi_l * unit_per_run);
     updated_wheel_pos_.phi_r = prev_wheel_pos_.phi_r + (wheel_vel_.phi_r * unit_per_run);
+
+
+    
+
+    // RCLCPP_ERROR(this->get_logger(),"[9] Updated wheel: Left = %f Right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
+
 
 
     // RCLCPP_ERROR(this->get_logger(),"upd left = %f", updated_wheel_pos_.phi_l);
@@ -248,7 +256,8 @@ private:
     theta_ = robot_.get_robot_config().theta;
 
 
-    // RCLCPP_ERROR(this->get_logger(),"x = %f", x_);
+    // RCLCPP_ERROR(this->get_logger(),"[10] After FK, final: x = %f  y = %f  theta = %f", x_, y_, theta_);
+
     // RCLCPP_ERROR(this->get_logger(),"y = %f", y_);
     // RCLCPP_ERROR(this->get_logger(),"theta = %f", theta_);
 

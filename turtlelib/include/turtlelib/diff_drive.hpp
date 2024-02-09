@@ -79,7 +79,7 @@ namespace turtlelib
 
         /// \brief Updates the robot's configuration based on a change in wheel position
         /// \param delta_wheels A Wheels struct representing the change in position of the left and right wheel
-        void forward_kinematic_update(Wheels delta_wheels);
+        void forward_kinematic_update(Wheels wheel_pos_new);
 
         /// \brief Calculates the required wheel movement to achieve a specified twist
         /// \param twist - A Twist2D struct representing the desired twist of the robot
