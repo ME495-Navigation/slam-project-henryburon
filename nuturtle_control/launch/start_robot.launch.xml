@@ -32,7 +32,7 @@
 
 
     <!-- Publish static transform -->
-    <node pkg="tf2_ros" exec="static_transform_publisher" args="0 0 0 0 0 0 nusim/world odom"/>
+    <node pkg="tf2_ros" exec="static_transform_publisher" args="0 0 0 0 0 0 1 nusim/world odom"/>
 
 
     <!-- cmd_src -->
@@ -73,29 +73,30 @@
         <node pkg="nusim" exec="nusim" name="nusim">
             <param from="$(find-pkg-share nusim)/config/$(var basic_world_config_file)"/>
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
-            <remap from="/joint_states" to="blue/joint_states"/>
+            <remap from="joint_states" to="blue/joint_states"/>
         </node>
         
         <!-- load/publish the red robot -->
         <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
             <arg name="color" value="red"/>
             <arg name="use_rviz" value="false"/>
+            <arg name="use_jsp" value="true"/>
         </include>
 
         <!-- odometry node -->
         <node pkg="nuturtle_control" exec="odometry">
-            <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+            <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml"/>
             <param name="body_id" value="$(var body_id)"/>
             <param name="odom_id" value="$(var odom_id)"/>
-            <param name="wheel_left" value="$(var wheel_left)"/>
-            <param name="wheel_right" value="$(var wheel_right)"/>
-            <remap from="/joint_states" to="blue/joint_states"/>
+            <param name="wheel_left" value="blue/wheel_left_joint"/>
+            <param name="wheel_right" value="blue/wheel_right_joint"/>
+            <remap from="joint_states" to="blue/joint_states"/>
         </node>
 
         <!-- turtle_control node -->
         <node pkg="nuturtle_control" exec="turtle_control">
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
-            <remap from="/joint_states" to="red/joint_states"/>
+            <remap from="joint_states" to="red/joint_states"/>
             <remap from="/wheel_cmd" to="red/wheel_cmd"/>
             <remap from="/sensor_data" to="blue/sensor_data"/>
 

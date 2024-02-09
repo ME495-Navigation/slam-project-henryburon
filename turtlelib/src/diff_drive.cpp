@@ -89,23 +89,33 @@ namespace turtlelib
 
 // ########## End_Citation [7] ##########
 
-    Wheels DiffDrive::inverse_kinematics(Twist2D twist)
+    // Wheels DiffDrive::inverse_kinematics(Twist2D twist)
+    // {
+
+    //     if (twist.y != 0.0)
+    //     {
+    //         throw std::logic_error("Twist cannot be accomplished without the wheels slipping.");
+    //     }
+        
+    //     Wheels required_wheels;
+        
+    //     // [5]
+    //     required_wheels.phi_l = ((-(wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
+
+    //     // [6]
+    //     required_wheels.phi_r = (((wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
+
+    //     return required_wheels;
+    // }
+
+    Wheels DiffDrive::inverse_kinematics(Twist2D Tb)
     {
-
-        if (twist.y != 0.0)
+        if (Tb.y != 0.0)
         {
-            throw std::logic_error("Twist cannot be accomplished without the wheels slipping.");
+            throw std::logic_error("Twist causes slipping");
         }
-        
-        Wheels required_wheels;
-        
-        // [5]
-        required_wheels.phi_l = ((-(wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
-
-        // [6]
-        required_wheels.phi_r = (((wheel_track/2.0) * twist.omega + twist.x) / wheel_radius);
-
-        return required_wheels;
+        //equation 1 and 2 from kinematics pdf
+        return {((-(wheel_track / 2.0) * Tb.omega + Tb.x) / wheel_radius), (((wheel_track / 2.0) * Tb.omega + Tb.x) / wheel_radius)};
     }
-
 }
+

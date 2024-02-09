@@ -38,7 +38,7 @@ public:
 
     // Subscribers
     joint_states_sub = create_subscription<sensor_msgs::msg::JointState>(
-    "joint_states", 10, std::bind(&Odometry::joint_states_callback, this, std::placeholders::_1));
+    "red/joint_states", 10, std::bind(&Odometry::joint_states_callback, this, std::placeholders::_1));
 
     // Broadcasters
     odom_body_broadcaster = 
@@ -81,6 +81,8 @@ private:
         t.transform.rotation.z = q.z();
         t.transform.rotation.w = q.w();
 
+
+
         odom_body_broadcaster->sendTransform(t);
     }
 
@@ -97,6 +99,8 @@ private:
 
     void joint_states_callback(const sensor_msgs::msg::JointState & msg)
     {
+        // RCLCPP_ERROR(this->get_logger(),"Entering joint state callback in ODOMETRY");
+        
         // Update internal odometry state
         wheels_.phi_l = msg.position.at(0) - old_radian_.position.at(0); // Find delta wheels
         wheels_.phi_r = msg.position.at(1) - old_radian_.position.at(1);

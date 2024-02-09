@@ -40,7 +40,7 @@ public:
     cmd_vel_sub = create_subscription<geometry_msgs::msg::Twist>(
       "cmd_vel", 10, std::bind(&TurtleControl::cmd_vel_callback, this, std::placeholders::_1));
     sensor_data_sub = create_subscription<nuturtlebot_msgs::msg::SensorData>(
-      "sensor_data", 10, std::bind(&TurtleControl::sensor_data_callback, this, std::placeholders::_1));
+      "red/sensor_data", 10, std::bind(&TurtleControl::sensor_data_callback, this, std::placeholders::_1));
 
     // Setup Functions
     check_params();
@@ -94,7 +94,7 @@ private:
       wheel_cmd_.right_velocity = -motor_cmd_max_;
     }
 
-    RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
     // Publish the wheel_cmd message
     wheel_cmd_pub->publish(wheel_cmd_);
@@ -103,6 +103,9 @@ private:
 
   void sensor_data_callback(const nuturtlebot_msgs::msg::SensorData & msg)
   {
+
+    RCLCPP_ERROR(this->get_logger(),"Entering joint state callback in SENSOR DATA CALLBACK!");
+
     // Create a JointState message
     sensor_msgs::msg::JointState js;
 
