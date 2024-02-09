@@ -74,7 +74,7 @@ private:
     wheel_cmd_.left_velocity = wheels.phi_l / 2.0; // These necessary 2s are magic numbers. Might have to do with track length??
     wheel_cmd_.right_velocity = wheels.phi_r / 2.0;
 
-    RCLCPP_ERROR(this->get_logger(),"[4] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+    // RCLCPP_ERROR(this->get_logger(),"[4] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
 
     // Ensure motor (wheel) commands are within specified interval

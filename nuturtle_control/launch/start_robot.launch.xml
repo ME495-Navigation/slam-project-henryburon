@@ -54,7 +54,7 @@
 
 
     <!-- rviz -->
-    <group if="$(eval '\'$(var use_rviz)\' == \'true\'')">
+    <group if="$(eval '\'$(var use_rviz)\' == \'true\' and \'$(var robot)\' != \'localhost\'')">
 
             <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(var load_two_rviz)"/>
 
@@ -101,9 +101,7 @@
         <node pkg="nuturtle_control" exec="turtle_control">
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
             <remap from="joint_states" to="red/joint_states"/>
-            <remap from="/wheel_cmd" to="red/wheel_cmd"/>
-            
-
+            <remap from="wheel_cmd" to="red/wheel_cmd"/>
         </node>
 
     </group>
@@ -111,6 +109,26 @@
 
     <!-- localhost -->
     <group if="$(eval '\'$(var robot)\' == \'localhost\'')">
+        <!-- Runs the nodes directly on the turtlebot3 -->
+        <!-- odometry and turtle_control nodes should run on the turtlebot, as well as the numsr_turtlebot node -->
+        <!-- odometry node -->
+        <node pkg="nuturtle_control" exec="odometry">
+            <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml"/>
+            <param name="body_id" value="$(var body_id)"/>
+            <param name="odom_id" value="$(var odom_id)"/>
+            <param name="wheel_left" value="blue/wheel_left_joint"/>
+            <param name="wheel_right" value="blue/wheel_right_joint"/>
+            <remap from="joint_states" to="blue/joint_states"/>
+        </node>
+
+        <node pkg="nuturtle_control" exec="turtle_control">
+            <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
+            <remap from="joint_states" to="red/joint_states"/>
+            <remap from="wheel_cmd" to="red/wheel_cmd"/>
+        </node>
+
+
+
 
 
     </group>
@@ -122,7 +140,7 @@
     <group if="$(eval '\'$(var robot)\' == \'none\'')">
         <include file="$(find-pkg-share nuturtle_description)/launch/load_one.launch.py">
                 <arg name="color" value="blue"/>
-                <arg name="use_rviz" value="false"/>
+                <arg name="use_rviz" value="true"/>
             </include>
     </group>
 

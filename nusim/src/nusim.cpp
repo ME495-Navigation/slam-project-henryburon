@@ -183,7 +183,7 @@ private:
     // For the turtlebot, each motor can be command with an integer velocity of between
     // -265 mcu and 265 mcu, and 1 mcu = 0.024 rad/sec
 
-    RCLCPP_ERROR(this->get_logger(),"[7] Receiving sub as: wheel msg left = %d wheel msg right = %d", msg.left_velocity, msg.right_velocity);
+    // RCLCPP_ERROR(this->get_logger(),"[7] Receiving sub as: wheel msg left = %d wheel msg right = %d", msg.left_velocity, msg.right_velocity);
     // RCLCPP_ERROR(this->get_logger(),"wheel msg right = %d", msg.right_velocity);
 
     wheel_vel_.phi_l = static_cast<double>(msg.left_velocity * motor_cmd_per_rad_sec_);
