@@ -39,7 +39,7 @@ public:
     cmd_vel_sub = create_subscription<geometry_msgs::msg::Twist>(
       "cmd_vel", 10, std::bind(&TurtleControl::cmd_vel_callback, this, std::placeholders::_1));
     sensor_data_sub = create_subscription<nuturtlebot_msgs::msg::SensorData>(
-      "red/sensor_data", 10, std::bind(&TurtleControl::sensor_data_callback, this, std::placeholders::_1));
+      "sensor_data", 10, std::bind(&TurtleControl::sensor_data_callback, this, std::placeholders::_1));
 
     // Setup Functions
     check_params();
@@ -96,7 +96,7 @@ private:
     }
 
     // RCLCPP_ERROR(this->get_logger(),"[5] Clipped to: Left vel: %d   Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
-    RCLCPP_ERROR(this->get_logger(),"[5555] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
+    // RCLCPP_ERROR(this->get_logger(),"[5555] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
     // Publish the wheel_cmd message
     wheel_cmd_pub->publish(wheel_cmd_);
