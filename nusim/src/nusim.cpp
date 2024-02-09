@@ -207,8 +207,6 @@ private:
     updated_wheel_pos_.phi_l = prev_wheel_pos_.phi_l + (wheel_vel_.phi_l * unit_per_run);
     updated_wheel_pos_.phi_r = prev_wheel_pos_.phi_r + (wheel_vel_.phi_r * unit_per_run);
 
-    // THETA LOST BEFORE HERE
-
 
     // RCLCPP_ERROR(this->get_logger(),"upd left = %f", updated_wheel_pos_.phi_l);
     // RCLCPP_ERROR(this->get_logger(),"upd right = %f", updated_wheel_pos_.phi_r);
@@ -221,9 +219,7 @@ private:
     // Publish on red/sensor_data
     red_sensor_data_pub->publish(sensor_data_msg_);
 
-    // Reset previous wheel positions
-    // prev_wheel_pos_.phi_l = updated_wheel_pos_.phi_l;
-    // prev_wheel_pos_.phi_r = updated_wheel_pos_.phi_r;
+ 
   }
 
   void update_robot_position()
@@ -233,10 +229,7 @@ private:
     delta_wheels.phi_l = updated_wheel_pos_.phi_l - prev_wheel_pos_.phi_l;
     delta_wheels.phi_r = updated_wheel_pos_.phi_r - prev_wheel_pos_.phi_r;
 
-    // THETA LOST BEFORE HERE
-
-    // RCLCPP_ERROR(this->get_logger(),"delta left = %f", delta_wheels.phi_l);
-    // RCLCPP_ERROR(this->get_logger(),"delta right = %f", delta_wheels.phi_r);
+    
 
 
     // RCLCPP_ERROR(this->get_logger(),"updated left = %f, updated right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
@@ -263,7 +256,7 @@ private:
     prev_wheel_pos_.phi_r = updated_wheel_pos_.phi_r;
 
 
-    // RCLCPP_ERROR(this->get_logger(),"x = %f", x_);
+    
 
 
   }

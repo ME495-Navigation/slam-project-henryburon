@@ -46,8 +46,6 @@ public:
     check_params();
 
     robot = turtlelib::DiffDrive(track_width_, wheel_radius_, {0.0, 0.0}, {0.0, 0.0, 0.0});
-
-
   }
 
 
@@ -58,59 +56,48 @@ private:
     
     // RCLCPP_INFO(this->get_logger(), "cmd_vel_callback started with linear.x: %f and angular.z: %f", msg.linear.x, msg.angular.z);
 
-    // Make an instance of the DiffDrive class
-    
-
     // Construct a Twist2D using received cmd_vel message
-    turtlelib::Twist2D twist;
     twist.omega = msg.angular.z;
     twist.x = msg.linear.x;
-    twist.y = 0.0; // Could set this to 0.0
+    twist.y = msg.linear.y; // Could set this to 0.0
 
     // RCLCPP_ERROR(this->get_logger(),"[cmd_vel] Angular: %f    x: %f", twist.omega, twist.x);
 
-    // Perform inverse kinematics to get the wheel commands
-    turtlelib::Wheels required_wheels = robot.inverse_kinematics(twist);
+    // Perform inverse kinematics to get the wheel commands (Wheels)
+    wheels = robot.inverse_kinematics(twist);
 
-    // RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", required_wheels.phi_l, required_wheels.phi_r);
-
-    // Create a WheelCommands message
-    nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
+    // RCLCPP_ERROR(this->get_logger(),"[after IK] Left: %f    Right: %f", wheels.phi_l, wheels.phi_r);    
 
     // Load the wheel_cmd message
-    wheel_cmd_.left_velocity = required_wheels.phi_l;
-    wheel_cmd_.right_velocity = required_wheels.phi_r;
 
-    nuturtlebot_msgs::msg::WheelCommands wheel_cmd_temp;
-    wheel_cmd_temp.left_velocity = static_cast<int>(wheel_cmd_.left_velocity / motor_cmd_per_rad_sec_); // and multiply by rate?
-    wheel_cmd_temp.right_velocity = static_cast<int>(wheel_cmd_.right_velocity / motor_cmd_per_rad_sec_);
+    wheel_cmd_.left_velocity = static_cast<int>(wheels.phi_l / motor_cmd_per_rad_sec_); // and multiply by rate?
+    wheel_cmd_.right_velocity = static_cast<int>(wheels.phi_r / motor_cmd_per_rad_sec_);
 
     // RCLCPP_ERROR(this->get_logger(),"[after static cast] Left vel: %d    Right vel: %d", wheel_cmd_temp.left_velocity, wheel_cmd_temp.right_velocity);
 
 
     // Ensure motor (wheel) commands are within specified interval
-    if (wheel_cmd_temp.left_velocity > motor_cmd_max_)
+    if (wheel_cmd_.left_velocity > motor_cmd_max_)
     {
-      wheel_cmd_temp.left_velocity = motor_cmd_max_;
+      wheel_cmd_.left_velocity = motor_cmd_max_;
     }
-    else if (wheel_cmd_temp.left_velocity < -motor_cmd_max_)
+    else if (wheel_cmd_.left_velocity < -motor_cmd_max_)
     {
-      wheel_cmd_temp.left_velocity = -motor_cmd_max_;
+      wheel_cmd_.left_velocity = -motor_cmd_max_;
     }
-    if (wheel_cmd_temp.right_velocity > motor_cmd_max_)
+    if (wheel_cmd_.right_velocity > motor_cmd_max_)
     {
-      wheel_cmd_temp.right_velocity = motor_cmd_max_;
+      wheel_cmd_.right_velocity = motor_cmd_max_;
     }
-    else if (wheel_cmd_temp.right_velocity < -motor_cmd_max_)
+    else if (wheel_cmd_.right_velocity < -motor_cmd_max_)
     {
-      wheel_cmd_temp.right_velocity = -motor_cmd_max_;
+      wheel_cmd_.right_velocity = -motor_cmd_max_;
     }
 
-
-    // RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_temp.left_velocity, wheel_cmd_temp.right_velocity);
+    RCLCPP_ERROR(this->get_logger(),"[published wheel_cmd] Left vel: %d    Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
 
     // Publish the wheel_cmd message
-    wheel_cmd_pub->publish(wheel_cmd_temp);
+    wheel_cmd_pub->publish(wheel_cmd_);
 
   }
 
@@ -197,6 +184,9 @@ double motor_cmd_per_rad_sec_;
 double encoder_ticks_per_rad_;
 double flag_stamp = -1.0;
 turtlelib::DiffDrive robot;
+turtlelib::Twist2D twist;
+turtlelib::Wheels wheels;
+nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
 
 
 };
