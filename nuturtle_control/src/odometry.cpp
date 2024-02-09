@@ -112,7 +112,7 @@ private:
 
         odom_msg_.pose.pose.position.x = dd_robot_.get_robot_config().x;
         odom_msg_.pose.pose.position.y = dd_robot_.get_robot_config().y;
-        odom_msg_.pose.pose.position.z = 0.0;
+        // odom_msg_.pose.pose.position.z = 0.0;
 
         quat_.setRPY(0.0, 0.0, dd_robot_.get_robot_config().theta);
 
@@ -127,10 +127,10 @@ private:
         turtlelib::Twist2D Vb;
         Vb.omega = ((wheel_radius_ / (2.0 * (track_width_/2.0))) * (wheels_.phi_r - wheels_.phi_l));
         Vb.x = (wheel_radius_ / 2.0) * (wheels_.phi_l + wheels_.phi_r);
-        Vb.y = 0.0;
+        // Vb.y = 0.0;
 
         odom_msg_.twist.twist.linear.x = Vb.x;
-        odom_msg_.twist.twist.linear.y = Vb.y;
+        // odom_msg_.twist.twist.linear.y = Vb.y;
         odom_msg_.twist.twist.angular.z = Vb.omega;
 
         odom_pub->publish(odom_msg_);
