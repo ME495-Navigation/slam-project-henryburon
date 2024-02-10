@@ -87,6 +87,8 @@
             <arg name="use_jsp" value="true"/>
         </include>
 
+        <!-- ########## Begin_Citation [11] ########## -->
+
         <!-- odometry node -->
         <node pkg="nuturtle_control" exec="odometry">
             <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml"/>
@@ -103,6 +105,8 @@
             <remap from="joint_states" to="red/joint_states"/>
             <remap from="wheel_cmd" to="red/wheel_cmd"/>
         </node>
+
+        <!-- ########## End_Citation [11] ########## -->
 
     </group>
 

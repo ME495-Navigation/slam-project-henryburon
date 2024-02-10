@@ -12,10 +12,11 @@
 
 namespace turtlelib
 {
-
+    /// \brief A representation of an SVG vector image
     class Svg
     {
     private:
+        /// @brief vector
         std::vector<std::string> svg_Vec;
     public:
         /// \brief Draw a point

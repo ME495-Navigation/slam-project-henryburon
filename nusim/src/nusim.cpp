@@ -183,17 +183,8 @@ private:
     // For the turtlebot, each motor can be command with an integer velocity of between
     // -265 mcu and 265 mcu, and 1 mcu = 0.024 rad/sec
 
-    // RCLCPP_ERROR(this->get_logger(),"[7] Receiving sub as: wheel msg left = %d wheel msg right = %d", msg.left_velocity, msg.right_velocity);
-    // RCLCPP_ERROR(this->get_logger(),"wheel msg right = %d", msg.right_velocity);
-
     wheel_vel_.phi_l = static_cast<double>(msg.left_velocity * motor_cmd_per_rad_sec_);
     wheel_vel_.phi_r = static_cast<double>(msg.right_velocity * motor_cmd_per_rad_sec_);
-
-    // RCLCPP_ERROR(this->get_logger(),"[8] Extract, multiply, cast: wheel vel left = %f wheel vel right = %f", wheel_vel_.phi_l, wheel_vel_.phi_r);
-
-    // RCLCPP_ERROR(this->get_logger(),"wheel vel left = %f", wheel_vel_.phi_l);
-    // RCLCPP_ERROR(this->get_logger(),"wheel vel right = %f", wheel_vel_.phi_r);
-
   }
 
   void update_wheel_positions()
@@ -204,11 +195,6 @@ private:
     updated_wheel_pos_.phi_l = prev_wheel_pos_.phi_l + (wheel_vel_.phi_l * unit_per_run);
     updated_wheel_pos_.phi_r = prev_wheel_pos_.phi_r + (wheel_vel_.phi_r * unit_per_run);
 
-    // RCLCPP_ERROR(this->get_logger(),"[9] Updated wheel: Left = %f Right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
-
-    // RCLCPP_ERROR(this->get_logger(),"upd left = %f", updated_wheel_pos_.phi_l);
-    // RCLCPP_ERROR(this->get_logger(),"upd right = %f", updated_wheel_pos_.phi_r);
-
     // Format as sensor data (in ticks)
     sensor_data_msg_.left_encoder = updated_wheel_pos_.phi_l * encoder_ticks_per_rad_;
     sensor_data_msg_.right_encoder = updated_wheel_pos_.phi_r * encoder_ticks_per_rad_;
@@ -216,8 +202,6 @@ private:
 
     // Publish on red/sensor_data
     red_sensor_data_pub->publish(sensor_data_msg_);
-
- 
   }
 
   void update_robot_position()
@@ -227,24 +211,12 @@ private:
     delta_wheels.phi_l = updated_wheel_pos_.phi_l - prev_wheel_pos_.phi_l;
     delta_wheels.phi_r = updated_wheel_pos_.phi_r - prev_wheel_pos_.phi_r;
 
-    // RCLCPP_ERROR(this->get_logger(),"updated left = %f, updated right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
-    // RCLCPP_ERROR(this->get_logger(),"change left = %f, change right = %f", updated_wheel_pos_.phi_l, updated_wheel_pos_.phi_r);
-    // RCLCPP_ERROR(this->get_logger(),"x1 = %f", x_);
-    // RCLCPP_ERROR(this->get_logger(),"y1 = %f", y_);
-    // RCLCPP_ERROR(this->get_logger(),"theta1 = %f", theta_);
-
     robot_.forward_kinematic_update(delta_wheels);
 
     // Extract new positions
     x_ = robot_.get_robot_config().x;
     y_ = robot_.get_robot_config().y;
     theta_ = robot_.get_robot_config().theta;
-
-
-    // RCLCPP_ERROR(this->get_logger(),"[10] After FK, final: x = %f  y = %f  theta = %f", x_, y_, theta_);
-
-    // RCLCPP_ERROR(this->get_logger(),"y = %f", y_);
-    // RCLCPP_ERROR(this->get_logger(),"theta = %f", theta_);
 
     prev_wheel_pos_.phi_l = updated_wheel_pos_.phi_l;
     prev_wheel_pos_.phi_r = updated_wheel_pos_.phi_r;
@@ -392,6 +364,7 @@ private:
 
   // Declare member variables
   rclcpp::TimerBase::SharedPtr timer_;
+  
   rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;

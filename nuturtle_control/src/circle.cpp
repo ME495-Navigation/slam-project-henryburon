@@ -13,7 +13,7 @@ public:
    : Node("circle")
    {
       // Parameters
-      declare_parameter("freq", 100); // Probably want to be getting this from diff_params.yaml
+      declare_parameter("freq", 100);
 
       int freq_ = get_parameter("freq").get_value<int>();
 

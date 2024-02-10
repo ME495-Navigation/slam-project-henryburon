@@ -43,17 +43,11 @@ namespace turtlelib
 
     void DiffDrive::forward_kinematic_update(Wheels delta_wheels)
     {
-
         // [1] Get the body twist Vb
 
         Twist2D Vb;
         Vb.omega = ((wheel_radius / (2.0 * (wheel_track/2.0))) * (delta_wheels.phi_r - delta_wheels.phi_l));
         Vb.x = (wheel_radius / 2.0) * (delta_wheels.phi_l + delta_wheels.phi_r);
-        // Vb.y = 0.0;
-
-        // Vb.omega = ((-delta_wheels.phi_l + delta_wheels.phi_r) / wheel_track) * wheel_radius;
-        // Vb.x = ((delta_wheels.phi_l + delta_wheels.phi_r) / 2.0) * wheel_radius;
-
 
         // [2] Find the body transformation from the twist
         // This expresses the new chassis frame, b_p, 
@@ -68,7 +62,6 @@ namespace turtlelib
         double d_qb_x = T_bb_p.translation().x;
         double d_qb_y = T_bb_p.translation().y;
         
-
         // [3] Transform dqb in {b} to dq in {s}
 
         double dqtheta = d_qb_p_theta;
@@ -87,9 +80,10 @@ namespace turtlelib
         wheels.phi_r += delta_wheels.phi_r;
     }
 
-    
 
 // ########## End_Citation [7] ##########
+
+// ########## Begin_Citation [12] ##########
 
     Wheels DiffDrive::inverse_kinematics(Twist2D twist)
     {
@@ -109,15 +103,7 @@ namespace turtlelib
 
         return required_wheels;
     }
+// ########## End_Citation [12] ##########
 
-    // Wheels DiffDrive::inverse_kinematics(Twist2D Tb)
-    // {
-    //     if (Tb.y != 0.0)
-    //     {
-    //         throw std::logic_error("Twist causes slipping");
-    //     }
-    //     //equation 1 and 2 from kinematics pdf
-    //     return {((-(wheel_track / 2.0) * Tb.omega + Tb.x) / wheel_radius), (((wheel_track / 2.0) * Tb.omega + Tb.x) / wheel_radius)};
-    // }
 }
 
