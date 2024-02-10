@@ -1,10 +1,26 @@
+/// \file
+/// \brief Circle motion controller for the robot.
+///
+///
+/// PARAMETERES:
+///   \param freq (int): The frequency at which the control loop runs.
+///
+/// PUBLISHES:
+///   \param cmd_vel (geometry_msgs::msg::Twist): Publishes the velocity commands for the robot to move in a circle.
+///
+/// SUBSCRIBES:
+/// \param control (nuturtle_control::srv::Control): Services to change the velocity and radius of the circle motion.
+/// \param reverse (std_srvs::srv::Empty): Service to reverse the direction of the circle motion.
+/// \param stop (std_srvs::srv::Empty): Service to stop the circle motion.
+
 #include <chrono>
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "nuturtle_control/srv/control.hpp"
 #include "std_srvs/srv/empty.hpp"
 
-
+/// \brief  The Circle class provides an interface for moving the robot
+///         along an arc.
 class Circle : public rclcpp::Node
 {
 public:
@@ -51,6 +67,7 @@ public:
   }
 
 private:
+  /// \brief Main timer callback.
   void timer_callback()
   {
     if (do_arc_ == true) {
@@ -60,6 +77,8 @@ private:
 
   }
 
+  /// \brief Callback for the control service to adjust circle properties.
+  /// \param request Service request containing the desired velocity and radius.
   void control_callback(
     std::shared_ptr<nuturtle_control::srv::Control::Request> request,
     std::shared_ptr<nuturtle_control::srv::Control::Response>)
@@ -71,6 +90,7 @@ private:
     do_arc_ = true;
   }
 
+  /// \brief Callback for the reverse service used to reverse the direction of circle motion.
   void reverse_callback(
     std::shared_ptr<std_srvs::srv::Empty::Request>,
     std::shared_ptr<std_srvs::srv::Empty::Response>)
@@ -82,6 +102,7 @@ private:
     do_arc_ = true;
   }
 
+  /// \brief Callback for the stop service used to stop the circle motion.
   void stop_callback(
     std::shared_ptr<std_srvs::srv::Empty::Request>,
     std::shared_ptr<std_srvs::srv::Empty::Response>)

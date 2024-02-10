@@ -5,6 +5,7 @@
 This repository consists of several ROS packages
 - nuturtle_description - Displays multiple turtlebot3 models in rviz
 - nusim - Provides a simulated robot environment
+- nuturtle_control - Controls the robot in simulation and the physical world
 
 # Library
 - turtlelib - A custom library for performing 2D rigid body transformations and other related functionality

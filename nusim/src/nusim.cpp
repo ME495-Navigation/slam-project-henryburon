@@ -2,7 +2,6 @@
 /// \brief Provides a simulated robot environment in RViz2.
 ///        Displays walls, obstacles, and turtlebot.
 ///
-///
 /// PARAMETERS:
 ///     \param rate (int): Timer frequency (Hz)
 ///     \param x0 (double): Initial x coordinate of the robot (m)
@@ -19,7 +18,7 @@
 ///     \param ~/walls (visualization_msgs::msg::MarkerArray): MarkerArray of Walls in RViz2
 ///     \param ~/obstacles (visualization_msgs::msg::MarkerArray): MarkerArray of cylindrical obstacles in RViz2
 /// SUBSCRIBES:
-///     None
+///     \param /red/wheel_cmd: wheel commands for the red robot
 /// SERVERS:
 ///      \param ~/reset (std_srvs::srv::Empty): Resets the simulation
 ///      \param ~/teleport (nusim::srv::Teleport): Teleports robot to a desired pose
@@ -180,6 +179,8 @@ private:
 
   }
 
+  /// \brief Callback function for wheel commands from the red robot.
+  /// \param msg The incoming wheel command message containing the velocities for the left and right wheels.
   void red_wheel_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
     // Left and right wheel velocity, in "motor command units" (mcu)
@@ -190,6 +191,8 @@ private:
     wheel_vel_.phi_r = static_cast<double>(msg.right_velocity * motor_cmd_per_rad_sec_);
   }
 
+  /// \brief Updates the wheel positions based on the current wheel velocities and publishes the sensor data.
+  /// \param msg The incoming wheel command message containing the velocities for the left and right wheels.
   void update_wheel_positions()
   {
     double unit_per_run = 1.0 / rate_;
@@ -207,6 +210,7 @@ private:
     red_sensor_data_pub->publish(sensor_data_msg_);
   }
 
+  /// \brief Updates the robot's position based on the change in wheel position. 
   void update_robot_position()
   {
     // Do forward kinematics
@@ -226,7 +230,7 @@ private:
 
   }
 
-  /// \brief Resets the simulation to initial configuration
+  /// \brief Resets the simulation to initial configuration.
   void reset_callback(
     const std::shared_ptr<std_srvs::srv::Empty::Request>,
     std::shared_ptr<std_srvs::srv::Empty::Response>)

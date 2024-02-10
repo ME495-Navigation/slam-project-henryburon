@@ -1,3 +1,23 @@
+/// \file
+/// \brief Odometry node for computing and publishing odometry from joint states.
+///
+/// PARAMETERS:
+ ///    \param body_id (string): The TF frame ID of the robot's body.
+ ///    \param odom_id (string): The TF frame ID of the odometry reference frame.
+ ///    \param wheel_left (string): The name of the left wheel joint.
+ ///    \param wheel_right (string): The name of the right wheel joint.
+ ///    \param wheel_radius (double): The radius of the wheels.
+ ///    \param track_width (double): The distance between the centers of the two wheels.
+ ///
+ /// PUBLISHES:
+ ///    \param odom (nav_msgs::msg::Odometry): Publishes the computed odometry of the robot.
+ ///
+ /// SUBSCRIBES:
+ ///    \param red/joint_states (sensor_msgs::msg::JointState): Subscribes to the joint state messages to compute odometry.
+ ///
+ /// SERVICES:
+ ///    \initial_pose (nuturtle_control::srv::InitialPose): Service to set the initial pose of the robot.
+
 #include <chrono>
 #include <string>
 #include "rclcpp/rclcpp.hpp"
@@ -9,6 +29,7 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nuturtle_control/srv/initial_pose.hpp"
 
+/// \brief Computes and publishes odometry from the joint states.
 class Odometry : public rclcpp::Node
 {
 public:
@@ -59,6 +80,7 @@ public:
   }
 
 private:
+  /// \brief Broadcasts the transform from the odometry frame to the robot body frame.
   void broadcast_odom_body()
   {
     geometry_msgs::msg::TransformStamped t;
@@ -81,6 +103,7 @@ private:
     odom_body_broadcaster->sendTransform(t);
   }
 
+  /// \brief Callback function for the initial_pose service.
   void initial_pose_callback(
     std::shared_ptr<nuturtle_control::srv::InitialPose::Request> request,
     std::shared_ptr<nuturtle_control::srv::InitialPose::Response>)
@@ -92,6 +115,8 @@ private:
       {request->theta, request->x, request->y}};
   }
 
+  /// \brief Callback for the joint state messages.
+  /// \param msg The incoming joint state message.
   void joint_states_callback(const sensor_msgs::msg::JointState & msg)
   {
 
