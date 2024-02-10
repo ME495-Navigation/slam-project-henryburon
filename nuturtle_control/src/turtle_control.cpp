@@ -51,31 +51,21 @@ private:
 
   void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
   {
-    
-    // RCLCPP_INFO(this->get_logger(), "[1] cmd_vel started: linear.x: %f and angular.z: %f", msg.linear.x, msg.angular.z);
-
     // Construct a Twist2D using received cmd_vel message
     twist.omega = msg.angular.z;
     twist.x = msg.linear.x;
     twist.y = msg.linear.y; // Could set this to 0.0
 
-    // RCLCPP_ERROR(this->get_logger(),"[2] Extracted as Angular: %f  x: %f", twist.omega, twist.x);
-
     // Perform inverse kinematics to get the wheel commands (Wheels)
     wheels = robot.inverse_kinematics(twist);
-
-    // RCLCPP_ERROR(this->get_logger(),"[3] IK = Left: %f  Right: %f", wheels.phi_l, wheels.phi_r);    
 
     // Load the wheel_cmd message
 
     wheels.phi_l = static_cast<int>(wheels.phi_l / motor_cmd_per_rad_sec_); // and multiply by rate?
     wheels.phi_r = static_cast<int>(wheels.phi_r / motor_cmd_per_rad_sec_);
 
-    wheel_cmd_.left_velocity = wheels.phi_l / 2.0; // These necessary 2s are magic numbers. Might have to do with track length??
+    wheel_cmd_.left_velocity = wheels.phi_l / 2.0; // Division due to track length
     wheel_cmd_.right_velocity = wheels.phi_r / 2.0;
-
-    // RCLCPP_ERROR(this->get_logger(),"[4] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
-
 
     // Ensure motor (wheel) commands are within specified interval
     if (wheel_cmd_.left_velocity > motor_cmd_max_)
@@ -95,18 +85,12 @@ private:
       wheel_cmd_.right_velocity = -motor_cmd_max_;
     }
 
-    // RCLCPP_ERROR(this->get_logger(),"[5] Clipped to: Left vel: %d   Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
-    // RCLCPP_ERROR(this->get_logger(),"[5555] Loaded as: Left vel: %d  Right vel: %d", wheel_cmd_.left_velocity, wheel_cmd_.right_velocity);
-
-    // Publish the wheel_cmd message
     wheel_cmd_pub->publish(wheel_cmd_);
 
   }
 
   void sensor_data_callback(const nuturtlebot_msgs::msg::SensorData & msg)
   {
-
-    // RCLCPP_ERROR(this->get_logger(),"Entering joint state callback in SENSOR DATA CALLBACK!");
 
     // Create a JointState message
     sensor_msgs::msg::JointState js;
@@ -115,7 +99,7 @@ private:
     js.header.stamp = msg.stamp;
     js.name = {"wheel_left_joint", "wheel_right_joint"};
 
-    // Load position and velocity
+    // Load position and velocity into joint state message
     if (flag_stamp < 0.0) // If it's the first reading...
     {
       js.position = {0.0, 0.0};
@@ -161,8 +145,6 @@ private:
       rclcpp::shutdown();
     }
   }
-
-/// Declare member variables ///
 
 // Publishers
 rclcpp::Publisher<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr wheel_cmd_pub;

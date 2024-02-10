@@ -94,10 +94,6 @@ private:
          // Stop publishing to cmd_vel
          do_arc_ = false;
       }
-   
-
-
-/// Declare member variables ///
 
 // Publishers
 rclcpp::Publisher<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pub;

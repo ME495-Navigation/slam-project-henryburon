@@ -41,7 +41,6 @@ public:
     odom_body_broadcaster = 
         std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     
-
     // Services
     initial_pose_init = create_service<nuturtle_control::srv::InitialPose>(
         "/initial_pose",
@@ -94,7 +93,6 @@ private:
 
     void joint_states_callback(const sensor_msgs::msg::JointState & msg)
     {
-        // RCLCPP_ERROR(this->get_logger(),"Entering joint state callback in ODOMETRY");
         
         // Update internal odometry state
         wheels_.phi_l = msg.position.at(0) - old_radian_.position.at(0); // Find delta wheels
@@ -127,14 +125,11 @@ private:
         turtlelib::Twist2D Vb;
         Vb.omega = ((wheel_radius_ / (2.0 * (track_width_/2.0))) * (wheels_.phi_r - wheels_.phi_l));
         Vb.x = (wheel_radius_ / 2.0) * (wheels_.phi_l + wheels_.phi_r);
-        // Vb.y = 0.0;
 
         odom_msg_.twist.twist.linear.x = Vb.x;
-        // odom_msg_.twist.twist.linear.y = Vb.y;
         odom_msg_.twist.twist.angular.z = Vb.omega;
 
         odom_pub->publish(odom_msg_);
-
         broadcast_odom_body();
     }
 
@@ -150,9 +145,6 @@ private:
             rclcpp::shutdown(); 
         }
     }
-
-
-/// Declare member variables ///
 
 // Publishers
 rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub;
