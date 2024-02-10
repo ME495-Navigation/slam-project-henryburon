@@ -53,7 +53,7 @@ ament_target_dependencies(circle
 
 ament_target_dependencies(turtle_control
   rclcpp
-  geometry_msgs 
+  geometry_msgs
   sensor_msgs
   nuturtlebot_msgs)
 
@@ -95,7 +95,7 @@ if(BUILD_TESTING)
 
   ament_target_dependencies(turtle_control_test
     rclcpp std_srvs geometry_msgs nuturtlebot_msgs sensor_msgs)
-  
+
   install(TARGETS
   turtle_control_test
     DESTINATION lib/${PROJECT_NAME})
