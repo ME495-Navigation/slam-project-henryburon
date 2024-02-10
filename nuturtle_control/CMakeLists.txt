@@ -20,22 +20,23 @@ find_package(std_srvs REQUIRED)
 find_package(catch_ros2 REQUIRED)
 find_package(Doxygen)
 
+########## Begin_Citation [10] ##########
 
+rosidl_generate_interfaces(${PROJECT_NAME}_srv
+  "srv/InitialPose.srv"
+  "srv/Control.srv"
+  LIBRARY_NAME ${PROJECT_NAME})
+
+rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}_srv "rosidl_typesupport_cpp")
+
+########## End_Citation [10] ##########
+
+# Executables
 add_executable(turtle_control src/turtle_control.cpp)
-
 add_executable(odometry src/odometry.cpp)
-
 add_executable(circle src/circle.cpp)
 
-add_executable(turtle_control_test src/turtle_control_test.cpp)
-
-ament_target_dependencies(turtle_control
-  rclcpp
-  geometry_msgs
-  nuturtlebot_msgs
-  sensor_msgs
-  turtlelib)
-
+# Ament target dependencies
 ament_target_dependencies(odometry
   rclcpp
   sensor_msgs
@@ -50,70 +51,58 @@ ament_target_dependencies(circle
   std_srvs
   turtlelib)
 
-ament_target_dependencies(turtle_control_test
+ament_target_dependencies(turtle_control
   rclcpp
-  geometry_msgs
-  nuturtlebot_msgs
+  geometry_msgs 
   sensor_msgs
-  turtlelib
-  catch_ros2)
+  nuturtlebot_msgs)
 
-
-########## Begin_Citation [10] ##########
-
-rosidl_generate_interfaces(${PROJECT_NAME}_srv
-  "srv/InitialPose.srv"
-  "srv/Control.srv"
-  LIBRARY_NAME ${PROJECT_NAME})
+# Target link libraries
+target_link_libraries(turtle_control turtlelib::turtlelib "${cpp_typesupport_target}")
+target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
+target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
 
 target_include_directories(turtle_control PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-
-rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME}_srv "rosidl_typesupport_cpp")
-
-########## End_Citation [10] ##########
-
-target_link_libraries(turtle_control turtlelib::turtlelib)
-target_link_libraries(odometry turtlelib::turtlelib "${cpp_typesupport_target}")
-target_link_libraries(circle turtlelib::turtlelib "${cpp_typesupport_target}")
-target_link_libraries(turtle_control_test turtlelib::turtlelib)
-
 
 install(DIRECTORY
   launch
   srv
   config
   test
-  DESTINATION share/nuturtle_control/
-)
+  DESTINATION share/nuturtle_control/)
 
 install(TARGETS
   turtle_control
   odometry
   circle
-  turtle_control_test
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
 
-  ########## Begin_Citation [13] ##########
+  find_package(ament_lint_auto REQUIRED)
+  set(ament_cmake_copyright_FOUND TRUE)
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+
+  add_executable(turtle_control_test test/turtle_control_test.cpp)
+  find_package(catch_ros2 REQUIRED)
   include(CTest)
 
   target_link_libraries(turtle_control_test
-    catch_ros2::catch_ros2_with_node_main
-  )
-  ########## End_Citation [13] ##########
+    catch_ros2::catch_ros2_with_node_main)
 
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
+  ament_target_dependencies(turtle_control_test
+    rclcpp std_srvs geometry_msgs nuturtlebot_msgs sensor_msgs)
+  
+  install(TARGETS
+  turtle_control_test
+    DESTINATION lib/${PROJECT_NAME})
+
+  catch_ros2_add_integration_test(turtle_control_test
+    LAUNCH_FILE turtle_control_test.launch.xml)
+
 endif()
 
 ament_package()

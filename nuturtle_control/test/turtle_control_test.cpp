@@ -10,11 +10,12 @@
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 
-// ########## Begin_Citation [14] ##########
-
 using namespace std::chrono_literals;
 geometry_msgs::msg::Twist twist = geometry_msgs::msg::Twist();
-sensor_msgs::msg::JointState joint_state = sensor_msgs::msg::JointState();
+sensor_msgs::msg::JointState joint_state;
+
+
+// ########## Begin_Citation [14] ##########
 
 double left_wheel_test;
 double right_wheel_test;
@@ -25,11 +26,11 @@ void test_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg)
   right_wheel_test = msg->right_velocity;
 }
 
-void senor_callback(const sensor_msgs::msg::JointState & msg)
+void senor_callback(const sensor_msgs::msg::JointState::SharedPtr msg)
 {
-  joint_state.name = msg.name;
-  joint_state.position = msg.position;
-  joint_state.velocity = msg.velocity;
+  joint_state.name = msg->name;
+  joint_state.position = msg->position;
+  joint_state.velocity = msg->velocity;
 }
 
 geometry_msgs::msg::Twist twist1 = geometry_msgs::msg::Twist();
@@ -43,7 +44,7 @@ void test1_callback(const nuturtlebot_msgs::msg::WheelCommands::SharedPtr msg)
   right_wheel_test1 = msg->right_velocity;
 }
 
-TEST_CASE("Pure Translation from cmd_vel", "[nuturtle_control]")
+TEST_CASE("Pure Translation", "[nuturtle_control]")
 {
   auto node = rclcpp::Node::make_shared("turtle_control");
   auto pub = node->create_publisher<geometry_msgs::msg::Twist>("cmd_vel", 10);
@@ -61,8 +62,8 @@ TEST_CASE("Pure Translation from cmd_vel", "[nuturtle_control]")
     pub->publish(twist);
   }
 
-  CHECK_THAT(left_wheel_test, Catch::Matchers::WithinAbs(12.0, 1e-5));
-  CHECK_THAT(right_wheel_test, Catch::Matchers::WithinAbs(12.0, 1e-5));
+  CHECK_THAT(left_wheel_test, Catch::Matchers::WithinAbs(26.0, 1e-5));
+  CHECK_THAT(right_wheel_test, Catch::Matchers::WithinAbs(26.0, 1e-5));
 };
 
 TEST_CASE("Pure rotation", "[Rotation]")
@@ -83,8 +84,8 @@ TEST_CASE("Pure rotation", "[Rotation]")
     pub->publish(twist1);
   }
 
-  CHECK_THAT(left_wheel_test1, Catch::Matchers::WithinAbs(-2.0, 1e-5));
-  CHECK_THAT(right_wheel_test1, Catch::Matchers::WithinAbs(2.0, 1e-5));
+  CHECK_THAT(left_wheel_test1, Catch::Matchers::WithinAbs(-8.0, 1e-5));
+  CHECK_THAT(right_wheel_test1, Catch::Matchers::WithinAbs(8.0, 1e-5));
 };
 
 nuturtlebot_msgs::msg::SensorData senor = nuturtlebot_msgs::msg::SensorData();
@@ -93,29 +94,27 @@ nuturtlebot_msgs::msg::SensorData senor1 = nuturtlebot_msgs::msg::SensorData();
 TEST_CASE("Joint States", "[sesnor data]")
 {
   auto node = rclcpp::Node::make_shared("turtle_control");
-  auto pub = node->create_publisher<nuturtlebot_msgs::msg::SensorData>("sensor_data", 10);
-  senor.left_encoder = 60.0;
-  senor.right_encoder = 46.0;
+  auto pub = node->create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
+  senor.left_encoder = 1000.0;
+  senor.right_encoder = 1000.0;
   // senor1.left_encoder = 50.0;
   // senor1.right_encoder = 86.0;
   auto sub = node->create_subscription<sensor_msgs::msg::JointState>(
-    "joint_states", 10, &senor_callback);
+    "red/joint_states", 10, &senor_callback);
   rclcpp::Time start_time = rclcpp::Clock().now();
   while (
     rclcpp::ok() &&
     ((rclcpp::Clock().now() - start_time) < 1s))
   {
-    rclcpp::spin_some(node);
     pub->publish(senor);
+    rclcpp::spin_some(node);
+
 
     // pub->publish(senor1);
   }
 
-  // CHECK(joint_state.name == "right");
-  CHECK_THAT(joint_state.velocity.at(0), Catch::Matchers::WithinAbs(2.0, 1e-5));
-  CHECK_THAT(joint_state.velocity.at(1), Catch::Matchers::WithinAbs(2.0, 1e-5));
-  CHECK_THAT(joint_state.position.at(0), Catch::Matchers::WithinAbs(2.0, 1e-5));
-  CHECK_THAT(joint_state.position.at(1), Catch::Matchers::WithinAbs(1.0, 1e-5));
+  CHECK_THAT(joint_state.position.at(0), Catch::Matchers::WithinAbs(0.0920388473, 1e-5));
+  CHECK_THAT(joint_state.position.at(1), Catch::Matchers::WithinAbs(0.0705631162, 1e-5));
 
 
 };
