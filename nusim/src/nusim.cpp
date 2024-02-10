@@ -92,8 +92,10 @@ public:
     obstacles_x_ = get_parameter("obstacles.x").get_parameter_value().get<std::vector<double>>();
     obstacles_y_ = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
     obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<double>();
-    motor_cmd_per_rad_sec_ = get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
-    encoder_ticks_per_rad_ = get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
+    motor_cmd_per_rad_sec_ =
+      get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
+    encoder_ticks_per_rad_ =
+      get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
 
     // Publishers
     timestep_publisher_ = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
@@ -103,7 +105,8 @@ public:
     obstacles_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
       "~/obstacles", 10);
 
-    red_sensor_data_pub = create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
+    red_sensor_data_pub =
+      create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
 
 
     // Subscribers
@@ -364,7 +367,7 @@ private:
 
   // Declare member variables
   rclcpp::TimerBase::SharedPtr timer_;
-  
+
   rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr obstacles_publisher_;
@@ -404,7 +407,7 @@ private:
   turtlelib::Wheels prev_wheel_pos_{0.0, 0.0};
   nuturtlebot_msgs::msg::SensorData sensor_data_msg_;
   turtlelib::DiffDrive robot_;
-  
+
 
 };
 

@@ -31,7 +31,7 @@ Worked With: Anuj, Rahul, Srikanth, Shail, Carter, Leo, Allen, Stella
 
 [12] Desc: Rahul helped me with inverse kinematics.
 
-[13] Desc: Srikanth helped me with configuring my CMakeLists.txt in nuturtle_control for the cross compilation. I deleted the code once I finished because
+[13] Desc: Srikanth helped me with configuring my CMakeLists.txt in nuturtle_control for the cross compilation. I deleted most of the code once I finished because
            I then wasn't able to colcon build with that CMake. However, in commit e85f732026b32a2684a6c3716bde9645fc51baae, most of my CMakeLists.txt in nuturtle_control
            is formatted thanks to Srikanth's advice.
 
