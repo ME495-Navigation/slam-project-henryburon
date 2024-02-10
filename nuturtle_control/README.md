@@ -2,6 +2,22 @@
 
 This package controls the robot in simulation and the real world.
 
+The launchfile can be called like ```ros2 launch nuturtle_control start_robot.launch.xml cmd_src:=X robot:=Y use_rviz:=Z```
+
+**Possible args for cmd_src:**
+* circle
+* teleop
+* none
+
+**Possible args for robot:**
+* nusim
+* localhost
+* none
+
+**Possible args for use_rviz:**
+* true
+* false
+
 ## Physical Testing
 
 A video of the turtlebot3 driving forward (CCW), in reverse (CW), and stopping along a circle with radius 0.3m.
