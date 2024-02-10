@@ -1,4 +1,4 @@
-// \file
+/// \file nusim.cpp
 /// \brief Provides a simulated robot environment in RViz2.
 ///        Displays walls, obstacles, and turtlebot.
 ///
@@ -210,7 +210,7 @@ private:
     red_sensor_data_pub->publish(sensor_data_msg_);
   }
 
-  /// \brief Updates the robot's position based on the change in wheel position. 
+  /// \brief Updates the robot's position based on the change in wheel position.
   void update_robot_position()
   {
     // Do forward kinematics

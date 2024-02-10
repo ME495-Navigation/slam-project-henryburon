@@ -1,7 +1,25 @@
+/// \file turtle_control.cpp
+/// \brief Node for controlling the turtlebot's wheel movements based on cmd_vel commands and sensor data.
+///
+/// PARAMETERS:
+///   \param wheel_radius (double): The radius of the robot's wheels.
+///   \param track_width (double): The distance between the centers of the two wheels.
+///   \param motor_cmd_max (double): The maximum command value for the robot's motors.
+///   \param motor_cmd_per_rad_sec (double): The command value per radian per second for the motors.
+///   \param encoder_ticks_per_rad (double): The number of encoder ticks per radian of wheel rotation.
+///
+/// PUBLISHES:
+///   \param wheel_cmd (nuturtlebot_msgs::msg::WheelCommands): Commands for the left and right wheel velocities.
+///   \param joint_states (sensor_msgs::msg::JointState): The joint states of the TurtleBot's wheels.
+///
+/// SUBSCRIBES:
+///   \param cmd_vel (geometry_msgs::msg::Twist): The desired linear and angular velocities for the robot.
+///   \param sensor_data (nuturtlebot_msgs::msg::SensorData): Encoder data from the robot's wheel sensors.
+
+
 #include <cstdio>
 #include <chrono>
 #include <cmath>
-
 #include "rclcpp/rclcpp.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
@@ -10,8 +28,7 @@
 #include "turtlelib/diff_drive.hpp"
 
 
-using namespace std::chrono_literals;
-
+/// \brief Node for controlling the turtlebot's wheel movement based on joint states.
 class TurtleControl : public rclcpp::Node
 {
 public:
@@ -52,6 +69,8 @@ public:
   }
 
 private:
+  /// \brief Callback for cmd_vel messages.
+  /// \param msg The cmd_vel message containing the desired velocities.
   void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
   {
     // Construct a Twist2D using received cmd_vel message
@@ -86,6 +105,8 @@ private:
 
   }
 
+  /// \brief Callback for sensor_data messages.
+  /// \param msg The sensor_data message containing the encoder data and publishes joint states.
   void sensor_data_callback(const nuturtlebot_msgs::msg::SensorData & msg)
   {
 
@@ -124,6 +145,7 @@ private:
 
   }
 
+  /// \brief Checks if all required parameters are defined, and logs an error if any are missing.
   void check_params()
   {
     if (wheel_radius_ < 0.0 ||

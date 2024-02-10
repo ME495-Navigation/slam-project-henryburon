@@ -2,21 +2,21 @@
 /// \brief Odometry node for computing and publishing odometry from joint states.
 ///
 /// PARAMETERS:
- ///    \param body_id (string): The TF frame ID of the robot's body.
- ///    \param odom_id (string): The TF frame ID of the odometry reference frame.
- ///    \param wheel_left (string): The name of the left wheel joint.
- ///    \param wheel_right (string): The name of the right wheel joint.
- ///    \param wheel_radius (double): The radius of the wheels.
- ///    \param track_width (double): The distance between the centers of the two wheels.
- ///
- /// PUBLISHES:
- ///    \param odom (nav_msgs::msg::Odometry): Publishes the computed odometry of the robot.
- ///
- /// SUBSCRIBES:
- ///    \param red/joint_states (sensor_msgs::msg::JointState): Subscribes to the joint state messages to compute odometry.
- ///
- /// SERVICES:
- ///    \initial_pose (nuturtle_control::srv::InitialPose): Service to set the initial pose of the robot.
+///    \param body_id (string): The TF frame ID of the robot's body.
+///    \param odom_id (string): The TF frame ID of the odometry reference frame.
+///    \param wheel_left (string): The name of the left wheel joint.
+///    \param wheel_right (string): The name of the right wheel joint.
+///    \param wheel_radius (double): The radius of the wheels.
+///    \param track_width (double): The distance between the centers of the two wheels.
+///
+/// PUBLISHES:
+///    \param odom (nav_msgs::msg::Odometry): Publishes the computed odometry of the robot.
+///
+/// SUBSCRIBES:
+///    \param red/joint_states (sensor_msgs::msg::JointState): Subscribes to the joint state messages to compute odometry.
+///
+/// SERVICES:
+///    \initial_pose (nuturtle_control::srv::InitialPose): Service to set the initial pose of the robot.
 
 #include <chrono>
 #include <string>
