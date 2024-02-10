@@ -24,3 +24,6 @@ A video of the turtlebot3 driving forward (CCW), in reverse (CW), and stopping a
 
 https://github.com/ME495-Navigation/slam-project-henryburon/assets/141075086/709dd219-b25d-450f-9623-35e67807d3cf
 
+Forward: 0:06 - 1:09  
+Reverse: 1:09 - 2:10  
+Stop: 2:10 - 2:12  
