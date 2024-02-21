@@ -74,6 +74,7 @@ private:
   void cmd_vel_callback(const geometry_msgs::msg::Twist & msg)
   {
     // Construct a Twist2D using received cmd_vel message
+    turtlelib::Twist2D twist;
     twist.omega = msg.angular.z;
     twist.x = msg.linear.x;
     twist.y = msg.linear.y; // Could set this to 0.0
@@ -86,8 +87,8 @@ private:
     wheels.phi_l = static_cast<int>(wheels.phi_l / motor_cmd_per_rad_sec_); // and multiply by rate?
     wheels.phi_r = static_cast<int>(wheels.phi_r / motor_cmd_per_rad_sec_);
 
-    wheel_cmd_.left_velocity = wheels.phi_l / 2.0; // Division due to track length
-    wheel_cmd_.right_velocity = wheels.phi_r / 2.0;
+    wheel_cmd_.left_velocity = wheels.phi_l; // Division by 2.0 due to track length
+    wheel_cmd_.right_velocity = wheels.phi_r;
 
     // Ensure motor (wheel) commands are within specified interval
     if (wheel_cmd_.left_velocity > motor_cmd_max_) {
@@ -177,7 +178,7 @@ private:
   double encoder_ticks_per_rad_;
   double flag_stamp = -1.0;
   turtlelib::DiffDrive robot;
-  turtlelib::Twist2D twist;
+  // turtlelib::Twist2D twist;
   turtlelib::Wheels wheels;
   nuturtlebot_msgs::msg::WheelCommands wheel_cmd_;
 

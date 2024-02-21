@@ -84,8 +84,8 @@ private:
     std::shared_ptr<nuturtle_control::srv::Control::Response>)
   {
     // Changes the arc values to new values specified in service call
-    arc_.linear.x = request->velocity;
-    arc_.angular.z = request->velocity / request->radius;
+    arc_.linear.x = request->velocity * request->radius; // changed
+    arc_.angular.z = request->velocity; // changed
 
     do_arc_ = true;
   }
