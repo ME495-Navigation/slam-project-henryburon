@@ -75,9 +75,9 @@ private:
   {
     // Construct a Twist2D using received cmd_vel message
     turtlelib::Twist2D twist;
-    twist.omega = msg.angular.z / 10.0;
+    twist.omega = msg.angular.z / 10.0; // This 10.0 is a magic number right now. I'm not sure where the speeds are being multiplied by 10.0, but this accounts for it
     twist.x = msg.linear.x /  10.0;
-    twist.y = msg.linear.y; // Could set this to 0.0
+    twist.y = msg.linear.y;
 
     // Perform inverse kinematics to get the wheel commands (Wheels)
     wheels = robot.inverse_kinematics(twist);

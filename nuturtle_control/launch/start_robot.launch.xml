@@ -63,6 +63,10 @@
                 <arg name="use_rviz" value="false"/>
             </include>
 
+            <node pkg="hls_lfcd_lds_driver" exec="hlds_laser_publisher">
+                <param name="port" value="/dev/ttyUSB0"/>
+            </node>
+
     </group>
 
 
