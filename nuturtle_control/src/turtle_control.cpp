@@ -75,8 +75,8 @@ private:
   {
     // Construct a Twist2D using received cmd_vel message
     turtlelib::Twist2D twist;
-    twist.omega = msg.angular.z;
-    twist.x = msg.linear.x;
+    twist.omega = msg.angular.z / 10.0;
+    twist.x = msg.linear.x /  10.0;
     twist.y = msg.linear.y; // Could set this to 0.0
 
     // Perform inverse kinematics to get the wheel commands (Wheels)
