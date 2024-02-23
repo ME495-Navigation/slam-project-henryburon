@@ -27,8 +27,8 @@
 
     <arg name="odom_id" default="odom"/>
     <arg name="body_id" default="blue/base_footprint"/>
-    <arg name="wheel_left" default="wheel_left"/>
-    <arg name="wheel_right" default="wheel_right"/>
+    <arg name="wheel_left" default="wheel_left_joint"/>
+    <arg name="wheel_right" default="wheel_right_joint"/>
 
 
     <!-- Publish static transform -->
