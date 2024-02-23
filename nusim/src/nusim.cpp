@@ -38,11 +38,13 @@
 #include "tf2_ros/transform_broadcaster.h"
 #include "tf2/LinearMath/Quaternion.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include "nusim/srv/teleport.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 #include "nuturtlebot_msgs/msg/wheel_commands.hpp"
 #include "turtlelib/diff_drive.hpp"
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
+#include "nav_msgs/msg/path.hpp"
 
 using namespace std::chrono_literals;
 
@@ -106,6 +108,8 @@ public:
 
     red_sensor_data_pub =
       create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
+
+    path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("red/path", 10);
 
 
     // Subscribers
@@ -176,6 +180,24 @@ private:
 
     update_robot_position();
     update_wheel_positions();
+
+
+    // Update path
+    path_msg.header.stamp = this->get_clock()->now();
+    path_msg.header.frame_id = "nusim/world";
+
+    geometry_msgs::msg::PoseStamped pose_stamp_;
+    pose_stamp_.pose.position.x = x_;
+    pose_stamp_.pose.position.y = y_;
+    pose_stamp_.pose.position.z = 0.0;
+    pose_stamp_.pose.orientation.x = q.x();
+    pose_stamp_.pose.orientation.y = q.y();
+    pose_stamp_.pose.orientation.z = q.z();
+    pose_stamp_.pose.orientation.w = q.w();
+    path_msg.poses.push_back(pose_stamp_);
+
+    // Publish path
+    path_publisher_->publish(path_msg);
 
   }
 
@@ -386,6 +408,7 @@ private:
 
   // Publishers
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr red_sensor_data_pub;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
 
   // Subscribers
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_sub;
@@ -411,6 +434,8 @@ private:
   turtlelib::Wheels prev_wheel_pos_{0.0, 0.0};
   nuturtlebot_msgs::msg::SensorData sensor_data_msg_;
   turtlelib::DiffDrive robot_;
+  nav_msgs::msg::Path path_msg;
+  
 
 
 };
