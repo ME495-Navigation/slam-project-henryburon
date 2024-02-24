@@ -51,8 +51,8 @@ public:
       get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
 
     // Publishers
-    wheel_cmd_pub = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("wheel_cmd", 10);
-    joint_states_pub = create_publisher<sensor_msgs::msg::JointState>("joint_states", 10);
+    wheel_cmd_pub = create_publisher<nuturtlebot_msgs::msg::WheelCommands>("/wheel_cmd", 10);
+    joint_states_pub = create_publisher<sensor_msgs::msg::JointState>("/joint_states", 10);
 
     // Subscribers
     cmd_vel_sub = create_subscription<geometry_msgs::msg::Twist>(
@@ -87,7 +87,7 @@ private:
     wheels.phi_l = static_cast<int>(wheels.phi_l / motor_cmd_per_rad_sec_); // and multiply by rate?
     wheels.phi_r = static_cast<int>(wheels.phi_r / motor_cmd_per_rad_sec_);
 
-    wheel_cmd_.left_velocity = wheels.phi_l; // Division by 2.0 due to track length
+    wheel_cmd_.left_velocity = wheels.phi_l;
     wheel_cmd_.right_velocity = wheels.phi_r;
 
     // Ensure motor (wheel) commands are within specified interval
@@ -119,7 +119,7 @@ private:
     js.name = {"wheel_left_joint", "wheel_right_joint"};
 
     // Load position and velocity into joint state message
-    if (flag_stamp < 0.0) { // If it's the first reading...
+    if (flag_stamp == -1.0) { // If it's the first reading...
       js.position = {0.0, 0.0};
       js.velocity = {0.0, 0.0};
     } else {
@@ -134,14 +134,16 @@ private:
         js.velocity = {js.position.at(0) / elapsed_time,
           js.position.at(1) / elapsed_time};
       }
-      // Handle division by zero scenario
-      else {
-        js.velocity = {0.0, 0.0};
-      }
+      
     }
 
     // Set stamp and publish joint states
     flag_stamp = msg.stamp.sec + msg.stamp.nanosec * 1e-9; // Can also use: get_clock()->now()
+
+    // RCLCPP_ERROR_STREAM(
+    //   this->get_logger(), "left: " << js.position.at(0) << " right: " << js.position.at(1));
+
+    
     joint_states_pub->publish(js);
 
   }

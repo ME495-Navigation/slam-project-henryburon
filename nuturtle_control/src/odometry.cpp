@@ -39,10 +39,10 @@ public:
     // Parameters
     declare_parameter("body_id", "");
     declare_parameter("odom_id", "odom");
-    declare_parameter("wheel_left", "");
-    declare_parameter("wheel_right", "");
-    declare_parameter("wheel_radius", -5.0);
-    declare_parameter("track_width", -5.0);
+    declare_parameter("wheel_left", "wheel_left_joint");
+    declare_parameter("wheel_right", "wheel_right_joint");
+    declare_parameter("wheel_radius", 0.033);
+    declare_parameter("track_width", 0.160);
 
     body_id_ = get_parameter("body_id").get_value<std::string>();
     odom_id_ = get_parameter("odom_id").get_value<std::string>();
@@ -52,11 +52,11 @@ public:
     track_width_ = get_parameter("track_width").get_value<double>();
 
     // Publishers
-    odom_pub = create_publisher<nav_msgs::msg::Odometry>("odom", 10);
+    odom_pub = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
 
     // Subscribers
     joint_states_sub = create_subscription<sensor_msgs::msg::JointState>(
-      "red/joint_states", 10,
+      "blue/joint_states", 10,
       std::bind(&Odometry::joint_states_callback, this, std::placeholders::_1));
 
     // Broadcasters
@@ -80,28 +80,6 @@ public:
   }
 
 private:
-  /// \brief Broadcasts the transform from the odometry frame to the robot body frame.
-  void broadcast_odom_body()
-  {
-    geometry_msgs::msg::TransformStamped t;
-
-    t.header.stamp = this->get_clock()->now();
-    t.header.frame_id = odom_id_;
-    t.child_frame_id = body_id_;
-
-    t.transform.translation.x = dd_robot_.get_robot_config().x;
-    t.transform.translation.y = dd_robot_.get_robot_config().y;
-    t.transform.translation.z = 0.0;
-
-    tf2::Quaternion q;
-    q.setRPY(0.0, 0.0, dd_robot_.get_robot_config().theta);
-    t.transform.rotation.x = q.x();
-    t.transform.rotation.y = q.y();
-    t.transform.rotation.z = q.z();
-    t.transform.rotation.w = q.w();
-
-    odom_body_broadcaster->sendTransform(t);
-  }
 
   /// \brief Callback function for the initial_pose service.
   void initial_pose_callback(
@@ -109,7 +87,7 @@ private:
     std::shared_ptr<nuturtle_control::srv::InitialPose::Response>)
   {
     // Set configuration to that which is specified in request
-    dd_robot_ = turtlelib::DiffDrive{track_width_,
+    robot_ = turtlelib::DiffDrive{track_width_,
       wheel_radius_,
       {0.0, 0.0},
       {request->theta, request->x, request->y}};
@@ -119,11 +97,22 @@ private:
   /// \param msg The incoming joint state message.
   void joint_states_callback(const sensor_msgs::msg::JointState & msg)
   {
-
     // Update internal odometry state
     wheels_.phi_l = msg.position.at(0) - old_radian_.position.at(0);     // Find delta wheels
     wheels_.phi_r = msg.position.at(1) - old_radian_.position.at(1);
-    dd_robot_.forward_kinematic_update(wheels_);
+
+    // RCLCPP_ERROR_STREAM(
+    //   this->get_logger(), "qx: " << t.transform.rotation.x << " qy: " << t.transform.rotation.y << " qz: " <<
+    //     t.transform.rotation.z << " qw: " << t.transform.rotation.w);
+
+
+    RCLCPP_ERROR_STREAM(
+      this->get_logger(), "phi_l: " << wheels_.phi_l << " phi_r: " << wheels_.phi_r);
+
+
+
+
+    robot_.forward_kinematic_update(wheels_);
 
     // Reset old_radian
     old_radian_.position = {msg.position.at(0), msg.position.at(1)};
@@ -134,11 +123,10 @@ private:
 
     odom_msg_.child_frame_id = body_id_;
 
-    odom_msg_.pose.pose.position.x = dd_robot_.get_robot_config().x;
-    odom_msg_.pose.pose.position.y = dd_robot_.get_robot_config().y;
-    // odom_msg_.pose.pose.position.z = 0.0;
+    odom_msg_.pose.pose.position.x = robot_.get_robot_config().x;
+    odom_msg_.pose.pose.position.y = robot_.get_robot_config().y;
 
-    quat_.setRPY(0.0, 0.0, dd_robot_.get_robot_config().theta);
+    quat_.setRPY(0.0, 0.0, robot_.get_robot_config().theta);
 
     odom_msg_.pose.pose.orientation.x = quat_.x();
     odom_msg_.pose.pose.orientation.y = quat_.y();
@@ -149,15 +137,64 @@ private:
     // Convert delta wheels to a twist
 
     turtlelib::Twist2D Vb;
-    Vb.omega = ((wheel_radius_ / (2.0 * (track_width_ / 2.0))) * (wheels_.phi_r - wheels_.phi_l));
+    Vb.omega = ((wheel_radius_ / (track_width_)) * (wheels_.phi_r - wheels_.phi_l));
     Vb.x = (wheel_radius_ / 2.0) * (wheels_.phi_l + wheels_.phi_r);
 
     odom_msg_.twist.twist.linear.x = Vb.x;
     odom_msg_.twist.twist.angular.z = Vb.omega;
 
     odom_pub->publish(odom_msg_);
+
+    // Broadcast the transformation from the odometry frame to the robot body frame
     broadcast_odom_body();
   }
+
+  /// \brief Broadcasts the transform from the odometry frame to the robot body frame.
+  void broadcast_odom_body()
+  {
+    geometry_msgs::msg::TransformStamped t;
+
+    t.header.stamp = get_clock()->now();
+    t.header.frame_id = odom_id_;
+    t.child_frame_id = body_id_;
+
+    t.transform.translation.x = robot_.get_robot_config().x;
+    t.transform.translation.y = robot_.get_robot_config().y;
+    t.transform.translation.z = 0.0;
+
+    tf2::Quaternion q;
+    q.setRPY(0.0, 0.0, robot_.get_robot_config().theta);
+    t.transform.rotation.x = q.x();
+    t.transform.rotation.y = q.y();
+    t.transform.rotation.z = q.z();
+    t.transform.rotation.w = q.w();
+
+    // RCLCPP_ERROR_STREAM(
+    //   this->get_logger(), "x: " << t.transform.translation.x << " y: " << t.transform.translation.y);
+
+    // RCLCPP_ERROR_STREAM(
+    //   this->get_logger(), "qx: " << t.transform.rotation.x << " qy: " << t.transform.rotation.y << " qz: " <<
+    //     t.transform.rotation.z << " qw: " << t.transform.rotation.w);
+
+    // if flag == true{
+
+    // }
+
+
+    odom_body_broadcaster->sendTransform(t);
+
+    // prev_x = t.transform.translation.x;
+    // prev_y = t.transform.translation.y;
+    // bool flag = true;
+
+
+
+  }
+
+
+
+
+
 
   /// \brief Checks if required parameters are defined
   void check_odom_params()
@@ -190,13 +227,16 @@ private:
   std::string odom_id_;
   std::string wheel_left_;
   std::string wheel_right_;
-  turtlelib::DiffDrive dd_robot_;
+  turtlelib::DiffDrive robot_;
   turtlelib::Wheels wheels_;
   sensor_msgs::msg::JointState old_radian_;
   nav_msgs::msg::Odometry odom_msg_;
   tf2::Quaternion quat_;
   double wheel_radius_;
   double track_width_;
+  // double prev_x;
+  // double prev_y;
+  // bool flag = false;
 
 };
 

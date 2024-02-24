@@ -65,6 +65,8 @@ using namespace std::chrono_literals;
 ///  \param obstacles.x (std::vector<double>): List of the obstacles' x-coordinates (m)
 ///  \param obstacles.y (std::vector<double>): List of the obstacles' y-coordinates (m)
 ///  \param obstacles.r (double): Radius of cylindrical obstacles (m)
+/// \param motor_cmd_per_rad_sec (double): Motor command per radian per second
+
 class Nusim : public rclcpp::Node
 {
 public:
@@ -83,6 +85,8 @@ public:
     declare_parameter("obstacles.r", 0.038);
     declare_parameter("motor_cmd_per_rad_sec", 0.024);
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
+    declare_parameter("input_noise", 0.0);
+    declare_parameter("slip_fraction", 0.0);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -97,6 +101,9 @@ public:
       get_parameter("motor_cmd_per_rad_sec").get_parameter_value().get<double>();
     encoder_ticks_per_rad_ =
       get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
+    input_noise_ = get_parameter("input_noise").get_parameter_value().get<double>();
+    slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<double>();
+
 
     // Publishers
     timestep_publisher_ = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
@@ -155,7 +162,7 @@ private:
 
     // Read message content and assign it to corresponding tf variables
     geometry_msgs::msg::TransformStamped t;
-    t.header.stamp = this->get_clock()->now();
+    t.header.stamp = get_clock()->now();
     t.header.frame_id = "nusim/world";
     t.child_frame_id = "red/base_footprint";
 
@@ -183,7 +190,7 @@ private:
 
 
     // Update path
-    path_msg.header.stamp = this->get_clock()->now();
+    path_msg.header.stamp = get_clock()->now();
     path_msg.header.frame_id = "nusim/world";
 
     geometry_msgs::msg::PoseStamped pose_stamp_;
@@ -211,6 +218,8 @@ private:
 
     wheel_vel_.phi_l = static_cast<double>(msg.left_velocity * motor_cmd_per_rad_sec_);
     wheel_vel_.phi_r = static_cast<double>(msg.right_velocity * motor_cmd_per_rad_sec_);
+
+    
   }
 
   /// \brief Updates the wheel positions based on the current wheel velocities and publishes the sensor data.
@@ -435,6 +444,8 @@ private:
   nuturtlebot_msgs::msg::SensorData sensor_data_msg_;
   turtlelib::DiffDrive robot_;
   nav_msgs::msg::Path path_msg;
+  double input_noise_;
+  double slip_fraction_;
   
 
 
