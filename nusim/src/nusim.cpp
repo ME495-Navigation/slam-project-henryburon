@@ -86,8 +86,8 @@ public:
     declare_parameter("obstacles.r", 0.038);
     declare_parameter("motor_cmd_per_rad_sec", 0.024);
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
-    declare_parameter("input_noise", 0.1);
-    declare_parameter("slip_fraction", 0.0);
+    declare_parameter("input_noise", 0.0); // on scale of 0.001
+    declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -209,7 +209,7 @@ private:
   }
 
   /// \brief Callback function for wheel commands from the red robot.
-  /// \param msg The incoming wheel command message containing the commanded vels for each wheel.
+  /// \param msg The incoming wheel command message containing the commanded velocity for each wheel.
   void red_wheel_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
     // Left and right wheel velocity, in "motor command units" (mcu)
@@ -245,6 +245,7 @@ private:
     updated_wheel_pos_.phi_l = prev_wheel_pos_.phi_l + (wheel_vel_.phi_l * unit_per_run);
     updated_wheel_pos_.phi_r = prev_wheel_pos_.phi_r + (wheel_vel_.phi_r * unit_per_run);
 
+
     // Format as sensor data (in ticks)
     sensor_data_msg_.left_encoder = updated_wheel_pos_.phi_l * encoder_ticks_per_rad_;
     sensor_data_msg_.right_encoder = updated_wheel_pos_.phi_r * encoder_ticks_per_rad_;
@@ -271,6 +272,14 @@ private:
 
     prev_wheel_pos_.phi_l = updated_wheel_pos_.phi_l;
     prev_wheel_pos_.phi_r = updated_wheel_pos_.phi_r;
+
+    // Add slip to the wheels' position
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<> err(-1.0 * slip_fraction_, slip_fraction_);
+
+    prev_wheel_pos_.phi_l *= (1.0 + err(gen));
+    prev_wheel_pos_.phi_r *= (1.0 + err(gen));
 
   }
 
