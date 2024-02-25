@@ -101,17 +101,6 @@ private:
     wheels_.phi_l = msg.position.at(0) - old_radian_.position.at(0);     // Find delta wheels
     wheels_.phi_r = msg.position.at(1) - old_radian_.position.at(1);
 
-    // RCLCPP_ERROR_STREAM(
-    //   this->get_logger(), "qx: " << t.transform.rotation.x << " qy: " << t.transform.rotation.y << " qz: " <<
-    //     t.transform.rotation.z << " qw: " << t.transform.rotation.w);
-
-
-    RCLCPP_ERROR_STREAM(
-      this->get_logger(), "phi_l: " << wheels_.phi_l << " phi_r: " << wheels_.phi_r);
-
-
-
-
     robot_.forward_kinematic_update(wheels_);
 
     // Reset old_radian
@@ -169,32 +158,9 @@ private:
     t.transform.rotation.z = q.z();
     t.transform.rotation.w = q.w();
 
-    // RCLCPP_ERROR_STREAM(
-    //   this->get_logger(), "x: " << t.transform.translation.x << " y: " << t.transform.translation.y);
-
-    // RCLCPP_ERROR_STREAM(
-    //   this->get_logger(), "qx: " << t.transform.rotation.x << " qy: " << t.transform.rotation.y << " qz: " <<
-    //     t.transform.rotation.z << " qw: " << t.transform.rotation.w);
-
-    // if flag == true{
-
-    // }
-
-
     odom_body_broadcaster->sendTransform(t);
 
-    // prev_x = t.transform.translation.x;
-    // prev_y = t.transform.translation.y;
-    // bool flag = true;
-
-
-
   }
-
-
-
-
-
 
   /// \brief Checks if required parameters are defined
   void check_odom_params()
@@ -234,9 +200,6 @@ private:
   tf2::Quaternion quat_;
   double wheel_radius_;
   double track_width_;
-  // double prev_x;
-  // double prev_y;
-  // bool flag = false;
 
 };
 

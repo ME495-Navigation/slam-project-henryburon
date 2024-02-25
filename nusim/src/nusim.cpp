@@ -137,7 +137,7 @@ public:
 
     timer_ =
       this->create_wall_timer(
-      std::chrono::milliseconds(1000 / rate_),
+      std::chrono::milliseconds(10000 / rate_), // added an extra 0 to the numerator to account for the unknown 10x speedup
       std::bind(&Nusim::timer_callback, this));
 
     x_ = x0_;
@@ -188,7 +188,6 @@ private:
     update_robot_position();
     update_wheel_positions();
 
-
     // Update path
     path_msg.header.stamp = get_clock()->now();
     path_msg.header.frame_id = "nusim/world";
@@ -219,7 +218,6 @@ private:
     wheel_vel_.phi_l = static_cast<double>(msg.left_velocity * motor_cmd_per_rad_sec_);
     wheel_vel_.phi_r = static_cast<double>(msg.right_velocity * motor_cmd_per_rad_sec_);
 
-    
   }
 
   /// \brief Updates the wheel positions based on the current wheel velocities and publishes the sensor data.
