@@ -48,6 +48,7 @@
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "nav_msgs/msg/path.hpp"
 
+
 using namespace std::chrono_literals;
 
 /// \brief The Nusim class provides a simulated environment for the robot
@@ -91,6 +92,7 @@ public:
     declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
     declare_parameter("basic_sensor_variance", 0.0001);
     declare_parameter("max_range", 1.5);
+    declare_parameter("collision_radius", 0.11);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -109,6 +111,7 @@ public:
     slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<double>();
     basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
     max_range_ = get_parameter("max_range").get_parameter_value().get<double>();
+    collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<double>();
 
 
     // Publishers
@@ -171,7 +174,6 @@ private:
     // at 5 Hz, publish a marker array on the fake_sensor topic
     measure_obstacles();
 
-
   }
 
 
@@ -228,6 +230,7 @@ private:
 
     // Publish path
     path_publisher_->publish(path_msg);
+
 
   }
 
@@ -287,7 +290,7 @@ private:
 
     robot_.forward_kinematic_update(delta_wheels);
 
-    // Extract new positions
+    // Extract and set new positions
     x_ = robot_.get_robot_config().x;
     y_ = robot_.get_robot_config().y;
     theta_ = robot_.get_robot_config().theta;
@@ -303,7 +306,38 @@ private:
     prev_wheel_pos_.phi_l *= (1.0 + err(gen));
     prev_wheel_pos_.phi_r *= (1.0 + err(gen));
 
+    // Detect collision
+    detect_collision();
+
   }
+
+  void detect_collision()
+{
+    x_detect = robot_.get_robot_config().x;
+    y_detect = robot_.get_robot_config().y;
+    theta_detect = robot_.get_robot_config().theta;
+
+    // check if the robot is colliding with any of the (actual) obstacles
+    for (size_t i = 0; i < obstacles_x_.size(); ++i) {
+        double distance = measure_distance(x_detect, y_detect, obstacles_x_.at(i), obstacles_y_.at(i));
+        if (distance < collision_radius_) {
+
+            // calculate the distance to move
+            double move_distance = (collision_radius_ + obstacles_r_) - distance; // equal to the intersection of the circles
+
+            // get the direction to move
+            turtlelib::Vector2D dir_vec = turtlelib::Vector2D{x_detect, y_detect} - turtlelib::Vector2D{obstacles_x_.at(i), obstacles_y_.at(i)}; // vector from obstacle to robot
+
+            // normalize
+            turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
+
+            // move but maintain the robot's orientation
+            turtlelib::Vector2D new_pos = turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
+            robot_.set_robot_config({theta_detect, new_pos.x, new_pos.y});
+        }
+    }
+}       
+    
 
   double measure_distance(double x1, double y1, double x2, double y2)
   {
@@ -557,6 +591,12 @@ private:
   double slip_fraction_;
   double basic_sensor_variance_;
   double max_range_;
+  double collision_radius_;
+  double x_detect = 0.0;
+  double y_detect = 0.0;
+  double theta_detect = 0.0;
+  double x_offset = 0.0;
+  double y_offset = 0.0;
   
 
 
