@@ -90,6 +90,7 @@ public:
     declare_parameter("input_noise", 0.0); // on scale of 0.001
     declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
     declare_parameter("basic_sensor_variance", 0.0001);
+    declare_parameter("max_range", 1.5);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -107,6 +108,7 @@ public:
     input_noise_ = get_parameter("input_noise").get_parameter_value().get<double>();
     slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<double>();
     basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
+    max_range_ = get_parameter("max_range").get_parameter_value().get<double>();
 
 
     // Publishers
@@ -313,9 +315,6 @@ private:
   /// \brief Publishes the measured obstacles as a marker array
   void measure_obstacles()
   {
-    for (size_t i = 0; i < obstacles_x_.size(); ++i) {
-        RCLCPP_INFO(this->get_logger(), "Obstacle %ld: (%f, %f)", i, obstacles_x_[i], obstacles_y_[i]);
-    }
 
     // measure the position of each marker (i.e. add gaussian noise to the coordinates)
     std::vector<double> measured_x;
@@ -324,27 +323,49 @@ private:
         std::random_device rd;
         std::mt19937 gen(rd());
         std::normal_distribution<double> dist(0.0, std::sqrt(basic_sensor_variance_));
-        measured_x.push_back(obstacles_x_[i] + dist(gen));
-        measured_y.push_back(obstacles_y_[i] + dist(gen));
+        measured_x.push_back(obstacles_x_.at(i) + dist(gen));
+        measured_y.push_back(obstacles_y_.at(i) + dist(gen));
     }
 
-    // find the distance from the robot to each marker
-    double distance0 = measure_distance(x_, y_, measured_x[0], measured_y[0]);
-    double distance1 = measure_distance(x_, y_, measured_x[1], measured_y[1]);
-    double distance2 = measure_distance(x_, y_, measured_x[2], measured_y[2]);
+    // find the distance from the robot to each marker, and detect if it's within the max range
+    std::vector<double> distances;
+    std::vector<bool> detected;
+    for (size_t i = 0; i < obstacles_x_.size(); ++i) {
+        double distance = measure_distance(x_, y_, measured_x.at(i), measured_y.at(i));
+        distances.push_back(distance);
+        detected.push_back(distance < max_range_);
+    }
 
-    RCLCPP_ERROR(this->get_logger(), "Distance to obstacle 0: %f", distance0);
-    RCLCPP_ERROR(this->get_logger(), "Distance to obstacle 1: %f", distance1);
-    RCLCPP_ERROR(this->get_logger(), "Distance to obstacle 2: %f", distance2);
+    // create the marker array
+    visualization_msgs::msg::MarkerArray measured_obstacle_markers;
 
+    for (size_t i = 0; i < obstacles_x_.size(); ++i) {
+        visualization_msgs::msg::Marker fake_sensor_marker;
+        fake_sensor_marker.header.frame_id = "nusim/world";
+        fake_sensor_marker.header.stamp = get_clock()->now();
+        fake_sensor_marker.id = i;
+        fake_sensor_marker.type = visualization_msgs::msg::Marker::CYLINDER;
+        fake_sensor_marker.pose.position.x = measured_x.at(i);
+        fake_sensor_marker.pose.position.y = measured_y.at(i);
+        fake_sensor_marker.pose.position.z = 0.125;
+        fake_sensor_marker.scale.x = 2.0 * obstacles_r_ * 1.5;
+        fake_sensor_marker.scale.y = 2.0 * obstacles_r_ * 1.5;
+        fake_sensor_marker.scale.z = 0.25;
+        fake_sensor_marker.color.r = 1.0;
+        fake_sensor_marker.color.g = 1.0;
+        fake_sensor_marker.color.b = 0.0;
+        fake_sensor_marker.color.a = 1.0;
 
-    
+        if (detected.at(i)) {
+            fake_sensor_marker.action = visualization_msgs::msg::Marker::ADD;
+        }
+        else {
+            fake_sensor_marker.action = visualization_msgs::msg::Marker::DELETE;
+        }
+        measured_obstacle_markers.markers.push_back(fake_sensor_marker);
+    }
 
-
-
-    
-
-
+    fake_sensor_pub->publish(measured_obstacle_markers);
   }
 
   /// \brief Resets the simulation to initial configuration.
@@ -535,6 +556,7 @@ private:
   double input_noise_;
   double slip_fraction_;
   double basic_sensor_variance_;
+  double max_range_;
   
 
 
