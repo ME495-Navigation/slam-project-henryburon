@@ -31,6 +31,7 @@
 #include <memory>
 #include <string>
 #include <random>
+#include <cmath>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/logging.hpp"
@@ -88,6 +89,7 @@ public:
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
     declare_parameter("input_noise", 0.0); // on scale of 0.001
     declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
+    declare_parameter("basic_sensor_variance", 0.0001);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -104,6 +106,7 @@ public:
       get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
     input_noise_ = get_parameter("input_noise").get_parameter_value().get<double>();
     slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<double>();
+    basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
 
 
     // Publishers
@@ -118,6 +121,8 @@ public:
       create_publisher<nuturtlebot_msgs::msg::SensorData>("red/sensor_data", 10);
 
     path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("red/path", 10);
+
+    fake_sensor_pub = this->create_publisher<visualization_msgs::msg::MarkerArray>("fake_sensor", 10);
 
 
     // Subscribers
@@ -136,10 +141,16 @@ public:
     // Broadcasters
     tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
+    // Timers
     timer_ =
       this->create_wall_timer(
       std::chrono::milliseconds(10000 / rate_), // added an extra 0 to the numerator to account for the unknown 10x speedup
       std::bind(&Nusim::timer_callback, this));
+
+    sensor_timer_ =
+      this->create_wall_timer(0.2s, std::bind(&Nusim::sensor_timer_callback, this));
+
+    // Initialize robot position
 
     x_ = x0_;
     y_ = y0_;
@@ -152,6 +163,16 @@ public:
   }
 
 private:
+  /// \brief Callback function for sensor data (5 Hz)
+  void sensor_timer_callback()
+  {
+    // at 5 Hz, publish a marker array on the fake_sensor topic
+    measure_obstacles();
+
+
+  }
+
+
   /// \brief Main timer callback function
   void timer_callback()
   {
@@ -232,7 +253,6 @@ private:
       wheel_vel_.phi_r += dist(gen);
     }
 
-
   }
 
   /// \brief Updates the wheel positions based on the current wheel velocities and publishes the sensor data.
@@ -280,6 +300,50 @@ private:
 
     prev_wheel_pos_.phi_l *= (1.0 + err(gen));
     prev_wheel_pos_.phi_r *= (1.0 + err(gen));
+
+  }
+
+  double measure_distance(double x1, double y1, double x2, double y2)
+  {
+      double dx = x2 - x1;
+      double dy = y2 - y1;
+      return std::sqrt(dx * dx + dy * dy);
+  }
+
+  /// \brief Publishes the measured obstacles as a marker array
+  void measure_obstacles()
+  {
+    for (size_t i = 0; i < obstacles_x_.size(); ++i) {
+        RCLCPP_INFO(this->get_logger(), "Obstacle %ld: (%f, %f)", i, obstacles_x_[i], obstacles_y_[i]);
+    }
+
+    // measure the position of each marker (i.e. add gaussian noise to the coordinates)
+    std::vector<double> measured_x;
+    std::vector<double> measured_y;
+    for (size_t i = 0; i < obstacles_x_.size(); ++i) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::normal_distribution<double> dist(0.0, std::sqrt(basic_sensor_variance_));
+        measured_x.push_back(obstacles_x_[i] + dist(gen));
+        measured_y.push_back(obstacles_y_[i] + dist(gen));
+    }
+
+    // find the distance from the robot to each marker
+    double distance0 = measure_distance(x_, y_, measured_x[0], measured_y[0]);
+    double distance1 = measure_distance(x_, y_, measured_x[1], measured_y[1]);
+    double distance2 = measure_distance(x_, y_, measured_x[2], measured_y[2]);
+
+    RCLCPP_ERROR(this->get_logger(), "Distance to obstacle 0: %f", distance0);
+    RCLCPP_ERROR(this->get_logger(), "Distance to obstacle 1: %f", distance1);
+    RCLCPP_ERROR(this->get_logger(), "Distance to obstacle 2: %f", distance2);
+
+
+    
+
+
+
+    
+
 
   }
 
@@ -424,6 +488,7 @@ private:
 
   // Declare member variables
   rclcpp::TimerBase::SharedPtr timer_;
+  rclcpp::TimerBase::SharedPtr sensor_timer_;
 
   rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
@@ -440,6 +505,7 @@ private:
   // Publishers
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr red_sensor_data_pub;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_pub;
 
   // Subscribers
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_sub;
@@ -468,6 +534,7 @@ private:
   nav_msgs::msg::Path path_msg;
   double input_noise_;
   double slip_fraction_;
+  double basic_sensor_variance_;
   
 
 
