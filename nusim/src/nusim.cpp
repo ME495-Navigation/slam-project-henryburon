@@ -30,6 +30,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <random>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/logging.hpp"
@@ -85,7 +86,7 @@ public:
     declare_parameter("obstacles.r", 0.038);
     declare_parameter("motor_cmd_per_rad_sec", 0.024);
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
-    declare_parameter("input_noise", 0.0);
+    declare_parameter("input_noise", 0.1);
     declare_parameter("slip_fraction", 0.0);
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
@@ -208,7 +209,7 @@ private:
   }
 
   /// \brief Callback function for wheel commands from the red robot.
-  /// \param msg The incoming wheel command message containing the velocities for the left and right wheels.
+  /// \param msg The incoming wheel command message containing the commanded vels for each wheel.
   void red_wheel_callback(const nuturtlebot_msgs::msg::WheelCommands & msg)
   {
     // Left and right wheel velocity, in "motor command units" (mcu)
@@ -217,6 +218,20 @@ private:
 
     wheel_vel_.phi_l = static_cast<double>(msg.left_velocity * motor_cmd_per_rad_sec_);
     wheel_vel_.phi_r = static_cast<double>(msg.right_velocity * motor_cmd_per_rad_sec_);
+
+    // Add error/noise to the wheel velocities if either wheel_cmd is non-zero (i.e. it's not stopping)
+    if (wheel_vel_.phi_l != 0.0 || wheel_vel_.phi_r != 0.0) {
+      std::random_device rd;
+      std::mt19937 gen(rd());
+
+      // Mean of 0.0 and a variance of input_noise_
+      std::normal_distribution<double> dist(0.0, std::sqrt(input_noise_));
+      
+      // Add noise to the wheel velocities
+      wheel_vel_.phi_l += dist(gen);
+      wheel_vel_.phi_r += dist(gen);
+    }
+
 
   }
 
