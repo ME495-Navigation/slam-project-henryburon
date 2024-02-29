@@ -1,0 +1,3 @@
+some test fail
+
+The robot travels too fast. It fails the 0.1m/s travel 1 m in 10 seconds test.
