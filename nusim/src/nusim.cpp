@@ -12,11 +12,21 @@
 ///     \param obstacles.x (std::vector<double>): List of the obstacles' x coordinates (m)
 ///     \param obstacles.y (std::vector<double>): List of the obstacles' y coordinates (m)
 ///     \param obstacles.r (double): Radius of cylindrical obstacles (m)
+///     \param motor_cmd_per_rad_sec (double): Motor command per radian per second
+///     \param encoder_ticks_per_rad (double): Encoder ticks per radian
+///     \param input_noise (double): Noise to add to the wheel velocities
+///     \param slip_fraction (double): Fraction of slip to add to the wheel positions
+///     \param basic_sensor_variance (double): Variance of the basic sensor
+///     \param max_range (double): Maximum range of the sensor
+///     \param collision_radius (double): Radius of the robot
 
 /// PUBLISHES:
 ///     \param ~/timestep (std_msgs::msg::UInt64): current timestep of the simulation
 ///     \param ~/walls (visualization_msgs::msg::MarkerArray): MarkerArray of Walls in RViz2
 ///     \param ~/obstacles (visualization_msgs::msg::MarkerArray): MarkerArray of cylindrical obstacles in RViz2
+///     \param /red/sensor_data (nuturtlebot_msgs::msg::SensorData): Sensor data from the red robot
+///     \param /red/path (nav_msgs::msg::Path): Path of the red robot
+///     \param /fake_sensor (visualization_msgs::msg::MarkerArray): Measured obstacles as a marker array
 /// SUBSCRIBES:
 ///     \param /red/wheel_cmd: wheel commands for the red robot
 /// SERVERS:
@@ -47,6 +57,7 @@
 #include "turtlelib/diff_drive.hpp"
 #include "nuturtlebot_msgs/msg/sensor_data.hpp"
 #include "nav_msgs/msg/path.hpp"
+#include "sensor_msgs/msg/laser_scan.hpp"
 
 
 using namespace std::chrono_literals;
@@ -91,8 +102,17 @@ public:
     declare_parameter("input_noise", 0.0); // on scale of 0.001
     declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
     declare_parameter("basic_sensor_variance", 0.0001);
-    declare_parameter("max_range", 1.5);
+    declare_parameter("max_range", 2.5);
     declare_parameter("collision_radius", 0.11);
+    declare_parameter("angle_min", 0.0);
+    declare_parameter("angle_max", 2 * 3.14159265359);
+    declare_parameter("angle_increment", 3.14159265359 / 180.0);
+    declare_parameter("time_increment", 0.000557413);
+    declare_parameter("scan_time", 0.2066);
+    declare_parameter("range_min", 0.119999);
+    declare_parameter("range_max", 3.5);
+    declare_parameter("num_samples", 360);
+
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -112,6 +132,15 @@ public:
     basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
     max_range_ = get_parameter("max_range").get_parameter_value().get<double>();
     collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<double>();
+    angle_min_ = get_parameter("angle_min").get_parameter_value().get<double>();
+    angle_max_ = get_parameter("angle_max").get_parameter_value().get<double>();
+    angle_increment_ = get_parameter("angle_increment").get_parameter_value().get<double>();
+    time_increment_ = get_parameter("time_increment").get_parameter_value().get<double>();
+    scan_time_ = get_parameter("scan_time").get_parameter_value().get<double>();
+    range_min_ = get_parameter("range_min").get_parameter_value().get<double>();
+    range_max_ = get_parameter("range_max").get_parameter_value().get<double>();
+    num_samples_ = get_parameter("num_samples").get_parameter_value().get<int>();
+
 
 
     // Publishers
@@ -128,6 +157,8 @@ public:
     path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("red/path", 10);
 
     fake_sensor_pub = this->create_publisher<visualization_msgs::msg::MarkerArray>("fake_sensor", 10);
+
+    laser_scan_pub = this->create_publisher<sensor_msgs::msg::LaserScan>("red/laser_scan", 10);
 
 
     // Subscribers
@@ -155,6 +186,9 @@ public:
     sensor_timer_ =
       this->create_wall_timer(0.2s, std::bind(&Nusim::sensor_timer_callback, this));
 
+    lidar_timer_ =
+      this->create_wall_timer(0.2s, std::bind(&Nusim::lidar_timer_callback, this));
+
     // Initialize robot position
 
     x_ = x0_;
@@ -168,6 +202,14 @@ public:
   }
 
 private:
+
+  /// \brief Callback function for lidar data (5 Hz)
+  void lidar_timer_callback()
+  {
+    // at 5 Hz, publish a laser scan on the red/laser_scan topic
+    measure_lidar();
+  }
+
   /// \brief Callback function for sensor data (5 Hz)
   void sensor_timer_callback()
   {
@@ -175,7 +217,6 @@ private:
     measure_obstacles();
 
   }
-
 
   /// \brief Main timer callback function
   void timer_callback()
@@ -382,8 +423,8 @@ private:
         fake_sensor_marker.pose.position.x = measured_x.at(i);
         fake_sensor_marker.pose.position.y = measured_y.at(i);
         fake_sensor_marker.pose.position.z = 0.125;
-        fake_sensor_marker.scale.x = 2.0 * obstacles_r_ * 1.5;
-        fake_sensor_marker.scale.y = 2.0 * obstacles_r_ * 1.5;
+        fake_sensor_marker.scale.x = 2.0 * obstacles_r_ * 1.05;
+        fake_sensor_marker.scale.y = 2.0 * obstacles_r_ * 1.05;
         fake_sensor_marker.scale.z = 0.25;
         fake_sensor_marker.color.r = 1.0;
         fake_sensor_marker.color.g = 1.0;
@@ -401,6 +442,96 @@ private:
 
     fake_sensor_pub->publish(measured_obstacle_markers);
   }
+
+  /// \brief Publishes the measured obstacles as a laser scan
+  void measure_lidar()
+  {
+    // create the laser scan message
+    sensor_msgs::msg::LaserScan laser_scan;
+    laser_scan.header.frame_id = "red/base_scan";
+    laser_scan.header.stamp = get_clock()->now();
+
+    laser_scan.angle_min = angle_min_;
+    laser_scan.angle_max = angle_max_;
+    laser_scan.angle_increment = angle_increment_;
+    laser_scan.time_increment = time_increment_;
+    laser_scan.scan_time = scan_time_;
+    laser_scan.range_min = range_min_;
+    laser_scan.range_max = range_max_;
+    laser_scan.ranges.resize(num_samples_);
+
+
+    // measure the distance for each sample (laser beam)
+    for (int laser_sample = 0; laser_sample < num_samples_; laser_sample++)
+    {
+
+      double min_distance = range_max_;
+
+      // Initialize the distance to the maximum range
+      laser_scan.ranges.at(laser_sample) = min_distance - 0.00001; // Won't show when at max range
+
+      double current_angle = angle_min_ + laser_sample * angle_increment_ + theta_; // base off of robot's current theta
+      
+      std::vector<double> wall_distances;
+
+      // unit vector in the direction of the laser beam
+      double x_laser = std::cos(current_angle);
+      double y_laser = std::sin(current_angle);
+
+      if (x_laser != 0)
+      {
+        double right_bound = (arena_x_length_ / 2 - x_) / x_laser;
+        double left_bound = (-arena_y_length_ / 2 - x_) / x_laser;
+
+        if (right_bound > 0) wall_distances.push_back(right_bound);
+        if (left_bound > 0) wall_distances.push_back(left_bound);
+      }
+
+      if (y_laser != 0)
+      {
+        double top_bound = (arena_y_length_ / 2 - y_) / y_laser;
+        double bottom_bound = (-arena_y_length_ / 2 - y_) / y_laser;
+
+        if (top_bound > 0) wall_distances.push_back(top_bound);
+        if (bottom_bound > 0) wall_distances.push_back(bottom_bound);
+      }
+
+      if (!wall_distances.empty())
+      {
+        min_distance = *std::min_element(wall_distances.begin(), wall_distances.end());
+        min_distance = std::min(min_distance, range_max_);
+      }
+
+      if (min_distance < laser_scan.ranges.at(laser_sample))
+      {
+        laser_scan.ranges.at(laser_sample) = min_distance;
+      }
+
+
+
+
+    
+
+
+
+
+    }
+
+
+
+
+
+
+
+
+    // laser_scan.ranges = std::vector<float>(num_samples_, 3.49);
+
+    laser_scan_pub->publish(laser_scan);
+
+  }
+
+
+  
 
   /// \brief Resets the simulation to initial configuration.
   void reset_callback(
@@ -544,6 +675,7 @@ private:
   // Declare member variables
   rclcpp::TimerBase::SharedPtr timer_;
   rclcpp::TimerBase::SharedPtr sensor_timer_;
+  rclcpp::TimerBase::SharedPtr lidar_timer_;
 
   rclcpp::Publisher<std_msgs::msg::UInt64>::SharedPtr timestep_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr walls_publisher_;
@@ -561,6 +693,8 @@ private:
   rclcpp::Publisher<nuturtlebot_msgs::msg::SensorData>::SharedPtr red_sensor_data_pub;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr fake_sensor_pub;
+  rclcpp::Publisher<sensor_msgs::msg::LaserScan>::SharedPtr laser_scan_pub;
+
 
   // Subscribers
   rclcpp::Subscription<nuturtlebot_msgs::msg::WheelCommands>::SharedPtr red_wheel_sub;
@@ -597,8 +731,14 @@ private:
   double theta_detect = 0.0;
   double x_offset = 0.0;
   double y_offset = 0.0;
-  
-
+  double angle_min_;
+  double angle_max_;
+  double angle_increment_;
+  double time_increment_;
+  double scan_time_;
+  double range_min_;
+  double range_max_;
+  int num_samples_;
 
 };
 
