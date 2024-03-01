@@ -112,6 +112,7 @@ public:
     declare_parameter("range_min", 0.119999);
     declare_parameter("range_max", 3.5);
     declare_parameter("num_samples", 360);
+    declare_parameter("lidar_noise", 0.00001);
 
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
@@ -140,6 +141,7 @@ public:
     range_min_ = get_parameter("range_min").get_parameter_value().get<double>();
     range_max_ = get_parameter("range_max").get_parameter_value().get<double>();
     num_samples_ = get_parameter("num_samples").get_parameter_value().get<int>();
+    lidar_noise_ = get_parameter("lidar_noise").get_parameter_value().get<double>();
 
 
 
@@ -517,7 +519,13 @@ private:
 
     // Update Lidar message
     if (min_distance < range_max_) {
-        scan.ranges.at(laser_sample) = min_distance;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+
+        // Mean of 0.0 and a variance of input_noise_
+        std::normal_distribution<double> dist(0.0, std::sqrt(lidar_noise_));
+
+        scan.ranges.at(laser_sample) = min_distance + dist(gen);
     }
 }
 
@@ -794,6 +802,7 @@ double find_circle_intersection(const turtlelib::Point2D & p1, const turtlelib::
   double range_min_;
   double range_max_;
   int num_samples_;
+  double lidar_noise_;
 
 };
 
