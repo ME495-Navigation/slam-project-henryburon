@@ -28,6 +28,8 @@
 #include <tf2_ros/transform_broadcaster.h>
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "nuturtle_control/srv/initial_pose.hpp"
+#include "nav_msgs/msg/path.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 
 /// \brief Computes and publishes odometry from the joint states.
 class Odometry : public rclcpp::Node
@@ -53,6 +55,7 @@ public:
 
     // Publishers
     odom_pub = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
+    path_pub = create_publisher<nav_msgs::msg::Path>("blue/path", 10);
 
     // Subscribers
     joint_states_sub = create_subscription<sensor_msgs::msg::JointState>(
@@ -160,6 +163,23 @@ private:
 
     odom_body_broadcaster->sendTransform(t);
 
+    // Publish path
+    path_msg_.header.stamp = get_clock()->now();
+    path_msg_.header.frame_id = "nusim/world";
+
+    geometry_msgs::msg::PoseStamped pose_stamp_;
+    pose_stamp_.pose.position.x = t.transform.translation.x;
+    pose_stamp_.pose.position.y = t.transform.translation.y;
+    pose_stamp_.pose.position.z = 0.0;
+    pose_stamp_.pose.orientation.x = q.x();
+    pose_stamp_.pose.orientation.y = q.y();
+    pose_stamp_.pose.orientation.z = q.z();
+    pose_stamp_.pose.orientation.w = q.w();
+    path_msg_.poses.push_back(pose_stamp_);
+
+    // Publish path
+    path_pub->publish(path_msg_);
+
   }
 
   /// \brief Checks if required parameters are defined
@@ -178,6 +198,7 @@ private:
 
 // Publishers
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub;
 
 // Subscribers
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub;
@@ -200,6 +221,7 @@ private:
   tf2::Quaternion quat_;
   double wheel_radius_;
   double track_width_;
+  nav_msgs::msg::Path path_msg_;
 
 };
 
