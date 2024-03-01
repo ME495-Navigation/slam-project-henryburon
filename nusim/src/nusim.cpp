@@ -92,8 +92,8 @@ public:
     declare_parameter("x0", -0.5);
     declare_parameter("y0", 0.7);
     declare_parameter("theta0", 1.28);
-    declare_parameter("walls.arena_x_length", 10.0);
-    declare_parameter("walls.arena_y_length", 10.0);
+    declare_parameter("walls.arena_x_length", 6.0);
+    declare_parameter("walls.arena_y_length", 6.0);
     declare_parameter("obstacles.x", std::vector<double>{});
     declare_parameter("obstacles.y", std::vector<double>{});
     declare_parameter("obstacles.r", 0.038);
@@ -101,7 +101,7 @@ public:
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
     declare_parameter("input_noise", 0.0); // on scale of 0.001
     declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
-    declare_parameter("basic_sensor_variance", 0.0001);
+    declare_parameter("basic_sensor_variance", 0.00001);
     declare_parameter("max_range", 2.5);
     declare_parameter("collision_radius", 0.11);
     declare_parameter("angle_min", 0.0);
@@ -160,7 +160,6 @@ public:
 
     laser_scan_pub = this->create_publisher<sensor_msgs::msg::LaserScan>("red/laser_scan", 10);
 
-
     // Subscribers
     red_wheel_sub = create_subscription<nuturtlebot_msgs::msg::WheelCommands>(
       "red/wheel_cmd", 10, std::bind(&Nusim::red_wheel_callback, this, std::placeholders::_1));
@@ -207,7 +206,7 @@ private:
   void lidar_timer_callback()
   {
     // at 5 Hz, publish a laser scan on the red/laser_scan topic
-    measure_lidar();
+    get_lidar();
   }
 
   /// \brief Callback function for sensor data (5 Hz)
@@ -272,7 +271,6 @@ private:
     // Publish path
     path_publisher_->publish(path_msg);
 
-
   }
 
   /// \brief Callback function for wheel commands from the red robot.
@@ -310,7 +308,6 @@ private:
     // Find the updated wheel position
     updated_wheel_pos_.phi_l = prev_wheel_pos_.phi_l + (wheel_vel_.phi_l * unit_per_run);
     updated_wheel_pos_.phi_r = prev_wheel_pos_.phi_r + (wheel_vel_.phi_r * unit_per_run);
-
 
     // Format as sensor data (in ticks)
     sensor_data_msg_.left_encoder = updated_wheel_pos_.phi_l * encoder_ticks_per_rad_;
@@ -378,8 +375,8 @@ private:
         }
     }
 }       
-    
 
+  /// \brief Measures the distance between two points
   double measure_distance(double x1, double y1, double x2, double y2)
   {
       double dx = x2 - x1;
@@ -390,7 +387,6 @@ private:
   /// \brief Publishes the measured obstacles as a marker array
   void measure_obstacles()
   {
-
     // measure the position of each marker (i.e. add gaussian noise to the coordinates)
     std::vector<double> measured_x;
     std::vector<double> measured_y;
@@ -443,95 +439,155 @@ private:
     fake_sensor_pub->publish(measured_obstacle_markers);
   }
 
-  /// \brief Publishes the measured obstacles as a laser scan
-  void measure_lidar()
+// ########## Begin_Citation [15] ##########
+
+/// \brief Creates a laser scan
+  void get_lidar()
   {
-    // create the laser scan message
-    sensor_msgs::msg::LaserScan laser_scan;
-    laser_scan.header.frame_id = "red/base_scan";
-    laser_scan.header.stamp = get_clock()->now();
+    // Initialize a new LaserScan message
+    sensor_msgs::msg::LaserScan scan;
+    scan.header.stamp = get_clock()->now();
+    scan.header.frame_id = "red/base_scan";
+    scan.angle_min = angle_min_;
+    scan.angle_max = angle_max_;
+    scan.angle_increment = angle_increment_;
+    scan.time_increment =  time_increment_;
+    scan.scan_time = scan_time_;
+    scan.range_min = range_min_;
+    scan.range_max = range_max_;
 
-    laser_scan.angle_min = angle_min_;
-    laser_scan.angle_max = angle_max_;
-    laser_scan.angle_increment = angle_increment_;
-    laser_scan.time_increment = time_increment_;
-    laser_scan.scan_time = scan_time_;
-    laser_scan.range_min = range_min_;
-    laser_scan.range_max = range_max_;
-    laser_scan.ranges.resize(num_samples_);
+    scan.ranges.resize(num_samples_);
 
-
-    // measure the distance for each sample (laser beam)
-    for (int laser_sample = 0; laser_sample < num_samples_; laser_sample++)
+    // Loop over all samples
+    for (int laser_sample = 0; laser_sample < num_samples_; laser_sample++) 
     {
-
+      // Compute current angle of lidar (in world frame)
+      double current_angle = angle_min_ + laser_sample * angle_increment_ + theta_;
       double min_distance = range_max_;
 
-      // Initialize the distance to the maximum range
-      laser_scan.ranges.at(laser_sample) = min_distance - 0.00001; // Won't show when at max range
+      double x_pos = std::cos(current_angle);
+      double y_pos = std::sin(current_angle);
 
-      double current_angle = angle_min_ + laser_sample * angle_increment_ + theta_; // base off of robot's current theta
-      
-      std::vector<double> wall_distances;
+      std::vector<double> wall_distance;
 
-      // unit vector in the direction of the laser beam
-      double x_laser = std::cos(current_angle);
-      double y_laser = std::sin(current_angle);
+      // Calculate distances to the u/d walls
+      if (y_pos != 0) 
+        {
+          double upper_bound = (arena_x_length_ / 2.0 - y_) / y_pos;
+          double lower_bound = (-arena_y_length_ / 2.0 - y_) / y_pos;
 
-      if (x_laser != 0)
+          // Add valid distances to the vector
+          if (upper_bound > 0) wall_distance.push_back(upper_bound);
+          if (lower_bound > 0) wall_distance.push_back(lower_bound);
+        }
+
+      // calculate distances to the l/r walls
+      if (x_pos != 0) 
+        {
+          double right_bound = (arena_x_length_ / 2.0 - x_) / x_pos;
+          double left_bound = (-arena_x_length_ / 2.0 - x_) / x_pos;
+
+          if (right_bound > 0) wall_distance.push_back(right_bound);
+          if (left_bound > 0) wall_distance.push_back(left_bound);
+        }
+
+      // find min distance to a wall
+      if (!wall_distance.empty()) 
+        {
+          double min_wall_dist = *std::min_element(wall_distance.begin(), wall_distance.end());
+          min_distance = std::min(min_distance, min_wall_dist);
+        }
+
+    // Check for intersection with obstacles
+    for (size_t obs = 0; obs < obstacles_x_.size(); obs++) 
       {
-        double right_bound = (arena_x_length_ / 2 - x_) / x_laser;
-        double left_bound = (-arena_y_length_ / 2 - x_) / x_laser;
+        // Define start and end of the laser beam
+        turtlelib::Point2D p1 = {x_, y_};
+        turtlelib::Point2D p2 = {x_ + range_max_ * std::cos(current_angle),
+                                      y_ + range_max_ * std::sin(current_angle)};
+        turtlelib::Point2D center = {obstacles_x_[obs], obstacles_y_[obs]};
 
-        if (right_bound > 0) wall_distances.push_back(right_bound);
-        if (left_bound > 0) wall_distances.push_back(left_bound);
+        double obs_distance = find_circle_intersection(p1, p2, center, obstacles_r_,
+                                                           angle_min_ + laser_sample * angle_increment_, theta_);
+
+        if (obs_distance < min_distance && obs_distance >= range_min_) {
+            min_distance = obs_distance;
+        }
       }
 
-      if (y_laser != 0)
-      {
-        double top_bound = (arena_y_length_ / 2 - y_) / y_laser;
-        double bottom_bound = (-arena_y_length_ / 2 - y_) / y_laser;
+    // Update Lidar message
+    if (min_distance < range_max_) {
+        scan.ranges.at(laser_sample) = min_distance;
+    }
+}
 
-        if (top_bound > 0) wall_distances.push_back(top_bound);
-        if (bottom_bound > 0) wall_distances.push_back(bottom_bound);
-      }
+// Publish Lidar scan
+laser_scan_pub->publish(scan);
+}
 
-      if (!wall_distances.empty())
-      {
-        min_distance = *std::min_element(wall_distances.begin(), wall_distances.end());
-        min_distance = std::min(min_distance, range_max_);
-      }
+double find_circle_intersection(const turtlelib::Point2D & p1, const turtlelib::Point2D& p2,
+                                const turtlelib::Point2D& center, double radius,
+                                double lidar_angle, double robot_angle) {
+    // translate coordinates so circle's center is at the origin
+    turtlelib::Point2D p1_trans = {p1.x - center.x, p1.y - center.y};
+    turtlelib::Point2D p2_trans = {p2.x - center.x, p2.y - center.y};
+    double dx = p2_trans.x - p1_trans.x;
+    double dy = p2_trans.y - p1_trans.y;
+    double dr = std::sqrt(dx * dx + dy * dy);
+    double D = p1_trans.x * p2_trans.y - p2_trans.x * p1_trans.y;
 
-      if (min_distance < laser_scan.ranges.at(laser_sample))
-      {
-        laser_scan.ranges.at(laser_sample) = min_distance;
-      }
+    double discriminant = radius * radius * dr * dr - D * D;
 
-
-
-
-    
-
-
-
-
+    // No intersection...
+    if (discriminant < 0) {
+        return -1.0;
     }
 
+    // Determines intersection point to use
+    int signDy;
+    if (dy < 0) {
+        signDy = -1;
+    } else {
+        signDy = 1;
+    }
 
+    // Calculate intersection points
+    turtlelib::Point2D intersection1 = {
+        (D * dy + signDy * dx * std::sqrt(discriminant)) / (dr * dr),
+        (-D * dx + std::abs(dy) * std::sqrt(discriminant)) / (dr * dr)
+    };
 
+    turtlelib::Point2D intersection2 = {
+        (D * dy - signDy * dx * std::sqrt(discriminant)) / (dr * dr),
+        (-D * dx - std::abs(dy) * std::sqrt(discriminant)) / (dr * dr)
+    };
 
+    intersection1 = {center.x + intersection1.x, center.y + intersection1.y};
+    intersection2 = {center.x + intersection2.x, center.y + intersection2.y};
 
+    //  Lidar beam in world coordinates
+    double lidar_x = std::cos(lidar_angle + robot_angle);
+    double lidar_y = std::sin(lidar_angle + robot_angle);
 
+    // Calculate dot products to determine whether the intersection points are in the direction of the Lidar beam
+    double dot1 = (intersection1.x - p1.x) * lidar_x + (intersection1.y - p1.y) * lidar_y;
+    double dot2 = (intersection2.x - p1.x) * lidar_x + (intersection2.y - p1.y) * lidar_y;
 
+    // start to intersection distance
+    double distance1 = measure_distance(p1.x, p1.y, intersection1.x, intersection1.y);
+    double distance2 = measure_distance(p1.x, p1.y, intersection2.x, intersection2.y);
 
-    // laser_scan.ranges = std::vector<float>(num_samples_, 3.49);
+    // Determine the minimum distance 
+    if (dot1 > 0.0 && (dot2 <= 0.0 || distance1 < distance2)) {
+        return distance1;
+    } else if (dot2 > 0.0 && (dot1 <= 0.0 || distance2 < distance1)) {
+        return distance2;
+    }
 
-    laser_scan_pub->publish(laser_scan);
+    return -1.0;
+}
 
-  }
-
-
-  
+// ########## End_Citation [15] ##########
 
   /// \brief Resets the simulation to initial configuration.
   void reset_callback(
@@ -558,7 +614,6 @@ private:
   void create_walls_()
   {
     // The walls have a fixed height of 0.25m
-
     visualization_msgs::msg::Marker wall_mark_1;
     wall_mark_1.header.frame_id = "nusim/world";
     wall_mark_1.header.stamp = get_clock()->now();

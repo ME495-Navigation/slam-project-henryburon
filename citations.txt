@@ -37,4 +37,7 @@ Worked With: Anuj, Rahul, Srikanth, Shail, Carter, Leo, Allen, Stella
 
 [14] Desc: Tests from Rahul in turtle_control_test.cpp
 
+~HW3~
+
+[15] Desc: Rahul helped me with the lidar implementation.
 
