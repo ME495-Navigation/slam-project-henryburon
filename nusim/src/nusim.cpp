@@ -110,10 +110,9 @@ public:
     declare_parameter("time_increment", 0.000557413);
     declare_parameter("scan_time", 0.2066);
     declare_parameter("range_min", 0.119999);
-    declare_parameter("range_max", 3.5);
+    declare_parameter("range_max", 1.5);
     declare_parameter("num_samples", 360);
     declare_parameter("lidar_noise", 0.00001);
-
 
     rate_ = get_parameter("rate").get_parameter_value().get<int>();
     x0_ = get_parameter("x0").get_parameter_value().get<double>();
@@ -142,8 +141,6 @@ public:
     range_max_ = get_parameter("range_max").get_parameter_value().get<double>();
     num_samples_ = get_parameter("num_samples").get_parameter_value().get<int>();
     lidar_noise_ = get_parameter("lidar_noise").get_parameter_value().get<double>();
-
-
 
     // Publishers
     timestep_publisher_ = this->create_publisher<std_msgs::msg::UInt64>("~/timestep", 10);
@@ -191,7 +188,6 @@ public:
       this->create_wall_timer(0.2s, std::bind(&Nusim::lidar_timer_callback, this));
 
     // Initialize robot position
-
     x_ = x0_;
     y_ = y0_;
     theta_ = theta0_;
@@ -351,6 +347,7 @@ private:
 
   }
 
+  /// \brief Detects collision between the robot and the obstacles
   void detect_collision()
 {
     x_detect = robot_.get_robot_config().x;
@@ -533,6 +530,14 @@ private:
 laser_scan_pub->publish(scan);
 }
 
+  /// \brief Finds the intersection of a line segment and a circle
+  /// \param p1 The start of the line segment
+  /// \param p2 The end of the line segment
+  /// \param center The center of the circle
+  /// \param radius The radius of the circle
+  /// \param lidar_angle The angle of the lidar beam
+  /// \param robot_angle The angle of the robot
+  /// \return The distance to the intersection point
 double find_circle_intersection(const turtlelib::Point2D & p1, const turtlelib::Point2D& p2,
                                 const turtlelib::Point2D& center, double radius,
                                 double lidar_angle, double robot_angle) {
