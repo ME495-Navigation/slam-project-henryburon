@@ -8,6 +8,7 @@
 ///    \param wheel_right (string): The name of the right wheel joint.
 ///    \param wheel_radius (double): The radius of the wheels.
 ///    \param track_width (double): The distance between the centers of the two wheels.
+///    \param initial_pose (double): The initial pose of the robot.
 ///
 /// PUBLISHES:
 ///    \param odom (nav_msgs::msg::Odometry): Publishes the computed odometry of the robot.
@@ -54,8 +55,8 @@ public:
     track_width_ = get_parameter("track_width").get_value<double>();
 
     // Publishers
-    odom_pub = create_publisher<nav_msgs::msg::Odometry>("/odom", 10);
-    path_pub = create_publisher<nav_msgs::msg::Path>("blue/path", 10);
+    green_odom_pub = create_publisher<nav_msgs::msg::Odometry>("green/odom", 10);
+    green_path_pub = create_publisher<nav_msgs::msg::Path>("green/path", 10);
 
     // Subscribers
     joint_states_sub = create_subscription<sensor_msgs::msg::JointState>(
@@ -135,7 +136,7 @@ private:
     odom_msg_.twist.twist.linear.x = Vb.x;
     odom_msg_.twist.twist.angular.z = Vb.omega;
 
-    odom_pub->publish(odom_msg_);
+    green_odom_pub->publish(odom_msg_);
 
     // Broadcast the transformation from the odometry frame to the robot body frame
     broadcast_odom_body();
@@ -178,7 +179,7 @@ private:
     path_msg_.poses.push_back(pose_stamp_);
 
     // Publish path
-    path_pub->publish(path_msg_);
+    green_path_pub->publish(path_msg_);
 
   }
 
@@ -197,8 +198,8 @@ private:
   }
 
 // Publishers
-  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub;
-  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub;
+  rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr green_odom_pub;
+  rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr green_path_pub;
 
 // Subscribers
   rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_sub;
