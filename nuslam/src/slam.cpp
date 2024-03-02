@@ -94,13 +94,18 @@ public:
 
     // Setup functions
     check_odom_params();
+    create_slam_obstacles();
   }
 
 private:
 
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr msg)
   {
-    create_obstacles();
+
+    create_slam_obstacles();
+    
+
+
 
 
 
@@ -113,23 +118,15 @@ private:
   }
 
   /// \brief Creates static cylindrical obstacles in the simulation
-  void create_obstacles()
+  void create_slam_obstacles()
   {
-    RCLCPP_INFO(this->get_logger(), "I heard this!");
-
-    // log obstacles x
-    for (long unsigned int i = 0; i < obstacles_x_.size(); i++) {
-      RCLCPP_INFO(this->get_logger(), "Obstacle x: %f", obstacles_x_.at(i));
-    }
-
-    if (obstacles_x_.size() != obstacles_y_.size()) {
-      RCLCPP_ERROR(
-        this->get_logger(), "Error: obstacles/x and obstacles/y should be the same length.");
-      rclcpp::shutdown();
-    }
+    
+    obstacles_markers_array_.markers.clear();
     const auto num_markers = obstacles_x_.size();
 
     for (long unsigned int i = 0; i < num_markers; i++) {
+      // log the current value of i
+      RCLCPP_INFO(this->get_logger(), "i: %ld", i);
       visualization_msgs::msg::Marker obs;
       obs.header.frame_id = "map";
       obs.header.stamp = get_clock()->now();
@@ -148,7 +145,9 @@ private:
       obs.color.g = 1.0;
       obs.color.a = 1.0;
       obstacles_markers_array_.markers.push_back(obs);
+
       green_obstacles_pub->publish(obstacles_markers_array_);
+
     }
   }
 
