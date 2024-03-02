@@ -15,6 +15,7 @@ find_package(nav_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(nuturtle_control REQUIRED)
+find_package(visualization_msgs REQUIRED)
 include_directories(${ARMADILLO_INCLUDE_DIRS})
 
 # Define the executable target
@@ -27,7 +28,8 @@ ament_target_dependencies(slam
   turtlelib
   tf2
   tf2_ros
-  nuturtle_control)
+  nuturtle_control
+  visualization_msgs)
 
 target_link_libraries(slam turtlelib::turtlelib "${cpp_typesupport_target}" ${ARMADILLO_LIBRARIES})
 

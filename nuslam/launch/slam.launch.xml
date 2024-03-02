@@ -18,6 +18,7 @@
 
    <node pkg="nuslam" exec="slam" name="slam">
       <param from="$(find-pkg-share nuturtle_description)/config/diff_params.yaml"/>
+      <param from="$(find-pkg-share nusim)/config/basic_world.yaml"/>
       <param name="body_id" value="green/base_footprint"/>
       <remap from="/joint_states" to="blue/joint_states"/>
 
