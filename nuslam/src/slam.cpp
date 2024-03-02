@@ -94,7 +94,7 @@ public:
 
     // Setup functions
     check_odom_params();
-    create_slam_obstacles();
+    create_green_obstacles(); // SLAM estimate for obstacles
   }
 
 private:
@@ -102,65 +102,8 @@ private:
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr msg)
   {
 
-    create_slam_obstacles();
+    ;
     
-
-
-
-
-
-
-
-
-
-
-
-  }
-
-  /// \brief Creates static cylindrical obstacles in the simulation
-  void create_slam_obstacles()
-  {
-    
-    obstacles_markers_array_.markers.clear();
-    const auto num_markers = obstacles_x_.size();
-
-    for (long unsigned int i = 0; i < num_markers; i++) {
-      // log the current value of i
-      RCLCPP_INFO(this->get_logger(), "i: %ld", i);
-      visualization_msgs::msg::Marker obs;
-      obs.header.frame_id = "map";
-      obs.header.stamp = get_clock()->now();
-      obs.id = i;
-      obs.type = visualization_msgs::msg::Marker::CYLINDER;
-      obs.action = visualization_msgs::msg::Marker::ADD;
-
-      obs.pose.position.x = obstacles_x_.at(i);
-      obs.pose.position.y = obstacles_y_.at(i);
-      obs.pose.position.z = 0.125;
-
-      obs.scale.x = 2.0 * obstacles_r_;
-      obs.scale.y = 2.0 * obstacles_r_;
-      obs.scale.z = 0.25;
-
-      obs.color.g = 1.0;
-      obs.color.a = 1.0;
-      obstacles_markers_array_.markers.push_back(obs);
-
-      green_obstacles_pub->publish(obstacles_markers_array_);
-
-    }
-  }
-
-  /// \brief Callback function for the initial_pose service.
-  void initial_pose_callback(
-    std::shared_ptr<nuturtle_control::srv::InitialPose::Request> request,
-    std::shared_ptr<nuturtle_control::srv::InitialPose::Response>)
-  {
-    // Set configuration to that which is specified in request
-    robot_ = turtlelib::DiffDrive{track_width_,
-      wheel_radius_,
-      {0.0, 0.0},
-      {request->theta, request->x, request->y}};
   }
 
   /// \brief Callback for the joint state messages.
@@ -176,39 +119,17 @@ private:
     // Reset old_radian
     old_radian_.position = {msg.position.at(0), msg.position.at(1)};
 
-    // Publish an odometry message on the odom topic
-    odom_msg_.header.stamp = msg.header.stamp;
-    odom_msg_.header.frame_id = odom_id_;
+    // Publish the odometry message
+    pub_odom();
 
-    odom_msg_.child_frame_id = body_id_;
-
-    odom_msg_.pose.pose.position.x = robot_.get_robot_config().x;
-    odom_msg_.pose.pose.position.y = robot_.get_robot_config().y;
-
-    quat_.setRPY(0.0, 0.0, robot_.get_robot_config().theta);
-
-    odom_msg_.pose.pose.orientation.x = quat_.x();
-    odom_msg_.pose.pose.orientation.y = quat_.y();
-    odom_msg_.pose.pose.orientation.z = quat_.z();
-    odom_msg_.pose.pose.orientation.w = quat_.w();
-
-    // Load twist.linear.x and twist.angular.z
-    // Convert delta wheels to a twist
-
-    turtlelib::Twist2D Vb;
-    Vb.omega = ((wheel_radius_ / (track_width_)) * (wheels_.phi_r - wheels_.phi_l));
-    Vb.x = (wheel_radius_ / 2.0) * (wheels_.phi_l + wheels_.phi_r);
-
-    odom_msg_.twist.twist.linear.x = Vb.x;
-    odom_msg_.twist.twist.angular.z = Vb.omega;
-
-    green_odom_pub->publish(odom_msg_);
-
-    // Broadcast the transformation from the odometry frame to the robot body frame
+    // Broadcast the transformation from the odom frame to the robot frame
     broadcast_odom_body();
+    broadcast_map_odom();
+
+    create_green_obstacles(); // SLAM estimate for obstacles
   }
 
-  /// \brief Broadcasts the transform from the odometry frame to the robot body frame.
+  /// \brief Broadcasts the transform from the odometry frame to the robot body frame
   void broadcast_odom_body()
   {
     geometry_msgs::msg::TransformStamped t;
@@ -249,6 +170,84 @@ private:
 
   }
 
+  /// \brief Creates static cylindrical obstacles in the simulation
+  void create_green_obstacles()
+  {
+    obstacles_markers_array_.markers.clear();
+    const auto num_markers = obstacles_x_.size();
+
+    for (long unsigned int i = 0; i < num_markers; i++) {
+      visualization_msgs::msg::Marker obs;
+      obs.header.frame_id = "map";
+      obs.header.stamp = get_clock()->now();
+      obs.id = i;
+      obs.type = visualization_msgs::msg::Marker::CYLINDER;
+      obs.action = visualization_msgs::msg::Marker::ADD;
+
+      obs.pose.position.x = obstacles_x_.at(i);
+      obs.pose.position.y = obstacles_y_.at(i);
+      obs.pose.position.z = 0.125;
+
+      obs.scale.x = 2.0 * obstacles_r_;
+      obs.scale.y = 2.0 * obstacles_r_;
+      obs.scale.z = 0.25;
+
+      obs.color.g = 1.0;
+      obs.color.a = 1.0;
+      obstacles_markers_array_.markers.push_back(obs);
+
+      green_obstacles_pub->publish(obstacles_markers_array_);
+
+    }
+  }
+
+  void broadcast_map_odom()
+  {
+    geometry_msgs::msg::TransformStamped tf;
+    tf.header.stamp = get_clock()->now();
+    tf.header.frame_id = "map";
+    tf.child_frame_id = odom_id_;
+    tf.transform.translation.x = 0.0;
+    tf.transform.translation.y = 0.0;
+    tf.transform.translation.z = 0.0;
+
+    tf2::Quaternion q;
+    q.setRPY(0.0, 0.0, 0.0);
+    tf.transform.rotation.x = q.x();
+    tf.transform.rotation.y = q.y();
+    tf.transform.rotation.z = q.z();
+    tf.transform.rotation.w = q.w();
+
+  }
+
+  void pub_odom()
+  {
+    // Publish an odometry message on the odom topic
+    // odom_msg_.header.stamp = msg.header.stamp;
+    odom_msg_.header.frame_id = odom_id_;
+
+    odom_msg_.child_frame_id = body_id_;
+
+    odom_msg_.pose.pose.position.x = robot_.get_robot_config().x;
+    odom_msg_.pose.pose.position.y = robot_.get_robot_config().y;
+
+    quat_.setRPY(0.0, 0.0, robot_.get_robot_config().theta);
+
+    odom_msg_.pose.pose.orientation.x = quat_.x();
+    odom_msg_.pose.pose.orientation.y = quat_.y();
+    odom_msg_.pose.pose.orientation.z = quat_.z();
+    odom_msg_.pose.pose.orientation.w = quat_.w();
+
+    turtlelib::Twist2D Vb;
+    Vb.omega = ((wheel_radius_ / (track_width_)) * (wheels_.phi_r - wheels_.phi_l));
+    Vb.x = (wheel_radius_ / 2.0) * (wheels_.phi_l + wheels_.phi_r);
+
+    odom_msg_.twist.twist.linear.x = Vb.x;
+    odom_msg_.twist.twist.angular.z = Vb.omega;
+
+    green_odom_pub->publish(odom_msg_);
+  }
+
   /// \brief Checks if required parameters are defined
   void check_odom_params()
   {
@@ -261,6 +260,18 @@ private:
         this->get_logger(), "Not all required parameters are defined in diff_params.yaml.");
       rclcpp::shutdown();
     }
+  }
+
+    /// \brief Callback function for the initial_pose service.
+  void initial_pose_callback(
+    std::shared_ptr<nuturtle_control::srv::InitialPose::Request> request,
+    std::shared_ptr<nuturtle_control::srv::InitialPose::Response>)
+  {
+    // Set configuration to that which is specified in request
+    robot_ = turtlelib::DiffDrive{track_width_,
+      wheel_radius_,
+      {0.0, 0.0},
+      {request->theta, request->x, request->y}};
   }
 
 // Publishers
@@ -295,8 +306,6 @@ private:
   std::vector<double> obstacles_y_;
   double obstacles_r_;
   visualization_msgs::msg::MarkerArray obstacles_markers_array_;
-
-
 
 };
 
