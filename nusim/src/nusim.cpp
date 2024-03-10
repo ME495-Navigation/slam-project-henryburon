@@ -101,7 +101,7 @@ public:
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
     declare_parameter("input_noise", 0.0); // on scale of 0.001
     declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
-    declare_parameter("basic_sensor_variance", 0.00001);
+    declare_parameter("basic_sensor_variance", 0.00000);
     declare_parameter("max_range", 2.5);
     declare_parameter("collision_radius", 0.11);
     declare_parameter("angle_min", 0.0);

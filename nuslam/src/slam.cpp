@@ -102,7 +102,8 @@ private:
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr msg)
   {
 
-    ;
+    
+
     
   }
 
