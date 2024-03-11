@@ -104,8 +104,10 @@ public:
     state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros); // [theta, x, y, x1, y1, x2, y2, ...]
     old_state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
     delta_state = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
-    covariance = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::zeroes); // or fill with eye?
-    // initialize the covariance matrix to indicate that we know nothing about the state initially...
+    // intialize covariance matrix with large values along diagonals to indicate
+    // uncertainty in the initial state (high values = high uncertainty)
+    covariance = 99999 * arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye); // a 9x9 matrix, when 3 obstacles. 
+    
 
   }
 
@@ -115,6 +117,10 @@ private:
   /// @param sensor_data The incoming fake sensor message. 
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr sensor_data)
   {
+
+    // 1. initialize the covariance matrix (done in constructor)
+
+    // 2. update the state estimate
    
     turtlelib::Vector2D trans;
     trans.x = robot_.get_robot_config().x;
@@ -132,6 +138,47 @@ private:
     // get change in estimate since last iteration
     delta_state = state_estimate - old_state_estimate;
 
+
+    // 3. propagate the uncertainty using the linearized state transition model
+
+    // get the Jacobian of the state transition model (At)
+    arma::mat A_t = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye);
+
+    // fill in At with the odom update
+    A_t(1,0) = - delta_state.at(2);
+    A_t(2,0) = delta_state.at(1);
+
+    // calc the process noise (Q_bar)
+    arma::mat Q = 1e-3 * arma::mat(3, 3, arma::fill::eye); // small value indicating small uncertainty
+    arma::mat Q_bar = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::zeros);
+
+    // fill in Q_bar with Q
+    Q_bar.submat(0, 0, 2, 2) = Q;
+
+    // propagate the uncertainty
+    covariance = A_t * covariance * A_t.t() + Q_bar;
+
+    // 4. update
+
+    // for each sensor measurement...
+    for (int i = 0; i < sensor_data->markers.size(); i++) // i = 0, 1, 2
+    {
+      // if the marker's action is 0, then log i
+      if (sensor_data->markers.at(i).action == 0)
+      {
+        RCLCPP_INFO(this->get_logger(), "Logging i: %d", i);
+      }
+
+    }
+
+
+
+
+ 
+
+
+
+  
 
 
 
@@ -319,6 +366,22 @@ private:
       wheel_radius_,
       {0.0, 0.0},
       {request->theta, request->x, request->y}};
+  }
+
+  void log_arma_vector(arma::vec v)
+  {
+    for (arma::uword i = 0; i < v.n_elem; ++i) {
+      RCLCPP_INFO(this->get_logger(), "%f", v.at(i));
+    }
+  }
+
+  void log_arma_matrix(arma::mat m)
+  {
+    for (arma::uword i = 0; i < m.n_rows; ++i) {
+      std::stringstream ss;
+      ss << m.row(i);
+      RCLCPP_INFO(this->get_logger(), "%s", ss.str().c_str());
+    }
   }
 
 // Publishers
