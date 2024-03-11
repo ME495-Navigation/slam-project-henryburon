@@ -22,6 +22,8 @@
 
 #include <chrono>
 #include <string>
+#include <armadillo>
+#include <sstream>
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include "nav_msgs/msg/odometry.hpp"
@@ -52,6 +54,7 @@ public:
     declare_parameter("obstacles.x", std::vector<double>{});
     declare_parameter("obstacles.y", std::vector<double>{});
     declare_parameter("obstacles.r", 0.038);
+    
 
     body_id_ = get_parameter("body_id").get_value<std::string>();
     odom_id_ = get_parameter("odom_id").get_value<std::string>();
@@ -94,18 +97,60 @@ public:
 
     // Setup functions
     check_odom_params();
-    create_green_obstacles(); // SLAM estimate for obstacles
+    broadcast_green_obstacles(); // SLAM estimate for obstacles
+
+    // Initialize the SLAM variables
+    n_obstacles = obstacles_x_.size();
+    state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros); // [theta, x, y, x1, y1, x2, y2, ...]
+    old_state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
+    delta_state = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
+    covariance = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::zeroes); // or fill with eye?
+    // initialize the covariance matrix to indicate that we know nothing about the state initially...
+
   }
 
 private:
 
-  void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr msg)
+  /// @brief Callback for the fake sensor messages which are used to update the SLAM state.
+  /// @param sensor_data The incoming fake sensor message. 
+  void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr sensor_data)
   {
+   
+    turtlelib::Vector2D trans;
+    trans.x = robot_.get_robot_config().x;
+    trans.y = robot_.get_robot_config().y;
+    T_ob.set_translation(trans);
+    T_ob.set_rotation(robot_.get_robot_config().theta);
 
-    
+    // get map to body transform
+    T_mb = T_mo * T_ob;
 
-    
+    state_estimate.at(0) = turtlelib::normalize_angle(T_mb.rotation());
+    state_estimate.at(1) = T_mb.translation().x;
+    state_estimate.at(2) = T_mb.translation().y;
+
+    // get change in estimate since last iteration
+    delta_state = state_estimate - old_state_estimate;
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+    // update the old state estimate as final step
+    old_state_estimate = state_estimate;
   }
+    
+    
+
 
   /// \brief Callback for the joint state messages.
   /// \param msg The incoming joint state message.
@@ -115,6 +160,7 @@ private:
     wheels_.phi_l = msg.position.at(0) - old_radian_.position.at(0);     // Find delta wheels
     wheels_.phi_r = msg.position.at(1) - old_radian_.position.at(1);
 
+    // sets the new config
     robot_.forward_kinematic_update(wheels_);
 
     // Reset old_radian
@@ -124,14 +170,14 @@ private:
     pub_odom();
 
     // Broadcast the transformation from the odom frame to the robot frame
-    broadcast_odom_body();
+    broadcast_green_odom_body();
     broadcast_map_odom();
 
-    create_green_obstacles(); // SLAM estimate for obstacles
+    broadcast_green_obstacles(); // SLAM estimate for obstacles
   }
 
   /// \brief Broadcasts the transform from the odometry frame to the robot body frame
-  void broadcast_odom_body()
+  void broadcast_green_odom_body()
   {
     geometry_msgs::msg::TransformStamped t;
 
@@ -171,8 +217,8 @@ private:
 
   }
 
-  /// \brief Creates static cylindrical obstacles in the simulation
-  void create_green_obstacles()
+  /// \brief Creates the green (SLAM) obstacles in the simulation
+  void broadcast_green_obstacles()
   {
     obstacles_markers_array_.markers.clear();
     const auto num_markers = obstacles_x_.size();
@@ -295,7 +341,7 @@ private:
   std::string odom_id_;
   std::string wheel_left_;
   std::string wheel_right_;
-  turtlelib::DiffDrive robot_;
+  turtlelib::DiffDrive robot_; // starts at (0,0)
   turtlelib::Wheels wheels_;
   sensor_msgs::msg::JointState old_radian_;
   nav_msgs::msg::Odometry odom_msg_;
@@ -307,6 +353,13 @@ private:
   std::vector<double> obstacles_y_;
   double obstacles_r_;
   visualization_msgs::msg::MarkerArray obstacles_markers_array_;
+
+  // SLAM variables
+  int n_obstacles;
+  arma::vec state_estimate, old_state_estimate, delta_state;
+  turtlelib::Transform2D T_ob, T_mo, T_mb;
+  arma::mat covariance;
+
 
 };
 

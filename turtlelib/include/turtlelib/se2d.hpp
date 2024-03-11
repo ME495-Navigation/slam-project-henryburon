@@ -109,6 +109,17 @@ namespace turtlelib
         /// for a description
         friend std::ostream & operator<<(std::ostream & os, const Transform2D & tf);
 
+        /// \brief set the translational component of the transform
+        /// \param trans - the new translation
+        void set_translation(const Vector2D & trans) {
+            transf = trans;
+        }
+
+        /// \brief set the angular displacement of the transform
+        /// \param radians - the new angular displacement, in radians
+        void set_rotation(double radians) {
+            rot = radians;
+        }
 
     };
 
