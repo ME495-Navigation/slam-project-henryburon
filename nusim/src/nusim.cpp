@@ -102,7 +102,7 @@ public:
     declare_parameter("input_noise", 0.0); // on scale of 0.001
     declare_parameter("slip_fraction", 0.0); // on scale of 0.0001
     declare_parameter("basic_sensor_variance", 0.00000);
-    declare_parameter("max_range", 2.5);
+    declare_parameter("max_range", 1.5); // set in start_robot.launch.xml
     declare_parameter("collision_radius", 0.11);
     declare_parameter("angle_min", 0.0);
     declare_parameter("angle_max", 2 * 3.14159265359);

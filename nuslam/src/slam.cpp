@@ -107,7 +107,7 @@ public:
     // intialize covariance matrix with large values along diagonals to indicate
     // uncertainty in the initial state (high values = high uncertainty)
     covariance = 99999 * arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye); // a 9x9 matrix, when 3 obstacles. 
-    
+    init_obs = arma::vec(n_obstacles, arma::fill::zeros);
 
   }
 
@@ -158,15 +158,84 @@ private:
     // propagate the uncertainty
     covariance = A_t * covariance * A_t.t() + Q_bar;
 
-    // 4. update
+    // 4. Update
 
-    // for each sensor measurement...
+    // ########## for each sensor measurement... ##########
     for (int i = 0; i < sensor_data->markers.size(); i++) // i = 0, 1, 2
     {
-      // if the marker's action is 0, then log i
-      if (sensor_data->markers.at(i).action == 0)
+      if (sensor_data->markers.at(i).action == 0) // 0 = ADD => sensed obstacle. Only continue if robot senses the obstacle
       {
-        RCLCPP_INFO(this->get_logger(), "Logging i: %d", i);
+        RCLCPP_INFO(this->get_logger(), "Sensed obstacle: %d", i);
+
+        // Compute the theoretical measurement, given the current state estimate
+        arma::vec z_j = arma::vec(2, arma::fill::zeros);
+
+        // get the sensed obstacle position and id
+        double mx = sensor_data->markers.at(i).pose.position.x; // absolute position of the obstacle
+        double my = sensor_data->markers.at(i).pose.position.y;
+        int id = sensor_data->markers.at(i).id;
+
+        // find r_j and phi_j (relative distance and bearing to obstacle i)
+        const auto r_j = std::sqrt(std::pow((mx - state_estimate.at(1)), 2) + std::pow((my - state_estimate.at(2)), 2));  // relative measurements from (14)? Should they be absolute?
+        const auto phi_j = turtlelib::normalize_angle(std::atan2((my - state_estimate.at(2)), (mx - state_estimate.at(1))) - state_estimate.at(0));
+
+        // the measurement model relates the system states to the measurements
+        z_j.at(0) = r_j;
+        z_j.at(1) = phi_j;
+
+        // check if this obstacle has been initialized yet...
+        if (init_obs.at(i) == 0)
+        {
+          // if not yet initialized, initialize it
+          init_obs.at(i) = 1;
+
+          // add to state estimate vector
+
+          // x
+          state_estimate.at(3 + 2 * i) = state_estimate.at(1) + r_j * std::cos(phi_j + state_estimate.at(0));
+
+          // y
+          state_estimate.at(3 + 2 * i + 1) = state_estimate.at(2) + r_j * std::sin(phi_j + state_estimate.at(0));
+
+          RCLCPP_INFO(this->get_logger(), "Initialized obstacle: %d", i);
+
+        }
+
+        log_arma_vector(state_estimate);
+
+        // Compute the Kalman gain from the linearized measurement model
+
+        
+        
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+        
+
+
+
+
+
+
+  
+
+
       }
 
     }
@@ -422,6 +491,7 @@ private:
   arma::vec state_estimate, old_state_estimate, delta_state;
   turtlelib::Transform2D T_ob, T_mo, T_mb;
   arma::mat covariance;
+  arma::vec init_obs;
 
 
 };

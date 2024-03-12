@@ -8,6 +8,7 @@ Panels:
         - /RobotModel1/Description Topic1
         - /RobotModel3/Description Topic1
         - /TF1/Frames1
+        - /TF1/Frames1/blue/base_footprint1
         - /Odometry1/Shape1
       Splitter Ratio: 0.5
     Tree Height: 746
@@ -368,7 +369,7 @@ Visualization Manager:
       Enabled: true
       Name: MarkerArray
       Namespaces:
-        {}
+        "": true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -618,25 +619,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 6.730147838592529
+      Distance: 5.211826324462891
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.3342050015926361
-        Y: -0.23282316327095032
-        Z: -0.3432530164718628
+        X: -0.30810073018074036
+        Y: 0.1800021231174469
+        Z: -0.05456698313355446
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.9047969579696655
+      Pitch: 1.0047968626022339
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 0.935391902923584
+      Yaw: 4.475406169891357
     Saved: ~
 Window Geometry:
   Displays:

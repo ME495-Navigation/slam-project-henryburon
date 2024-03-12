@@ -80,7 +80,7 @@
         <node pkg="nusim" exec="nusim" name="nusim">
             <param from="$(find-pkg-share nusim)/config/$(var basic_world_config_file)"/>
             <param from="$(find-pkg-share nuturtle_description)/config/$(var config_file)"/>
-            <param name="max_range" value="1.5"/>
+            <param name="max_range" value="0.8"/>
 
         </node>
         
