@@ -97,7 +97,7 @@ public:
 
     // Setup functions
     check_odom_params();
-    broadcast_green_obstacles(); // SLAM estimate for obstacles
+    // create_green_obstacles(); // SLAM estimate for obstacles
 
     // Initialize the SLAM variables
     n_obstacles = obstacles_x_.size();
@@ -140,7 +140,6 @@ private:
     // get change in estimate since last iteration
     delta_state = state_estimate - old_state_estimate;
 
-
     // 3. propagate the uncertainty using the linearized state transition model
 
     // get the Jacobian of the state transition model (At)
@@ -163,7 +162,7 @@ private:
     // 4. Update
 
     // ########## for each sensor measurement... ##########
-    for (int i = 0; i < sensor_data->markers.size(); i++) // i = 0, 1, 2
+    for (int i = 0; i < static_cast<int>(sensor_data->markers.size()); i++) // i = 0, 1, 2
     {
       if (sensor_data->markers.at(i).action == 0) // 0 = ADD => sensed obstacle. Only continue if robot senses the obstacle
       {
@@ -243,7 +242,6 @@ private:
         arma::mat Ri = R.submat(2 * i, 2 * i, 2 * i + 1, 2 * i + 1);
         arma::mat K_i = covariance * H_j.t() * arma::inv(H_j * covariance * H_j.t() + Ri);
 
-
         // Compute posterior state update (need z_j and z_j_hat)
         // hat reflects the change in the state
         const auto r_j_hat = std::sqrt(d_x * d_x + d_y * d_y);
@@ -260,27 +258,21 @@ private:
         // Compute the posterior covariance update
         covariance = (arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye) - K_i * H_j) * covariance;
 
-        
-
-        
-
-        
-
-
+        // I'll need to publish, somehow, the new pose of the robot.
+        // TO DO: Publish the new pose of the robot
+        // currently, it appears that the obstacle detection part of SLAM is working, but still need to add in the
+        // detected/calculated robot pose with the SLAM update... that transform is not being broadcasted/created yet.
 
       }
 
     }
 
-
+    create_green_obstacles(); // SLAM estimate for obstacles
 
     // update the old state estimate as final step
     old_state_estimate = state_estimate;
   }
-    
-    
-
-
+  
   /// \brief Callback for the joint state messages.
   /// \param msg The incoming joint state message.
   void joint_states_callback(const sensor_msgs::msg::JointState & msg)
@@ -302,7 +294,7 @@ private:
     broadcast_green_odom_body();
     broadcast_map_odom();
 
-    broadcast_green_obstacles(); // SLAM estimate for obstacles
+    // create_green_obstacles(); // SLAM estimate for obstacles
   }
 
   /// \brief Broadcasts the transform from the odometry frame to the robot body frame
@@ -347,7 +339,7 @@ private:
   }
 
   /// \brief Creates the green (SLAM) obstacles in the simulation
-  void broadcast_green_obstacles()
+  void create_green_obstacles()
   {
     obstacles_markers_array_.markers.clear();
     const auto num_markers = obstacles_x_.size();
@@ -358,10 +350,24 @@ private:
       obs.header.stamp = get_clock()->now();
       obs.id = i;
       obs.type = visualization_msgs::msg::Marker::CYLINDER;
-      obs.action = visualization_msgs::msg::Marker::ADD;
 
-      obs.pose.position.x = obstacles_x_.at(i);
-      obs.pose.position.y = obstacles_y_.at(i);
+      if (init_obs.at(i) == 0)
+      {
+        obs.action = visualization_msgs::msg::Marker::DELETE;
+      }
+      else
+      {
+        obs.action = visualization_msgs::msg::Marker::ADD;
+      }
+      
+      // log the state estimate vector
+      // log_arma_vector(state_estimate);
+
+      // RCLCPP_INFO(this->get_logger(), "State estimate x obs: %f", state_estimate.at(3 + 2 * i));
+      // RCLCPP_INFO(this->get_logger(), "State estimate y obs: %f", state_estimate.at(3 + 2 * i + 1));
+
+      obs.pose.position.x = state_estimate.at(3 + 2 * i);
+      obs.pose.position.y = state_estimate.at(3 + 2 * i + 1);
       obs.pose.position.z = 0.125;
 
       obs.scale.x = 2.0 * obstacles_r_;
