@@ -173,13 +173,13 @@ private:
         // get the sensed obstacle position and id
         double mx = sensor_data->markers.at(i).pose.position.x; // absolute position of the obstacle
         double my = sensor_data->markers.at(i).pose.position.y;
-        int id = sensor_data->markers.at(i).id;
+        // int id = sensor_data->markers.at(i).id;
 
         // find r_j and phi_j (relative distance and bearing to obstacle i)
-        const auto r_j = std::sqrt(std::pow((mx - state_estimate.at(1)), 2) + std::pow((my - state_estimate.at(2)), 2));  // relative measurements from (14)? Should they be absolute?
+        const auto r_j = std::sqrt(std::pow((mx - state_estimate.at(1)), 2) + std::pow((my - state_estimate.at(2)), 2));  // relative measurements from (14)--Should they be absolute?
         const auto phi_j = turtlelib::normalize_angle(std::atan2((my - state_estimate.at(2)), (mx - state_estimate.at(1))) - state_estimate.at(0));
 
-        // the measurement model relates the system states to the measurements
+        // the measurement model relates the system states to the measurements. z_j = h_j
         z_j.at(0) = r_j;
         z_j.at(1) = phi_j;
 
@@ -188,22 +188,66 @@ private:
         {
           // if not yet initialized, initialize it
           init_obs.at(i) = 1;
-
           // add to state estimate vector
-
           // x
-          state_estimate.at(3 + 2 * i) = state_estimate.at(1) + r_j * std::cos(phi_j + state_estimate.at(0));
-
+          state_estimate.at(3 + 2 * i) = state_estimate.at(1) + r_j * std::cos(phi_j + state_estimate.at(0)); // formula (23)
           // y
-          state_estimate.at(3 + 2 * i + 1) = state_estimate.at(2) + r_j * std::sin(phi_j + state_estimate.at(0));
+          state_estimate.at(3 + 2 * i + 1) = state_estimate.at(2) + r_j * std::sin(phi_j + state_estimate.at(0)); // formula (24)
 
           RCLCPP_INFO(this->get_logger(), "Initialized obstacle: %d", i);
-
         }
 
-        log_arma_vector(state_estimate);
+        // get the Jacobian of the measurement model: H_t
 
-        // Compute the Kalman gain from the linearized measurement model
+        // relative x and y distances
+        const auto d_x = mx - state_estimate.at(1);
+        const auto d_y = my - state_estimate.at(2);
+
+        // estimated squared distance betwee the robot and landmark j at time t
+        const auto d = std::pow(d_x, 2) + std::pow(d_y, 2);
+
+        arma::mat block1 = arma::zeros(2,3);
+        block1(0,1) = -d_x / std::sqrt(d);
+        block1(0,2) = -d_y / std::sqrt(d);
+        block1(1,0) = -1;
+        block1(1,1) = d_y / d;
+        block1(1,2) = -d_x / d;
+
+        arma::mat block2;
+
+        if (i != 0)
+        {
+          block2 = arma::zeros(2, 2 * i);
+        }
+
+        arma::mat block3 = arma::zeros(2, 2);
+        block3(0,0) = d_x / std::sqrt(d);
+        block3(0,1) = d_y / std::sqrt(d);
+        block3(1,0) = -d_y / d;
+        block3(1,1) = d_x / d;
+
+        arma::mat block4;
+
+        if (i != n_obstacles - 1)
+        {
+          block4 = arma::zeros(2, 2 * (n_obstacles - i - 1));
+        }
+
+        arma::mat H_j = arma::join_horiz(block1, block2, block3, block4);
+
+        log_arma_matrix(H_j);
+
+
+        
+
+        
+
+        
+
+
+
+
+        
 
         
         
