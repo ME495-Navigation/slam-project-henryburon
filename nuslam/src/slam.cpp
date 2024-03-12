@@ -238,81 +238,39 @@ private:
         // join the 4 blocks to create H_j: the derviative (Jacobian) of the measurement model with respect to the state
         arma::mat H_j = arma::join_horiz(block1, block2, block3, block4);
 
-        // compute the Kalman gain from the linearized measurement model
+        // Compute the Kalman gain from the linearized measurement model
 
         arma::mat Ri = R.submat(2 * i, 2 * i, 2 * i + 1, 2 * i + 1);
         arma::mat K_i = covariance * H_j.t() * arma::inv(H_j * covariance * H_j.t() + Ri);
 
-        
 
+        // Compute posterior state update (need z_j and z_j_hat)
+        // hat reflects the change in the state
+        const auto r_j_hat = std::sqrt(d_x * d_x + d_y * d_y);
+        const auto phi_j_hat = turtlelib::normalize_angle(std::atan2(d_y, d_x) - state_estimate.at(0));
 
+        arma::vec z_j_hat = arma::vec(2, arma::fill::zeros);
+        z_j_hat.at(0) = r_j_hat;
+        z_j_hat.at(1) = phi_j_hat;
 
+        // update the state estimate
+        state_estimate = state_estimate + K_i * (z_j - z_j_hat);
+        state_estimate.at(0) = turtlelib::normalize_angle(state_estimate.at(0));
 
-
-        
-
-        
-
-        
-
-
-
-
-        
-
-        
-        
-
-
-
+        // Compute the posterior covariance update
+        covariance = (arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye) - K_i * H_j) * covariance;
 
         
 
-
-
-
-
-
-
-
-
+        
 
         
 
-
-
-        
-
-
-
-
-
-
-  
 
 
       }
 
     }
-
-
-
-
- 
-
-
-
-  
-
-
-
-
-
-
-
-
-   
-
 
 
 
