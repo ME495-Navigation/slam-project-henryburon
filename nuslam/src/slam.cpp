@@ -108,6 +108,8 @@ public:
     // uncertainty in the initial state (high values = high uncertainty)
     covariance = 99999 * arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye); // a 9x9 matrix, when 3 obstacles. 
     init_obs = arma::vec(n_obstacles, arma::fill::zeros);
+    R = 1e-3 * arma::mat(2 * n_obstacles, 2 * n_obstacles, arma::fill::eye); // measurement noise covariance matrix
+    // should probably put Q up here, too
 
   }
 
@@ -233,9 +235,18 @@ private:
           block4 = arma::zeros(2, 2 * (n_obstacles - i - 1));
         }
 
+        // join the 4 blocks to create H_j: the derviative (Jacobian) of the measurement model with respect to the state
         arma::mat H_j = arma::join_horiz(block1, block2, block3, block4);
 
-        log_arma_matrix(H_j);
+        // compute the Kalman gain from the linearized measurement model
+
+        arma::mat Ri = R.submat(2 * i, 2 * i, 2 * i + 1, 2 * i + 1);
+        arma::mat K_i = covariance * H_j.t() * arma::inv(H_j * covariance * H_j.t() + Ri);
+
+        
+
+
+
 
 
         
@@ -532,10 +543,10 @@ private:
 
   // SLAM variables
   int n_obstacles;
-  arma::vec state_estimate, old_state_estimate, delta_state;
+  arma::mat covariance, R;
+  arma::vec state_estimate, old_state_estimate, delta_state, init_obs;
   turtlelib::Transform2D T_ob, T_mo, T_mb;
-  arma::mat covariance;
-  arma::vec init_obs;
+  
 
 
 };
