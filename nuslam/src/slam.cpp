@@ -54,6 +54,7 @@ public:
     declare_parameter("obstacles.x", std::vector<double>{});
     declare_parameter("obstacles.y", std::vector<double>{});
     declare_parameter("obstacles.r", 0.038);
+    declare_parameter("collision_radius", 0.11);
     
 
     body_id_ = get_parameter("body_id").get_value<std::string>();
@@ -65,6 +66,7 @@ public:
     obstacles_x_ = get_parameter("obstacles.x").get_parameter_value().get<std::vector<double>>();
     obstacles_y_ = get_parameter("obstacles.y").get_parameter_value().get<std::vector<double>>();
     obstacles_r_ = get_parameter("obstacles.r").get_parameter_value().get<double>();
+    collision_radius_ = get_parameter("collision_radius").get_value<double>();
 
     // Publishers
     green_odom_pub = create_publisher<nav_msgs::msg::Odometry>("green/odom", 10);
@@ -101,7 +103,11 @@ public:
 
     // Initialize the SLAM variables
     n_obstacles = obstacles_x_.size();
+    // state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros); // [theta, x, y, x1, y1, x2, y2, ...]
     state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros); // [theta, x, y, x1, y1, x2, y2, ...]
+    // for (size_t i = 3; i < state_estimate.size(); ++i) {
+    //     state_estimate(i) = 99;
+    // }
     old_state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
     delta_state = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
     // intialize covariance matrix with large values along diagonals to indicate
@@ -110,6 +116,8 @@ public:
     init_obs = arma::vec(n_obstacles, arma::fill::zeros);
     R = 1e-3 * arma::mat(2 * n_obstacles, 2 * n_obstacles, arma::fill::eye); // measurement noise covariance matrix
     // should probably put Q up here, too
+
+    obstacle_sensed = false;
 
   }
 
@@ -166,7 +174,8 @@ private:
     {
       if (sensor_data->markers.at(i).action == 0) // 0 = ADD => sensed obstacle. Only continue if robot senses the obstacle
       {
-        RCLCPP_INFO(this->get_logger(), "Sensed obstacle: %d", i);
+        // RCLCPP_INFO(this->get_logger(), "Sensed obstacle: %d", i);
+        obstacle_sensed = true;
 
         // Compute the theoretical measurement, given the current state estimate
         arma::vec z_j = arma::vec(2, arma::fill::zeros);
@@ -263,6 +272,11 @@ private:
       }
 
     }
+    if (obstacle_sensed == true)
+    {
+      RCLCPP_INFO(this->get_logger(), "able to detect collisions now ");
+      detect_collisions();
+    }
 
     broadcast_green_odom_body();
 
@@ -270,6 +284,64 @@ private:
 
     // update the old state estimate as final step
     old_state_estimate = state_estimate;
+  }
+
+    /// \brief Detects collision between the robot and the obstacles
+  void detect_collisions()
+  {
+      x_detect = state_estimate.at(1);
+      y_detect = state_estimate.at(2);
+      theta_detect = state_estimate.at(0);
+
+      // check if the robot is colliding with any of the (actual) obstacles
+      for (int i = 0; i < n_obstacles; ++i) {
+          double distance = measure_distance(x_detect, y_detect, state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i));
+
+          // log the x and y coords of the obstacle
+          // log the state estimate vector
+          // log i
+          RCLCPP_INFO(this->get_logger(), "BELOW");
+          RCLCPP_INFO(this->get_logger(), "%d", i);
+          log_arma_vector(state_estimate);
+          RCLCPP_INFO(this->get_logger(), "Obstacle %d x: %f", i, state_estimate.at(2 * i + 3));
+          RCLCPP_INFO(this->get_logger(), "Obstacle %d y: %f", i, state_estimate.at(2 * i + 4));
+          
+          // if the x and y coord of the obstacle is 0, the distance is 99
+          // if (state_estimate.at(i + 3) == 0 && state_estimate.at(i + 4) == 0)
+          // {
+          //   distance = 99;
+          // }
+          RCLCPP_INFO(this->get_logger(), "Distance to obstacle %d: %f", i, distance);
+          if (distance < collision_radius_) {
+
+              // log that a collision was detected
+              RCLCPP_INFO(this->get_logger(), "Collision detected with obstacle %d", i);
+
+              // calculate the distance to move
+              double move_distance = (collision_radius_ + obstacles_r_) - distance; // equal to the intersection of the circles
+
+              // get the direction to move
+              turtlelib::Vector2D dir_vec = turtlelib::Vector2D{x_detect, y_detect} - turtlelib::Vector2D{state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i)}; // vector from obstacle to robot
+
+              // normalize
+              turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
+
+              // move but maintain the robot's orientation
+              turtlelib::Vector2D new_pos = turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
+              state_estimate.at(1) = new_pos.x;
+              state_estimate.at(2) = new_pos.y;
+              state_estimate.at(0) = theta_detect;
+              // robot_.set_robot_config({theta_detect, new_pos.x, new_pos.y});
+          }
+      }
+  } 
+
+  /// \brief Measures the distance between two points
+  double measure_distance(double x1, double y1, double x2, double y2)
+  {
+      double dx = x2 - x1;
+      double dy = y2 - y1;
+      return std::sqrt(dx * dx + dy * dy);
   }
   
   /// \brief Callback for the joint state messages.
@@ -500,6 +572,11 @@ private:
   std::vector<double> obstacles_y_;
   double obstacles_r_;
   visualization_msgs::msg::MarkerArray obstacles_markers_array_;
+  double collision_radius_;
+  double x_detect = 0.0;
+  double y_detect = 0.0;
+  double theta_detect = 0.0;
+  bool obstacle_sensed;
 
   // SLAM variables
   int n_obstacles;
