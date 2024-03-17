@@ -294,23 +294,27 @@ private:
       for (int i = 0; i < n_obstacles; ++i) {
           double distance = measure_distance(x_detect, y_detect, state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i));
 
-          // RCLCPP_INFO(this->get_logger(), "Distance to obstacle %d: %f", i, distance);
-          if (distance < collision_radius_) {
+          if (obstacles_markers_array_.markers.at(i).action == visualization_msgs::msg::Marker::ADD)
+          {
 
-              // calculate the distance to move
-              double move_distance = (collision_radius_ + obstacles_r_) - distance; // equal to the intersection of the circles
+            // RCLCPP_INFO(this->get_logger(), "Distance to obstacle %d: %f", i, distance);
+            if (distance < collision_radius_) {
 
-              // get the direction to move
-              turtlelib::Vector2D dir_vec = turtlelib::Vector2D{x_detect, y_detect} - turtlelib::Vector2D{state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i)}; // vector from obstacle to robot
+                // calculate the distance to move
+                double move_distance = (collision_radius_ + obstacles_r_) - distance; // equal to the intersection of the circles
 
-              // normalize
-              turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
+                // get the direction to move
+                turtlelib::Vector2D dir_vec = turtlelib::Vector2D{x_detect, y_detect} - turtlelib::Vector2D{state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i)}; // vector from obstacle to robot
 
-              // move but maintain the robot's orientation
-              turtlelib::Vector2D new_pos = turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
-              offset_x += new_pos.x - x_detect;
-              offset_y += new_pos.y - y_detect;
-              offset_theta = 0.0;
+                // normalize
+                turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
+
+                // move but maintain the robot's orientation
+                turtlelib::Vector2D new_pos = turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
+                offset_x += new_pos.x - x_detect;
+                offset_y += new_pos.y - y_detect;
+                offset_theta = 0.0;
+            }
           }
       }
   } 
