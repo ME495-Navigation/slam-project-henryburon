@@ -258,14 +258,13 @@ private:
         // Compute the posterior covariance update
         covariance = (arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye) - K_i * H_j) * covariance;
 
-        // I'll need to publish, somehow, the new pose of the robot.
-        // TO DO: Publish the new pose of the robot
-        // currently, it appears that the obstacle detection part of SLAM is working, but still need to add in the
-        // detected/calculated robot pose with the SLAM update... that transform is not being broadcasted/created yet.
+        
 
       }
 
     }
+
+    broadcast_green_odom_body();
 
     create_green_obstacles(); // SLAM estimate for obstacles
 
@@ -291,10 +290,7 @@ private:
     pub_odom();
 
     // Broadcast the transformation from the odom frame to the robot frame
-    broadcast_green_odom_body();
     broadcast_map_odom();
-
-    // create_green_obstacles(); // SLAM estimate for obstacles
   }
 
   /// \brief Broadcasts the transform from the odometry frame to the robot body frame
@@ -306,12 +302,12 @@ private:
     t.header.frame_id = odom_id_;
     t.child_frame_id = body_id_;
 
-    t.transform.translation.x = robot_.get_robot_config().x;
-    t.transform.translation.y = robot_.get_robot_config().y;
+    t.transform.translation.x = state_estimate.at(1);
+    t.transform.translation.y = state_estimate.at(2);
     t.transform.translation.z = 0.0;
 
     tf2::Quaternion q;
-    q.setRPY(0.0, 0.0, robot_.get_robot_config().theta);
+    q.setRPY(0.0, 0.0, state_estimate.at(0));
     t.transform.rotation.x = q.x();
     t.transform.rotation.y = q.y();
     t.transform.rotation.z = q.z();
