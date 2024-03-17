@@ -99,9 +99,9 @@ public:
     declare_parameter("obstacles.r", 0.038);
     declare_parameter("motor_cmd_per_rad_sec", 0.024);
     declare_parameter("encoder_ticks_per_rad", 651.8986469);
-    declare_parameter("input_noise", 0.001); // on scale of 0.001
-    declare_parameter("slip_fraction", 0.0001); // on scale of 0.0001
-    declare_parameter("basic_sensor_variance", 0.00000);
+    declare_parameter("input_noise", 0.002);
+    declare_parameter("slip_fraction", 0.00005);
+    declare_parameter("basic_sensor_variance", 0.00003);
     declare_parameter("max_range", 1.5); // set in start_robot.launch.xml
     declare_parameter("collision_radius", 0.11);
     declare_parameter("angle_min", 0.0);

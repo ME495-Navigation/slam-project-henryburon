@@ -84,6 +84,7 @@ public:
     // Broadcasters
     odom_body_broadcaster =
       std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+    green_odom_broadcast = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
 
     // Services
     initial_pose_init = create_service<nuturtle_control::srv::InitialPose>(
@@ -128,9 +129,7 @@ private:
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr sensor_data)
   {
 
-    // 1. initialize the covariance matrix (done in constructor)
-
-    // 2. update the state estimate
+    // update the state estimate
    
     turtlelib::Vector2D trans;
     trans.x = robot_.get_robot_config().x;
@@ -140,7 +139,6 @@ private:
 
     // get map to body transform
     T_mb = T_mo * T_ob;
-
     state_estimate.at(0) = turtlelib::normalize_angle(T_mb.rotation());
     state_estimate.at(1) = T_mb.translation().x;
     state_estimate.at(2) = T_mb.translation().y;
@@ -266,7 +264,6 @@ private:
 
         // Compute the posterior covariance update
         covariance = (arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye) - K_i * H_j) * covariance;
-
       }
 
     }
@@ -274,6 +271,24 @@ private:
     {
       detect_collisions();
     }
+
+    turtlelib::Vector2D trans2;
+    trans2.x = robot_.get_robot_config().x;
+    trans2.y = robot_.get_robot_config().y;
+    T_ob.set_translation(trans);
+    T_ob.set_rotation(robot_.get_robot_config().theta);
+
+    T_mb = turtlelib::Transform2D{turtlelib::Vector2D{state_estimate.at(1), state_estimate.at(2)}, state_estimate.at(0)};
+    T_mo = T_mb * T_ob.inv();
+
+    // log T_ob
+    RCLCPP_INFO(this->get_logger(), "T_ob: %f, %f, %f", T_ob.translation().x, T_ob.translation().y, T_ob.rotation());
+
+    // log T_mb
+    RCLCPP_INFO(this->get_logger(), "T_mb: %f, %f, %f", T_mb.translation().x, T_mb.translation().y, T_mb.rotation());
+    // log T_mo
+    RCLCPP_INFO(this->get_logger(), "T_mo: %f, %f, %f", T_mo.translation().x, T_mo.translation().y, T_mo.rotation());
+
 
     create_green_obstacles(); // SLAM estimate for obstacles
     broadcast_green_odom_body(); // SLAM estimate for robot
@@ -426,32 +441,32 @@ private:
     pub_odom();
 
     // Broadcast the transformation from the odom frame to the robot frame
-    broadcast_map_odom();
+    broadcast_map_green_odom();
   }
 
-  void broadcast_map_odom()
+  void broadcast_map_green_odom()
   {
     geometry_msgs::msg::TransformStamped tf;
     tf.header.stamp = get_clock()->now();
     tf.header.frame_id = "map";
-    tf.child_frame_id = odom_id_;
-    tf.transform.translation.x = 0.0;
-    tf.transform.translation.y = 0.0;
+    tf.child_frame_id = "green/odom";
+    tf.transform.translation.x = T_mo.translation().x + 0.02;
+    tf.transform.translation.y = T_mo.translation().y;
     tf.transform.translation.z = 0.0;
 
     tf2::Quaternion q;
-    q.setRPY(0.0, 0.0, 0.0);
+    q.setRPY(0.0, 0.0, T_mo.rotation());
     tf.transform.rotation.x = q.x();
     tf.transform.rotation.y = q.y();
     tf.transform.rotation.z = q.z();
     tf.transform.rotation.w = q.w();
 
+    green_odom_broadcast->sendTransform(tf);
   }
 
   void pub_odom()
   {
     // Publish an odometry message on the odom topic
-    // odom_msg_.header.stamp = msg.header.stamp;
     odom_msg_.header.frame_id = odom_id_;
 
     odom_msg_.child_frame_id = body_id_;
@@ -529,6 +544,7 @@ private:
 
 // Broadcasters
   std::unique_ptr<tf2_ros::TransformBroadcaster> odom_body_broadcaster;
+  std::unique_ptr<tf2_ros::TransformBroadcaster> green_odom_broadcast;
 
 // Services
   rclcpp::Service<nuturtle_control::srv::InitialPose>::SharedPtr initial_pose_init;
