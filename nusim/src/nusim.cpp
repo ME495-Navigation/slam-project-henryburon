@@ -129,7 +129,8 @@ public:
       get_parameter("encoder_ticks_per_rad").get_parameter_value().get<double>();
     input_noise_ = get_parameter("input_noise").get_parameter_value().get<double>();
     slip_fraction_ = get_parameter("slip_fraction").get_parameter_value().get<double>();
-    basic_sensor_variance_ = get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
+    basic_sensor_variance_ =
+      get_parameter("basic_sensor_variance").get_parameter_value().get<double>();
     max_range_ = get_parameter("max_range").get_parameter_value().get<double>();
     collision_radius_ = get_parameter("collision_radius").get_parameter_value().get<double>();
     angle_min_ = get_parameter("angle_min").get_parameter_value().get<double>();
@@ -155,7 +156,8 @@ public:
 
     path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("red/path", 10);
 
-    fake_sensor_pub = this->create_publisher<visualization_msgs::msg::MarkerArray>("fake_sensor", 10);
+    fake_sensor_pub =
+      this->create_publisher<visualization_msgs::msg::MarkerArray>("fake_sensor", 10);
 
     laser_scan_pub = this->create_publisher<sensor_msgs::msg::LaserScan>("red/laser_scan", 10);
 
@@ -199,7 +201,6 @@ public:
   }
 
 private:
-
   /// \brief Callback function for lidar data (5 Hz)
   void lidar_timer_callback()
   {
@@ -289,7 +290,7 @@ private:
 
       // Mean of 0.0 and a variance of input_noise_
       std::normal_distribution<double> dist(0.0, std::sqrt(input_noise_));
-      
+
       // Add noise to the wheel velocities
       wheel_vel_.phi_l += dist(gen);
       wheel_vel_.phi_r += dist(gen);
@@ -349,38 +350,42 @@ private:
 
   /// \brief Detects collision between the robot and the obstacles
   void detect_collision()
-{
+  {
     x_detect = robot_.get_robot_config().x;
     y_detect = robot_.get_robot_config().y;
     theta_detect = robot_.get_robot_config().theta;
 
     // check if the robot is colliding with any of the (actual) obstacles
     for (size_t i = 0; i < obstacles_x_.size(); ++i) {
-        double distance = measure_distance(x_detect, y_detect, obstacles_x_.at(i), obstacles_y_.at(i));
-        if (distance < collision_radius_) {
+      double distance =
+        measure_distance(x_detect, y_detect, obstacles_x_.at(i), obstacles_y_.at(i));
+      if (distance < collision_radius_) {
 
-            // calculate the distance to move
-            double move_distance = (collision_radius_ + obstacles_r_) - distance; // equal to the intersection of the circles
+        // calculate the distance to move
+        double move_distance = (collision_radius_ + obstacles_r_) - distance;     // equal to the intersection of the circles
 
-            // get the direction to move
-            turtlelib::Vector2D dir_vec = turtlelib::Vector2D{x_detect, y_detect} - turtlelib::Vector2D{obstacles_x_.at(i), obstacles_y_.at(i)}; // vector from obstacle to robot
+        // get the direction to move
+        turtlelib::Vector2D dir_vec =
+          turtlelib::Vector2D{x_detect,
+          y_detect} - turtlelib::Vector2D{obstacles_x_.at(i), obstacles_y_.at(i)};                                                               // vector from obstacle to robot
 
-            // normalize
-            turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
+        // normalize
+        turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
 
-            // move but maintain the robot's orientation
-            turtlelib::Vector2D new_pos = turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
-            robot_.set_robot_config({theta_detect, new_pos.x, new_pos.y});
-        }
+        // move but maintain the robot's orientation
+        turtlelib::Vector2D new_pos =
+          turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
+        robot_.set_robot_config({theta_detect, new_pos.x, new_pos.y});
+      }
     }
-}       
+  }
 
   /// \brief Measures the distance between two points
   double measure_distance(double x1, double y1, double x2, double y2)
   {
-      double dx = x2 - x1;
-      double dy = y2 - y1;
-      return std::sqrt(dx * dx + dy * dy);
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    return std::sqrt(dx * dx + dy * dy);
   }
 
   /// \brief Publishes the measured obstacles as a marker array
@@ -390,49 +395,48 @@ private:
     std::vector<double> measured_x;
     std::vector<double> measured_y;
     for (size_t i = 0; i < obstacles_x_.size(); ++i) {
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::normal_distribution<double> dist(0.0, std::sqrt(basic_sensor_variance_));
-        measured_x.push_back(obstacles_x_.at(i) + dist(gen));
-        measured_y.push_back(obstacles_y_.at(i) + dist(gen));
+      std::random_device rd;
+      std::mt19937 gen(rd());
+      std::normal_distribution<double> dist(0.0, std::sqrt(basic_sensor_variance_));
+      measured_x.push_back(obstacles_x_.at(i) + dist(gen));
+      measured_y.push_back(obstacles_y_.at(i) + dist(gen));
     }
 
     // find the distance from the robot to each marker, and detect if it's within the max range
     std::vector<double> distances;
     std::vector<bool> detected;
     for (size_t i = 0; i < obstacles_x_.size(); ++i) {
-        double distance = measure_distance(x_, y_, measured_x.at(i), measured_y.at(i));
-        distances.push_back(distance);
-        detected.push_back(distance < max_range_);
+      double distance = measure_distance(x_, y_, measured_x.at(i), measured_y.at(i));
+      distances.push_back(distance);
+      detected.push_back(distance < max_range_);
     }
 
     // create the marker array
     visualization_msgs::msg::MarkerArray measured_obstacle_markers;
 
     for (size_t i = 0; i < obstacles_x_.size(); ++i) {
-        visualization_msgs::msg::Marker fake_sensor_marker;
-        fake_sensor_marker.header.frame_id = "nusim/world";
-        fake_sensor_marker.header.stamp = get_clock()->now();
-        fake_sensor_marker.id = i;
-        fake_sensor_marker.type = visualization_msgs::msg::Marker::CYLINDER;
-        fake_sensor_marker.pose.position.x = measured_x.at(i);
-        fake_sensor_marker.pose.position.y = measured_y.at(i);
-        fake_sensor_marker.pose.position.z = 0.125;
-        fake_sensor_marker.scale.x = 2.0 * obstacles_r_ * 1.05;
-        fake_sensor_marker.scale.y = 2.0 * obstacles_r_ * 1.05;
-        fake_sensor_marker.scale.z = 0.25;
-        fake_sensor_marker.color.r = 1.0;
-        fake_sensor_marker.color.g = 1.0;
-        fake_sensor_marker.color.b = 0.0;
-        fake_sensor_marker.color.a = 1.0;
+      visualization_msgs::msg::Marker fake_sensor_marker;
+      fake_sensor_marker.header.frame_id = "nusim/world";
+      fake_sensor_marker.header.stamp = get_clock()->now();
+      fake_sensor_marker.id = i;
+      fake_sensor_marker.type = visualization_msgs::msg::Marker::CYLINDER;
+      fake_sensor_marker.pose.position.x = measured_x.at(i);
+      fake_sensor_marker.pose.position.y = measured_y.at(i);
+      fake_sensor_marker.pose.position.z = 0.125;
+      fake_sensor_marker.scale.x = 2.0 * obstacles_r_ * 1.05;
+      fake_sensor_marker.scale.y = 2.0 * obstacles_r_ * 1.05;
+      fake_sensor_marker.scale.z = 0.25;
+      fake_sensor_marker.color.r = 1.0;
+      fake_sensor_marker.color.g = 1.0;
+      fake_sensor_marker.color.b = 0.0;
+      fake_sensor_marker.color.a = 1.0;
 
-        if (detected.at(i)) {
-            fake_sensor_marker.action = visualization_msgs::msg::Marker::ADD;
-        }
-        else {
-            fake_sensor_marker.action = visualization_msgs::msg::Marker::DELETE;
-        }
-        measured_obstacle_markers.markers.push_back(fake_sensor_marker);
+      if (detected.at(i)) {
+        fake_sensor_marker.action = visualization_msgs::msg::Marker::ADD;
+      } else {
+        fake_sensor_marker.action = visualization_msgs::msg::Marker::DELETE;
+      }
+      measured_obstacle_markers.markers.push_back(fake_sensor_marker);
     }
 
     fake_sensor_pub->publish(measured_obstacle_markers);
@@ -450,7 +454,7 @@ private:
     scan.angle_min = angle_min_;
     scan.angle_max = angle_max_;
     scan.angle_increment = angle_increment_;
-    scan.time_increment =  time_increment_;
+    scan.time_increment = time_increment_;
     scan.scan_time = scan_time_;
     scan.range_min = range_min_;
     scan.range_max = range_max_;
@@ -458,8 +462,7 @@ private:
     scan.ranges.resize(num_samples_);
 
     // Loop over all samples
-    for (int laser_sample = 0; laser_sample < num_samples_; laser_sample++) 
-    {
+    for (int laser_sample = 0; laser_sample < num_samples_; laser_sample++) {
       // Compute current angle of lidar (in world frame)
       double current_angle = angle_min_ + laser_sample * angle_increment_ + theta_;
       double min_distance = range_max_;
@@ -470,52 +473,49 @@ private:
       std::vector<double> wall_distance;
 
       // Calculate distances to the u/d walls
-      if (y_pos != 0) 
-        {
-          double upper_bound = (arena_x_length_ / 2.0 - y_) / y_pos;
-          double lower_bound = (-arena_y_length_ / 2.0 - y_) / y_pos;
+      if (y_pos != 0) {
+        double upper_bound = (arena_x_length_ / 2.0 - y_) / y_pos;
+        double lower_bound = (-arena_y_length_ / 2.0 - y_) / y_pos;
 
-          // Add valid distances to the vector
-          if (upper_bound > 0) wall_distance.push_back(upper_bound);
-          if (lower_bound > 0) wall_distance.push_back(lower_bound);
-        }
+        // Add valid distances to the vector
+        if (upper_bound > 0) {wall_distance.push_back(upper_bound);}
+        if (lower_bound > 0) {wall_distance.push_back(lower_bound);}
+      }
 
       // calculate distances to the l/r walls
-      if (x_pos != 0) 
-        {
-          double right_bound = (arena_x_length_ / 2.0 - x_) / x_pos;
-          double left_bound = (-arena_x_length_ / 2.0 - x_) / x_pos;
+      if (x_pos != 0) {
+        double right_bound = (arena_x_length_ / 2.0 - x_) / x_pos;
+        double left_bound = (-arena_x_length_ / 2.0 - x_) / x_pos;
 
-          if (right_bound > 0) wall_distance.push_back(right_bound);
-          if (left_bound > 0) wall_distance.push_back(left_bound);
-        }
+        if (right_bound > 0) {wall_distance.push_back(right_bound);}
+        if (left_bound > 0) {wall_distance.push_back(left_bound);}
+      }
 
       // find min distance to a wall
-      if (!wall_distance.empty()) 
-        {
-          double min_wall_dist = *std::min_element(wall_distance.begin(), wall_distance.end());
-          min_distance = std::min(min_distance, min_wall_dist);
-        }
+      if (!wall_distance.empty()) {
+        double min_wall_dist = *std::min_element(wall_distance.begin(), wall_distance.end());
+        min_distance = std::min(min_distance, min_wall_dist);
+      }
 
-    // Check for intersection with obstacles
-    for (size_t obs = 0; obs < obstacles_x_.size(); obs++) 
-      {
+      // Check for intersection with obstacles
+      for (size_t obs = 0; obs < obstacles_x_.size(); obs++) {
         // Define start and end of the laser beam
         turtlelib::Point2D p1 = {x_, y_};
         turtlelib::Point2D p2 = {x_ + range_max_ * std::cos(current_angle),
-                                      y_ + range_max_ * std::sin(current_angle)};
+          y_ + range_max_ * std::sin(current_angle)};
         turtlelib::Point2D center = {obstacles_x_[obs], obstacles_y_[obs]};
 
-        double obs_distance = find_circle_intersection(p1, p2, center, obstacles_r_,
-                                                           angle_min_ + laser_sample * angle_increment_, theta_);
+        double obs_distance = find_circle_intersection(
+          p1, p2, center, obstacles_r_,
+          angle_min_ + laser_sample * angle_increment_, theta_);
 
         if (obs_distance < min_distance && obs_distance >= range_min_) {
-            min_distance = obs_distance;
+          min_distance = obs_distance;
         }
       }
 
-    // Update Lidar message
-    if (min_distance < range_max_) {
+      // Update Lidar message
+      if (min_distance < range_max_) {
         std::random_device rd;
         std::mt19937 gen(rd());
 
@@ -523,12 +523,12 @@ private:
         std::normal_distribution<double> dist(0.0, std::sqrt(lidar_noise_));
 
         scan.ranges.at(laser_sample) = min_distance + dist(gen);
+      }
     }
-}
 
 // Publish Lidar scan
-laser_scan_pub->publish(scan);
-}
+    laser_scan_pub->publish(scan);
+  }
 
   /// \brief Finds the intersection of a line segment and a circle
   /// \param p1 The start of the line segment
@@ -538,9 +538,11 @@ laser_scan_pub->publish(scan);
   /// \param lidar_angle The angle of the lidar beam
   /// \param robot_angle The angle of the robot
   /// \return The distance to the intersection point
-double find_circle_intersection(const turtlelib::Point2D & p1, const turtlelib::Point2D& p2,
-                                const turtlelib::Point2D& center, double radius,
-                                double lidar_angle, double robot_angle) {
+  double find_circle_intersection(
+    const turtlelib::Point2D & p1, const turtlelib::Point2D & p2,
+    const turtlelib::Point2D & center, double radius,
+    double lidar_angle, double robot_angle)
+  {
     // translate coordinates so circle's center is at the origin
     turtlelib::Point2D p1_trans = {p1.x - center.x, p1.y - center.y};
     turtlelib::Point2D p2_trans = {p2.x - center.x, p2.y - center.y};
@@ -553,26 +555,26 @@ double find_circle_intersection(const turtlelib::Point2D & p1, const turtlelib::
 
     // No intersection...
     if (discriminant < 0) {
-        return -1.0;
+      return -1.0;
     }
 
     // Determines intersection point to use
     int signDy;
     if (dy < 0) {
-        signDy = -1;
+      signDy = -1;
     } else {
-        signDy = 1;
+      signDy = 1;
     }
 
     // Calculate intersection points
     turtlelib::Point2D intersection1 = {
-        (D * dy + signDy * dx * std::sqrt(discriminant)) / (dr * dr),
-        (-D * dx + std::abs(dy) * std::sqrt(discriminant)) / (dr * dr)
+      (D * dy + signDy * dx * std::sqrt(discriminant)) / (dr * dr),
+      (-D * dx + std::abs(dy) * std::sqrt(discriminant)) / (dr * dr)
     };
 
     turtlelib::Point2D intersection2 = {
-        (D * dy - signDy * dx * std::sqrt(discriminant)) / (dr * dr),
-        (-D * dx - std::abs(dy) * std::sqrt(discriminant)) / (dr * dr)
+      (D * dy - signDy * dx * std::sqrt(discriminant)) / (dr * dr),
+      (-D * dx - std::abs(dy) * std::sqrt(discriminant)) / (dr * dr)
     };
 
     intersection1 = {center.x + intersection1.x, center.y + intersection1.y};
@@ -590,15 +592,15 @@ double find_circle_intersection(const turtlelib::Point2D & p1, const turtlelib::
     double distance1 = measure_distance(p1.x, p1.y, intersection1.x, intersection1.y);
     double distance2 = measure_distance(p1.x, p1.y, intersection2.x, intersection2.y);
 
-    // Determine the minimum distance 
+    // Determine the minimum distance
     if (dot1 > 0.0 && (dot2 <= 0.0 || distance1 < distance2)) {
-        return distance1;
+      return distance1;
     } else if (dot2 > 0.0 && (dot1 <= 0.0 || distance2 < distance1)) {
-        return distance2;
+      return distance2;
     }
 
     return -1.0;
-}
+  }
 
 // ########## End_Citation [15] ##########
 

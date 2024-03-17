@@ -55,7 +55,7 @@ public:
     declare_parameter("obstacles.y", std::vector<double>{});
     declare_parameter("obstacles.r", 0.038);
     declare_parameter("collision_radius", 0.11);
-    
+
 
     body_id_ = get_parameter("body_id").get_value<std::string>();
     odom_id_ = get_parameter("odom_id").get_value<std::string>();
@@ -71,7 +71,9 @@ public:
     // Publishers
     green_odom_pub = create_publisher<nav_msgs::msg::Odometry>("green/odom", 10);
     green_path_pub = create_publisher<nav_msgs::msg::Path>("green/path", 10);
-    green_obstacles_pub = create_publisher<visualization_msgs::msg::MarkerArray>("green/obstacles", 10);
+    green_obstacles_pub = create_publisher<visualization_msgs::msg::MarkerArray>(
+      "green/obstacles",
+      10);
 
     // Subscribers
     joint_states_sub = create_subscription<sensor_msgs::msg::JointState>(
@@ -113,7 +115,7 @@ public:
     delta_state = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
     // intialize covariance matrix with large values along diagonals to indicate
     // uncertainty in the initial state (high values = high uncertainty)
-    covariance = 99999 * arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye); // a 9x9 matrix, when 3 obstacles. 
+    covariance = 99999 * arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye); // a 9x9 matrix, when 3 obstacles.
     init_obs = arma::vec(n_obstacles, arma::fill::zeros);
     R = 1e-3 * arma::mat(2 * n_obstacles, 2 * n_obstacles, arma::fill::eye); // measurement noise covariance matrix
     // should probably put Q up here, too
@@ -123,14 +125,13 @@ public:
   }
 
 private:
-
   /// @brief Callback for the fake sensor messages which are used to update the SLAM state.
-  /// @param sensor_data The incoming fake sensor message. 
+  /// @param sensor_data The incoming fake sensor message.
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr sensor_data)
   {
 
     // update the state estimate
-   
+
     turtlelib::Vector2D trans;
     trans.x = robot_.get_robot_config().x;
     trans.y = robot_.get_robot_config().y;
@@ -152,8 +153,8 @@ private:
     arma::mat A_t = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye);
 
     // fill in At with the odom update
-    A_t(1,0) = - delta_state.at(2);
-    A_t(2,0) = delta_state.at(1);
+    A_t(1, 0) = -delta_state.at(2);
+    A_t(2, 0) = delta_state.at(1);
 
     // calc the process noise (Q_bar)
     arma::mat Q = 1e-3 * arma::mat(3, 3, arma::fill::eye); // small value indicating small uncertainty
@@ -168,11 +169,8 @@ private:
     // 4. Update
 
     // ########## for each sensor measurement... ##########
-    for (int i = 0; i < static_cast<int>(sensor_data->markers.size()); i++) // i = 0, 1, 2
-    {
-      if (sensor_data->markers.at(i).action == 0) // 0 = ADD => sensed obstacle. Only continue if robot senses the obstacle
-      {
-        // RCLCPP_INFO(this->get_logger(), "Sensed obstacle: %d", i);
+    for (int i = 0; i < static_cast<int>(sensor_data->markers.size()); i++) { // i = 0, 1, 2
+      if (sensor_data->markers.at(i).action == 0) { // 0 = ADD => sensed obstacle. Only continue if robot senses the obstacle
         obstacle_sensed = true;
 
         // Compute the theoretical measurement, given the current state estimate
@@ -184,23 +182,34 @@ private:
         // int id = sensor_data->markers.at(i).id;
 
         // find r_j and phi_j (relative distance and bearing to obstacle i)
-        const auto r_j = std::sqrt(std::pow((mx - state_estimate.at(1)), 2) + std::pow((my - state_estimate.at(2)), 2));  // relative measurements from (14)--Should they be absolute?
-        const auto phi_j = turtlelib::normalize_angle(std::atan2((my - state_estimate.at(2)), (mx - state_estimate.at(1))) - state_estimate.at(0));
+        const auto r_j =
+          std::sqrt(
+          std::pow(
+            (mx - state_estimate.at(1)),
+            2) + std::pow((my - state_estimate.at(2)), 2));                                                               // relative measurements from (14)--Should they be absolute?
+        const auto phi_j =
+          turtlelib::normalize_angle(
+          std::atan2(
+            (my - state_estimate.at(2)),
+            (mx - state_estimate.at(1))) - state_estimate.at(0));
 
         // the measurement model relates the system states to the measurements. z_j = h_j
         z_j.at(0) = r_j;
         z_j.at(1) = phi_j;
 
         // check if this obstacle has been initialized yet...
-        if (init_obs.at(i) == 0)
-        {
+        if (init_obs.at(i) == 0) {
           // if not yet initialized, initialize it
           init_obs.at(i) = 1;
           // add to state estimate vector
           // x
-          state_estimate.at(3 + 2 * i) = state_estimate.at(1) + r_j * std::cos(phi_j + state_estimate.at(0)); // formula (23)
+          state_estimate.at(3 + 2 * i) = state_estimate.at(1) + r_j * std::cos(
+            phi_j + state_estimate.at(
+              0));                                                                                            // formula (23)
           // y
-          state_estimate.at(3 + 2 * i + 1) = state_estimate.at(2) + r_j * std::sin(phi_j + state_estimate.at(0)); // formula (24)
+          state_estimate.at(3 + 2 * i + 1) = state_estimate.at(2) + r_j * std::sin(
+            phi_j + state_estimate.at(
+              0));                                                                                                // formula (24)
 
           RCLCPP_INFO(this->get_logger(), "Initialized obstacle: %d", i);
         }
@@ -214,30 +223,28 @@ private:
         // estimated squared distance betwee the robot and landmark j at time t
         const auto d = std::pow(d_x, 2) + std::pow(d_y, 2);
 
-        arma::mat block1 = arma::zeros(2,3);
-        block1(0,1) = -d_x / std::sqrt(d);
-        block1(0,2) = -d_y / std::sqrt(d);
-        block1(1,0) = -1;
-        block1(1,1) = d_y / d;
-        block1(1,2) = -d_x / d;
+        arma::mat block1 = arma::zeros(2, 3);
+        block1(0, 1) = -d_x / std::sqrt(d);
+        block1(0, 2) = -d_y / std::sqrt(d);
+        block1(1, 0) = -1;
+        block1(1, 1) = d_y / d;
+        block1(1, 2) = -d_x / d;
 
         arma::mat block2;
 
-        if (i != 0)
-        {
+        if (i != 0) {
           block2 = arma::zeros(2, 2 * i);
         }
 
         arma::mat block3 = arma::zeros(2, 2);
-        block3(0,0) = d_x / std::sqrt(d);
-        block3(0,1) = d_y / std::sqrt(d);
-        block3(1,0) = -d_y / d;
-        block3(1,1) = d_x / d;
+        block3(0, 0) = d_x / std::sqrt(d);
+        block3(0, 1) = d_y / std::sqrt(d);
+        block3(1, 0) = -d_y / d;
+        block3(1, 1) = d_x / d;
 
         arma::mat block4;
 
-        if (i != n_obstacles - 1)
-        {
+        if (i != n_obstacles - 1) {
           block4 = arma::zeros(2, 2 * (n_obstacles - i - 1));
         }
 
@@ -252,7 +259,9 @@ private:
         // Compute posterior state update (need z_j and z_j_hat)
         // hat reflects the change in the state
         const auto r_j_hat = std::sqrt(d_x * d_x + d_y * d_y);
-        const auto phi_j_hat = turtlelib::normalize_angle(std::atan2(d_y, d_x) - state_estimate.at(0));
+        const auto phi_j_hat = turtlelib::normalize_angle(
+          std::atan2(d_y, d_x) - state_estimate.at(
+            0));
 
         arma::vec z_j_hat = arma::vec(2, arma::fill::zeros);
         z_j_hat.at(0) = r_j_hat;
@@ -263,12 +272,14 @@ private:
         state_estimate.at(0) = turtlelib::normalize_angle(state_estimate.at(0));
 
         // Compute the posterior covariance update
-        covariance = (arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye) - K_i * H_j) * covariance;
+        covariance =
+          (arma::mat(
+            3 + 2 * n_obstacles, 3 + 2 * n_obstacles,
+            arma::fill::eye) - K_i * H_j) * covariance;
       }
 
     }
-    if (obstacle_sensed == true)
-    {
+    if (obstacle_sensed == true) {
       detect_collisions();
     }
 
@@ -278,17 +289,10 @@ private:
     T_ob.set_translation(trans);
     T_ob.set_rotation(robot_.get_robot_config().theta);
 
-    T_mb = turtlelib::Transform2D{turtlelib::Vector2D{state_estimate.at(1), state_estimate.at(2)}, state_estimate.at(0)};
+    T_mb =
+      turtlelib::Transform2D{turtlelib::Vector2D{state_estimate.at(1), state_estimate.at(2)},
+      state_estimate.at(0)};
     T_mo = T_mb * T_ob.inv();
-
-    // log T_ob
-    RCLCPP_INFO(this->get_logger(), "T_ob: %f, %f, %f", T_ob.translation().x, T_ob.translation().y, T_ob.rotation());
-
-    // log T_mb
-    RCLCPP_INFO(this->get_logger(), "T_mb: %f, %f, %f", T_mb.translation().x, T_mb.translation().y, T_mb.rotation());
-    // log T_mo
-    RCLCPP_INFO(this->get_logger(), "T_mo: %f, %f, %f", T_mo.translation().x, T_mo.translation().y, T_mo.rotation());
-
 
     create_green_obstacles(); // SLAM estimate for obstacles
     broadcast_green_odom_body(); // SLAM estimate for robot
@@ -297,51 +301,54 @@ private:
     old_state_estimate = state_estimate;
   }
 
-    /// \brief Detects collision between the robot and the obstacles
+  /// \brief Detects collision between the robot and the obstacles
   void detect_collisions()
   {
-      x_detect = state_estimate.at(1) + offset_x;
-      y_detect = state_estimate.at(2) + offset_y;
-      
-      theta_detect = state_estimate.at(0);
+    x_detect = state_estimate.at(1) + offset_x;
+    y_detect = state_estimate.at(2) + offset_y;
 
-      // check if the robot is colliding with any of the (actual) obstacles
-      for (int i = 0; i < n_obstacles; ++i) {
-          double distance = measure_distance(x_detect, y_detect, state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i));
+    theta_detect = state_estimate.at(0);
 
-          if (obstacles_markers_array_.markers.at(i).action == visualization_msgs::msg::Marker::ADD)
-          {
+    // check if the robot is colliding with any of the (actual) obstacles
+    for (int i = 0; i < n_obstacles; ++i) {
+      double distance = measure_distance(
+        x_detect, y_detect, state_estimate.at(
+          3 + 2 * i), state_estimate.at(4 + 2 * i));
 
-            // RCLCPP_INFO(this->get_logger(), "Distance to obstacle %d: %f", i, distance);
-            if (distance < collision_radius_) {
+      if (obstacles_markers_array_.markers.at(i).action == visualization_msgs::msg::Marker::ADD) {
 
-                // calculate the distance to move
-                double move_distance = (collision_radius_ + obstacles_r_) - distance; // equal to the intersection of the circles
+        if (distance < collision_radius_) {
 
-                // get the direction to move
-                turtlelib::Vector2D dir_vec = turtlelib::Vector2D{x_detect, y_detect} - turtlelib::Vector2D{state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i)}; // vector from obstacle to robot
+          // calculate the distance to move
+          double move_distance = (collision_radius_ + obstacles_r_) - distance;       // equal to the intersection of the circles
 
-                // normalize
-                turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
+          // get the direction to move
+          turtlelib::Vector2D dir_vec =
+            turtlelib::Vector2D{x_detect, y_detect} - turtlelib::Vector2D{state_estimate.at(
+              3 + 2 * i), state_estimate.at(4 + 2 * i)};                                                                                                                 // vector from obstacle to robot
 
-                // move but maintain the robot's orientation
-                turtlelib::Vector2D new_pos = turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
-                offset_x += new_pos.x - x_detect;
-                offset_y += new_pos.y - y_detect;
-                offset_theta = 0.0;
-            }
-          }
+          // normalize
+          turtlelib::Vector2D dir_vec_norm = turtlelib::normalize_vector(dir_vec);
+
+          // move but maintain the robot's orientation
+          turtlelib::Vector2D new_pos =
+            turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
+          offset_x += new_pos.x - x_detect;
+          offset_y += new_pos.y - y_detect;
+          offset_theta = 0.0;
+        }
       }
-  } 
+    }
+  }
 
   /// \brief Measures the distance between two points
   double measure_distance(double x1, double y1, double x2, double y2)
   {
-      double dx = x2 - x1;
-      double dy = y2 - y1;
-      return std::sqrt(dx * dx + dy * dy);
+    double dx = x2 - x1;
+    double dy = y2 - y1;
+    return std::sqrt(dx * dx + dy * dy);
   }
-  
+
 
   /// \brief Broadcasts the transform from the odometry frame to the robot body frame
   void broadcast_green_odom_body()
@@ -397,12 +404,9 @@ private:
       obs.id = i;
       obs.type = visualization_msgs::msg::Marker::CYLINDER;
 
-      if (init_obs.at(i) == 0)
-      {
+      if (init_obs.at(i) == 0) {
         obs.action = visualization_msgs::msg::Marker::DELETE;
-      }
-      else
-      {
+      } else {
         obs.action = visualization_msgs::msg::Marker::ADD;
       }
 
@@ -505,7 +509,7 @@ private:
     }
   }
 
-    /// \brief Callback function for the initial_pose service.
+  /// \brief Callback function for the initial_pose service.
   void initial_pose_callback(
     std::shared_ptr<nuturtle_control::srv::InitialPose::Request> request,
     std::shared_ptr<nuturtle_control::srv::InitialPose::Response>)
@@ -578,7 +582,6 @@ private:
   arma::vec state_estimate, old_state_estimate, delta_state, init_obs;
   turtlelib::Transform2D T_ob, T_mo, T_mb;
   double offset_x = 0.0, offset_y = 0.0, offset_theta = 0.0;
-  
 
 
 };

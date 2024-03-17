@@ -83,7 +83,6 @@ public:
   }
 
 private:
-
   /// \brief Callback function for the initial_pose service.
   void initial_pose_callback(
     std::shared_ptr<nuturtle_control::srv::InitialPose::Request> request,

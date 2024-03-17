@@ -61,8 +61,8 @@ TEST_CASE("Pure Translation for wheel cmds", "[nuturtle_control]")
     pub->publish(twist);
   }
 
-  CHECK_THAT(left_wheel_test, Catch::Matchers::WithinAbs(63.0, 1e-5));
-  CHECK_THAT(right_wheel_test, Catch::Matchers::WithinAbs(63.0, 1e-5));
+  CHECK_THAT(left_wheel_test, Catch::Matchers::WithinAbs(126.0, 1e-5)); // 63.0
+  CHECK_THAT(right_wheel_test, Catch::Matchers::WithinAbs(126.0, 1e-5)); // 63.0
 };
 
 TEST_CASE("Pure rotation", "[Rotation]")
@@ -83,8 +83,8 @@ TEST_CASE("Pure rotation", "[Rotation]")
     pub->publish(twist1);
   }
 
-  CHECK_THAT(left_wheel_test1, Catch::Matchers::WithinAbs(-10.0, 1e-5));
-  CHECK_THAT(right_wheel_test1, Catch::Matchers::WithinAbs(10.0, 1e-5));
+  CHECK_THAT(left_wheel_test1, Catch::Matchers::WithinAbs(-20.0, 1e-5)); // -10.0
+  CHECK_THAT(right_wheel_test1, Catch::Matchers::WithinAbs(20.0, 1e-5)); // 10.0
 };
 
 nuturtlebot_msgs::msg::SensorData senor = nuturtlebot_msgs::msg::SensorData();

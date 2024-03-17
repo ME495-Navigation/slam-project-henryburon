@@ -132,7 +132,7 @@ private:
         js.velocity = {js.position.at(0) / elapsed_time,
           js.position.at(1) / elapsed_time};
       }
-      
+
     }
 
     // Set stamp and publish joint states
@@ -141,7 +141,7 @@ private:
     // RCLCPP_ERROR_STREAM(
     //   this->get_logger(), "left: " << js.position.at(0) << " right: " << js.position.at(1));
 
-    
+
     joint_states_pub->publish(js);
 
   }
