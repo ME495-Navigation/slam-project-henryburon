@@ -104,7 +104,7 @@ public:
     // Initialize variables
     old_radian_.position = {0.0, 0.0};
 
-    // Setup functions
+    // Setup functions for SLAM
     check_odom_params();
 
     // Initialize the SLAM variables
@@ -128,7 +128,7 @@ private:
   void fake_sensor_callback(const visualization_msgs::msg::MarkerArray::SharedPtr sensor_data)
   {
 
-    // update the state estimate
+    // update the state estimate using the odometry
     turtlelib::Vector2D trans;
     trans.x = robot_.get_robot_config().x;
     trans.y = robot_.get_robot_config().y;
@@ -149,11 +149,11 @@ private:
     // get the Jacobian of the state transition model (At)
     arma::mat A_t = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye);
 
-    // fill in At with the odom update
+    // fill in At with the odom update+ 0. This is the linearized state transition model
     A_t(1, 0) = -delta_state.at(2);
     A_t(2, 0) = delta_state.at(1);
 
-    // calc the process noise (Q_bar)
+    // calc the process noise (Q_bar) and the process noise covariance (Q)
     arma::mat Q = 1e-3 * arma::mat(3, 3, arma::fill::eye); // small value indicating small uncertainty
     arma::mat Q_bar = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::zeros);
 
@@ -163,7 +163,7 @@ private:
     // propagate the uncertainty
     covariance = A_t * covariance * A_t.t() + Q_bar;
 
-    // Update
+    // Update the state estimate and covariance using the sensor measurements
 
     // ########## for each sensor measurement... ##########
     for (int i = 0; i < static_cast<int>(sensor_data->markers.size()); i++) { // i = 0, 1, 2
@@ -451,7 +451,7 @@ private:
     tf.header.stamp = get_clock()->now();
     tf.header.frame_id = "map";
     tf.child_frame_id = "green/odom";
-    tf.transform.translation.x = T_mo.translation().x + 0.02;
+    tf.transform.translation.x = T_mo.translation().x;
     tf.transform.translation.y = T_mo.translation().y;
     tf.transform.translation.z = 0.0;
 
