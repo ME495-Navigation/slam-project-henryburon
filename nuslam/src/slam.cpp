@@ -9,6 +9,10 @@
 ///    \param wheel_radius (double): The radius of the wheels.
 ///    \param track_width (double): The distance between the centers of the two wheels.
 ///    \param initial_pose (double): The initial pose of the robot.
+///    \param obstacles.x (vector of doubles): The x-coordinates of the obstacles.
+///    \param obstacles.y (vector of doubles): The y-coordinates of the obstacles.
+///    \param obstacles.r (double): The radius of the obstacles.
+///    \param collision_radius (double): The radius of the robot for collision detection.
 ///
 /// PUBLISHES:
 ///    \param green/odom (nav_msgs::msg::Odometry): Publishes the computed odometry of the robot.
@@ -102,15 +106,10 @@ public:
 
     // Setup functions
     check_odom_params();
-    // create_green_obstacles(); // SLAM estimate for obstacles
 
     // Initialize the SLAM variables
     n_obstacles = obstacles_x_.size();
-    // state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros); // [theta, x, y, x1, y1, x2, y2, ...]
     state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros); // [theta, x, y, x1, y1, x2, y2, ...]
-    // for (size_t i = 3; i < state_estimate.size(); ++i) {
-    //     state_estimate(i) = 99;
-    // }
     old_state_estimate = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
     delta_state = arma::vec(3 + 2 * n_obstacles, arma::fill::zeros);
     // intialize covariance matrix with large values along diagonals to indicate
@@ -118,7 +117,6 @@ public:
     covariance = 99999 * arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye); // a 9x9 matrix, when 3 obstacles.
     init_obs = arma::vec(n_obstacles, arma::fill::zeros);
     R = 1e-3 * arma::mat(2 * n_obstacles, 2 * n_obstacles, arma::fill::eye); // measurement noise covariance matrix
-    // should probably put Q up here, too
 
     obstacle_sensed = false;
 
@@ -131,7 +129,6 @@ private:
   {
 
     // update the state estimate
-
     turtlelib::Vector2D trans;
     trans.x = robot_.get_robot_config().x;
     trans.y = robot_.get_robot_config().y;
@@ -147,7 +144,7 @@ private:
     // get change in estimate since last iteration
     delta_state = state_estimate - old_state_estimate;
 
-    // 3. propagate the uncertainty using the linearized state transition model
+    // propagate the uncertainty using the linearized state transition model
 
     // get the Jacobian of the state transition model (At)
     arma::mat A_t = arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye);
@@ -166,7 +163,7 @@ private:
     // propagate the uncertainty
     covariance = A_t * covariance * A_t.t() + Q_bar;
 
-    // 4. Update
+    // Update
 
     // ########## for each sensor measurement... ##########
     for (int i = 0; i < static_cast<int>(sensor_data->markers.size()); i++) { // i = 0, 1, 2
