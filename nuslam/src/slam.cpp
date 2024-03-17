@@ -267,8 +267,6 @@ private:
         // Compute the posterior covariance update
         covariance = (arma::mat(3 + 2 * n_obstacles, 3 + 2 * n_obstacles, arma::fill::eye) - K_i * H_j) * covariance;
 
-        
-
       }
 
     }
@@ -278,9 +276,8 @@ private:
       detect_collisions();
     }
 
-    broadcast_green_odom_body();
-
     create_green_obstacles(); // SLAM estimate for obstacles
+    broadcast_green_odom_body(); // SLAM estimate for robot
 
     // update the old state estimate as final step
     old_state_estimate = state_estimate;
@@ -297,20 +294,12 @@ private:
       for (int i = 0; i < n_obstacles; ++i) {
           double distance = measure_distance(x_detect, y_detect, state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i));
 
-          // log the x and y coords of the obstacle
-          // log the state estimate vector
-          // log i
           RCLCPP_INFO(this->get_logger(), "BELOW");
           RCLCPP_INFO(this->get_logger(), "%d", i);
           log_arma_vector(state_estimate);
           RCLCPP_INFO(this->get_logger(), "Obstacle %d x: %f", i, state_estimate.at(2 * i + 3));
           RCLCPP_INFO(this->get_logger(), "Obstacle %d y: %f", i, state_estimate.at(2 * i + 4));
           
-          // if the x and y coord of the obstacle is 0, the distance is 99
-          // if (state_estimate.at(i + 3) == 0 && state_estimate.at(i + 4) == 0)
-          // {
-          //   distance = 99;
-          // }
           RCLCPP_INFO(this->get_logger(), "Distance to obstacle %d: %f", i, distance);
           if (distance < collision_radius_) {
 
@@ -328,10 +317,12 @@ private:
 
               // move but maintain the robot's orientation
               turtlelib::Vector2D new_pos = turtlelib::Vector2D{x_detect, y_detect} + dir_vec_norm * move_distance;
-              state_estimate.at(1) = new_pos.x;
-              state_estimate.at(2) = new_pos.y;
-              state_estimate.at(0) = theta_detect;
-              // robot_.set_robot_config({theta_detect, new_pos.x, new_pos.y});
+              offset_x += new_pos.x - x_detect;
+              offset_y += new_pos.y - y_detect;
+              offset_theta = 0.0;
+              // state_estimate.at(1) = new_pos.x;
+              // state_estimate.at(2) = new_pos.y;
+              // state_estimate.at(0) = theta_detect;
           }
       }
   } 
@@ -344,26 +335,6 @@ private:
       return std::sqrt(dx * dx + dy * dy);
   }
   
-  /// \brief Callback for the joint state messages.
-  /// \param msg The incoming joint state message.
-  void joint_states_callback(const sensor_msgs::msg::JointState & msg)
-  {
-    // Update internal odometry state
-    wheels_.phi_l = msg.position.at(0) - old_radian_.position.at(0);     // Find delta wheels
-    wheels_.phi_r = msg.position.at(1) - old_radian_.position.at(1);
-
-    // sets the new config
-    robot_.forward_kinematic_update(wheels_);
-
-    // Reset old_radian
-    old_radian_.position = {msg.position.at(0), msg.position.at(1)};
-
-    // Publish the odometry message
-    pub_odom();
-
-    // Broadcast the transformation from the odom frame to the robot frame
-    broadcast_map_odom();
-  }
 
   /// \brief Broadcasts the transform from the odometry frame to the robot body frame
   void broadcast_green_odom_body()
@@ -374,12 +345,12 @@ private:
     t.header.frame_id = odom_id_;
     t.child_frame_id = body_id_;
 
-    t.transform.translation.x = state_estimate.at(1);
-    t.transform.translation.y = state_estimate.at(2);
+    t.transform.translation.x = state_estimate.at(1) + offset_x;
+    t.transform.translation.y = state_estimate.at(2) + offset_y;
     t.transform.translation.z = 0.0;
 
     tf2::Quaternion q;
-    q.setRPY(0.0, 0.0, state_estimate.at(0));
+    q.setRPY(0.0, 0.0, state_estimate.at(0) + offset_theta);
     t.transform.rotation.x = q.x();
     t.transform.rotation.y = q.y();
     t.transform.rotation.z = q.z();
@@ -427,12 +398,6 @@ private:
       {
         obs.action = visualization_msgs::msg::Marker::ADD;
       }
-      
-      // log the state estimate vector
-      // log_arma_vector(state_estimate);
-
-      // RCLCPP_INFO(this->get_logger(), "State estimate x obs: %f", state_estimate.at(3 + 2 * i));
-      // RCLCPP_INFO(this->get_logger(), "State estimate y obs: %f", state_estimate.at(3 + 2 * i + 1));
 
       obs.pose.position.x = state_estimate.at(3 + 2 * i);
       obs.pose.position.y = state_estimate.at(3 + 2 * i + 1);
@@ -449,6 +414,27 @@ private:
       green_obstacles_pub->publish(obstacles_markers_array_);
 
     }
+  }
+
+  /// \brief Callback for the joint state messages.
+  /// \param msg The incoming joint state message.
+  void joint_states_callback(const sensor_msgs::msg::JointState & msg)
+  {
+    // Update internal odometry state
+    wheels_.phi_l = msg.position.at(0) - old_radian_.position.at(0);     // Find delta wheels
+    wheels_.phi_r = msg.position.at(1) - old_radian_.position.at(1);
+
+    // sets the new config
+    robot_.forward_kinematic_update(wheels_);
+
+    // Reset old_radian
+    old_radian_.position = {msg.position.at(0), msg.position.at(1)};
+
+    // Publish the odometry message
+    pub_odom();
+
+    // Broadcast the transformation from the odom frame to the robot frame
+    broadcast_map_odom();
   }
 
   void broadcast_map_odom()
@@ -478,8 +464,8 @@ private:
 
     odom_msg_.child_frame_id = body_id_;
 
-    odom_msg_.pose.pose.position.x = robot_.get_robot_config().x;
-    odom_msg_.pose.pose.position.y = robot_.get_robot_config().y;
+    odom_msg_.pose.pose.position.x = robot_.get_robot_config().x + offset_x;
+    odom_msg_.pose.pose.position.y = robot_.get_robot_config().y + offset_y;
 
     quat_.setRPY(0.0, 0.0, robot_.get_robot_config().theta);
 
@@ -583,6 +569,7 @@ private:
   arma::mat covariance, R;
   arma::vec state_estimate, old_state_estimate, delta_state, init_obs;
   turtlelib::Transform2D T_ob, T_mo, T_mb;
+  double offset_x = 0.0, offset_y = 0.0, offset_theta = 0.0;
   
 
 
