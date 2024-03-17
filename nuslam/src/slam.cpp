@@ -272,7 +272,6 @@ private:
     }
     if (obstacle_sensed == true)
     {
-      RCLCPP_INFO(this->get_logger(), "able to detect collisions now ");
       detect_collisions();
     }
 
@@ -286,25 +285,17 @@ private:
     /// \brief Detects collision between the robot and the obstacles
   void detect_collisions()
   {
-      x_detect = state_estimate.at(1);
-      y_detect = state_estimate.at(2);
+      x_detect = state_estimate.at(1) + offset_x;
+      y_detect = state_estimate.at(2) + offset_y;
+      
       theta_detect = state_estimate.at(0);
 
       // check if the robot is colliding with any of the (actual) obstacles
       for (int i = 0; i < n_obstacles; ++i) {
           double distance = measure_distance(x_detect, y_detect, state_estimate.at(3 + 2 * i), state_estimate.at(4 + 2 * i));
 
-          RCLCPP_INFO(this->get_logger(), "BELOW");
-          RCLCPP_INFO(this->get_logger(), "%d", i);
-          log_arma_vector(state_estimate);
-          RCLCPP_INFO(this->get_logger(), "Obstacle %d x: %f", i, state_estimate.at(2 * i + 3));
-          RCLCPP_INFO(this->get_logger(), "Obstacle %d y: %f", i, state_estimate.at(2 * i + 4));
-          
-          RCLCPP_INFO(this->get_logger(), "Distance to obstacle %d: %f", i, distance);
+          // RCLCPP_INFO(this->get_logger(), "Distance to obstacle %d: %f", i, distance);
           if (distance < collision_radius_) {
-
-              // log that a collision was detected
-              RCLCPP_INFO(this->get_logger(), "Collision detected with obstacle %d", i);
 
               // calculate the distance to move
               double move_distance = (collision_radius_ + obstacles_r_) - distance; // equal to the intersection of the circles
@@ -320,9 +311,6 @@ private:
               offset_x += new_pos.x - x_detect;
               offset_y += new_pos.y - y_detect;
               offset_theta = 0.0;
-              // state_estimate.at(1) = new_pos.x;
-              // state_estimate.at(2) = new_pos.y;
-              // state_estimate.at(0) = theta_detect;
           }
       }
   } 
